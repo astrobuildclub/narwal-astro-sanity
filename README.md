@@ -1,10 +1,6 @@
-# Accessible Astro Starter
+# Narwal Creative - Astro + Sanity CMS
 
-![social-preview-image](https://user-images.githubusercontent.com/3909046/219942674-9894853e-def8-4180-84b8-6b577dacfcaa.png)
-
-Accessible Astro Starter is a ready to use, SEO and a11y friendly blogging theme. It contains plenty of accessible components to build several page types, Tailwind CSS to help you build faster and example pages such as a dynamic Blog, 404, Markdown and MDX. This theme is designed to help you build your project faster and provide a solid base for accessibility!
-
-🚀 [Live Preview](https://accessible-astro.netlify.app/)
+Modern website gebouwd met Astro en Sanity CMS, met toegankelijke componenten en een solide basis voor content management.
 
 ## ♿ (Accessibility) Features
 
@@ -35,14 +31,72 @@ Accessible Astro Starter is a ready to use, SEO and a11y friendly blogging theme
 
 ## 🚀 Getting started
 
-Clone this theme locally and run any of the following commands in your terminal:
+### 1. Clone de repository
+
+```bash
+git clone https://github.com/astrobuildclub/narwal-astro-sanity.git
+cd narwal-astro-sanity
+```
+
+### 2. Installeer dependencies
+
+```bash
+npm install
+```
+
+### 3. Sanity CMS Setup
+
+1. **Maak een Sanity project aan** op [sanity.io](https://www.sanity.io)
+2. **Kopieer `.env.example` naar `.env`** en vul de waarden in:
+   ```bash
+   cp .env.example .env
+   ```
+3. **Vul je Sanity credentials in** in `.env`:
+   - `PUBLIC_SANITY_PROJECT_ID`: Je Sanity Project ID (vind je in [Sanity Manage](https://www.sanity.io/manage))
+   - `PUBLIC_SANITY_DATASET`: Meestal `"production"` of `"development"`
+   - `PUBLIC_SANITY_API_VERSION`: API versie (standaard: `"2025-01-28"`)
+   - `SANITY_API_READ_TOKEN`: Alleen nodig voor Visual Editing (optioneel)
+
+4. **Voor Sanity Studio**, kopieer `studio/.env.example` naar `studio/.env.local`:
+   ```bash
+   cp studio/.env.example studio/.env.local
+   ```
+   Vul `SANITY_STUDIO_PROJECT_ID` en `SANITY_STUDIO_DATASET` in (moeten overeenkomen met root `.env`)
+
+### 4. Start de development server
+
+```bash
+npm run dev
+```
+
+De website draait nu op `http://localhost:4321`
+
+### 5. Start Sanity Studio (optioneel)
+
+In een aparte terminal:
+
+```bash
+cd studio
+npm run dev
+```
+
+Sanity Studio draait nu op `http://localhost:3333`
+
+## 📦 Beschikbare commando's
 
 | Command           | Action                                       |
 | :---------------- | :------------------------------------------- |
-| `npm install`     | Installs dependencies                        |
-| `npm run dev`     | Starts local dev server at `localhost:4321`  |
-| `npm run build`   | Build your production site to `./dist/`      |
-| `npm run preview` | Preview your build locally, before deploying |
+| `npm install`     | Installeert dependencies                     |
+| `npm run dev`     | Start lokale dev server op `localhost:4321`  |
+| `npm run build`   | Bouwt productie site naar `./dist/`         |
+| `npm run preview` | Preview je build lokaal, voor deployen      |
+
+## 🔐 Security
+
+**BELANGRIJK**: 
+- Commit **NOOIT** je `.env` bestanden
+- `.env.example` is een template - kopieer en vul in met je eigen credentials
+- Rotate tokens regelmatig, vooral na repository migraties
 
 ## 📦 Other Accessible Astro projects
 
