@@ -84,16 +84,17 @@ Sanity Studio draait nu op `http://localhost:3333`
 
 ## 📦 Beschikbare commando's
 
-| Command           | Action                                       |
-| :---------------- | :------------------------------------------- |
-| `npm install`     | Installeert dependencies                     |
-| `npm run dev`     | Start lokale dev server op `localhost:4321`  |
+| Command           | Action                                      |
+| :---------------- | :------------------------------------------ |
+| `npm install`     | Installeert dependencies                    |
+| `npm run dev`     | Start lokale dev server op `localhost:4321` |
 | `npm run build`   | Bouwt productie site naar `./dist/`         |
 | `npm run preview` | Preview je build lokaal, voor deployen      |
 
 ## 🔐 Security
 
-**BELANGRIJK**: 
+**BELANGRIJK**:
+
 - Commit **NOOIT** je `.env` bestanden
 - `.env.example` is een template - kopieer en vul in met je eigen credentials
 - Rotate tokens regelmatig, vooral na repository migraties
