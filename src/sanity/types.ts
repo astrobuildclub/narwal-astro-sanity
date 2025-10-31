@@ -185,18 +185,35 @@ export interface SanityTestimonialBlock extends SanityBlock {
   role?: string;
 }
 
+export interface SanityTextGridBlock extends SanityBlock {
+  _type: 'textGridBlock';
+  title?: string;
+  items?: Array<{
+    _key?: string;
+    title?: string;
+    text?: string;
+  }>;
+  media?: {
+    image?: SanityImage;
+    imgposition?: string;
+  };
+  columns?: number;
+}
+
 export interface SanityTeamBlock extends SanityBlock {
   _type: 'teamBlock';
   title?: string;
-  team: Array<{
-    _type: 'reference';
-    title: string;
+  members?: Array<{
+    _id?: string;
+    title?: string;
     roles?: Array<{
-      name: string;
+      name?: string;
       description?: string;
     }>;
     featuredImage?: SanityImage;
   }>;
+  layout?: string;
+  columns?: number;
 }
 
 export interface SanityServicesBlock extends SanityBlock {

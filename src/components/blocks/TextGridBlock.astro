@@ -1,21 +1,19 @@
 ---
 // Import Components & Scripts
 import { Image } from 'astro:assets';
+import { urlForImage } from '../../sanity/lib/image';
+import type { SanityImage } from '../../sanity/types';
 
 // Define Types
 interface textItem {
+  _key?: string;
   title?: string;
   text?: string;
 }
-interface imageItem {
-  id?: string;
-  altText?: string;
-  sourceUrl?: string;
-}
 interface Props{
   title?: string;
-   media?: { 
-    image?: imageItem[]; 
+  media?: { 
+    image?: SanityImage; 
     imgposition?: string; 
   };
   items?: textItem[];
@@ -23,11 +21,31 @@ interface Props{
 
 // Define vars
 const {title, media, items} = Astro.props;
-const imgObject = media?.image ? Object.values(media.image) as imageItem[] : [];
 
-const imageUrl = imgObject.length > 0 ? imgObject[0]?.sourceUrl : "";
-const imageAlt = imgObject.length > 0 ? imgObject[0]?.altText : "";
-const imagePosition = media?.imgposition;
+// Generate image URL - Sanity data only
+let finalSourceUrl = '';
+let finalAltText = '';
+let imagePosition = media?.imgposition;
+
+if (media?.image?.asset) {
+  try {
+    finalSourceUrl = urlForImage(media.image)?.url() || '';
+    finalAltText = media.image.alt || '';
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('Failed to generate image URL in TextGridBlock:', error);
+    }
+  }
+}
+
+if (import.meta.env.DEV) {
+  console.log('📋 TextGridBlock received:', {
+    title,
+    hasImage: !!media?.image,
+    imageUrl: finalSourceUrl,
+    itemsCount: items?.length || 0
+  });
+}
 ---
 
 <!--TextGridBlock-->
@@ -35,31 +53,31 @@ const imagePosition = media?.imgposition;
   <h2 class="textgridblock-title">{title}</h2>
   
   <!-- Outer grid: 2 kolommen als er een afbeelding is, anders 1 kolom -->
-  <div class={`grid textgridblock-content ${imageUrl ? 'lg:grid-cols-2' : ''}`}>
+  <div class={`grid textgridblock-content ${finalSourceUrl ? 'lg:grid-cols-2' : ''}`}>
 
-    {imageUrl && (
+    {finalSourceUrl && (
       <Image 
-        src={imageUrl}
+        src={finalSourceUrl}
         inferSize
         widths={[540, 960, 1440, 1920]}
         sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
         format="avif"
-        alt={imageAlt || ''} 
-        title={imageAlt || ''}
+        alt={finalAltText || ''} 
+        title={finalAltText || ''}
         class={`content-image image-wrap img-align-${imagePosition}`}
       />
     )}
 
     <!-- Inner grid: als er geen afbeelding is, dan 3 kolommen op desktop, 2 op tablet, 1 op mobiel -->
     <div class={`grid gap-8 items 
-      ${imageUrl 
+      ${finalSourceUrl 
         ? '' 
         : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} 
     `}>
-      {items && items.map((item: any) => (
+      {items && items.map((item: textItem) => (
         <div class="flex flex-col gap-2 content-item md:gap-2">
-          <h3 class="content-item-title" set:html={item.text.title} />
-          <div class="content-item-desc" set:html={item.text.text} />
+          {item.title && <h3 class="content-item-title" set:html={item.title} />}
+          {item.text && <div class="content-item-desc" set:html={item.text} />}
         </div>
       ))}
     </div>

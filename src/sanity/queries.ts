@@ -215,6 +215,30 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
       ...,
       asset->
     },
+    items[] {
+      _key,
+      title,
+      text
+    },
+    media {
+      image {
+        ...,
+        asset->
+      },
+      imgposition
+    },
+    "members": members[]-> {
+      _id,
+      title,
+      featuredImage {
+        ...,
+        asset->
+      },
+      roles[] {
+        name,
+        description
+      }
+    },
     "team": team[]-> {
       _id,
       title,
@@ -276,6 +300,30 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
     images[] {
       ...,
       asset->
+    },
+    items[] {
+      _key,
+      title,
+      text
+    },
+    media {
+      image {
+        ...,
+        asset->
+      },
+      imgposition
+    },
+    "members": members[]-> {
+      _id,
+      title,
+      featuredImage {
+        ...,
+        asset->
+      },
+      roles[] {
+        name,
+        description
+      }
     },
     "team": team[]-> {
       _id,

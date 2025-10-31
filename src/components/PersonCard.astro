@@ -1,45 +1,76 @@
 ---
 // Import Components & Scripts
 import { Image } from 'astro:assets';
+import { urlForImage } from '../sanity/lib/image';
+import type { SanityImage } from '../sanity/types';
 
 // Define Types
+interface role {
+  name?: string;
+  description?: string;
+}
 interface Props{
   name?: string;
-  roles?: string[];
-  photoSourceUrl?: string;
-  photoAltText?: string;
-  photoTitleText?: string;
+  roles?: role[];
+  photo?: SanityImage;
 }
 
 // Define Vars
-const {name, roles, photoSourceUrl, photoAltText, photoTitleText} = Astro.props;
+const {name, roles, photo} = Astro.props;
+
+// Generate image URL - Sanity data only
+let finalPhotoUrl = '';
+let finalAltText = '';
+let finalTitleText = '';
+
+if (photo?.asset) {
+  try {
+    finalPhotoUrl = urlForImage(photo)?.width(400).height(400).url() || '';
+    finalAltText = photo.alt || '';
+    finalTitleText = photo.caption || '';
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('Failed to generate photo URL in PersonCard:', error);
+    }
+  }
+}
+
+if (import.meta.env.DEV) {
+  console.log('👤 PersonCard received:', {
+    name,
+    hasPhoto: !!photo,
+    photoUrl: finalPhotoUrl,
+    rolesCount: roles?.length || 0
+  });
+}
 ---
 
 <!-- Person -->
 <div class="person">
-  {photoSourceUrl &&
-    <div class="person-photo"></div>
-    <Image 
-        src={photoSourceUrl}
-        width="10";
-        height="10";
-        widths={[540, 960, 1440, 1920]}
-        sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
-        format='avif'
-        alt={photoAltText || photoTitleText || ""} 
-        title={photoTitleText || ""}
+  {finalPhotoUrl && (
+    <div class="person-photo">
+      <Image 
+        src={finalPhotoUrl}
+        inferSize
+        widths={[200, 400, 800, 1200]}
+        sizes="(max-width: 400px) 200px, (max-width: 800px) 400px, 800px"
+        format="avif"
+        alt={finalAltText || ""} 
+        title={finalTitleText || ""}
         class="person-photo-img"
-    />
-    }
-     <div class="person-details">
-        <h3 class="person-name">{name}</h3>
-        <div class="roles">
-          {roles && roles.length > 0 && (
-            <h4 class="person-roles">
-              {roles.map((role: any) => role.name).join(', ')}
-            </h4>
-          )}
-        </div>
+      />
+    </div>
+  )}
+  <div class="person-details">
+    <h3 class="person-name">{name}</h3>
+    {roles && roles.length > 0 && (
+      <div class="roles">
+        <h4 class="person-roles">
+          {roles.map((role: role) => role.name).filter(Boolean).join(', ')}
+        </h4>
+      </div>
+    )}
+  </div>
 </div>
 
 
