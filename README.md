@@ -1,6 +1,38 @@
 # Narwal Creative - Astro + Sanity CMS
 
-Modern website gebouwd met Astro en Sanity CMS, met toegankelijke componenten en een solide basis voor content management.
+Modern, toegankelijke website gebouwd met [Astro](https://astro.build) en [Sanity CMS](https://www.sanity.io). Dit project combineert de kracht van static site generation met een flexibel headless CMS voor optimale performance en content management.
+
+## ✨ Features
+
+### 🎨 Content Management
+
+- **Sanity CMS** integratie voor headless content management
+- **11 verschillende content blocks**: Text, Image, Video, Columns, Services, Team, Testimonials, Clients, Color blocks, Embed en Text Grid
+- **Dynamische pagina types**: Homepage, Work Overview, Project Detail, en reguliere pagina's
+- **Portable Text** rendering voor rijke content formatting
+- **Sanity Studio** voor content editors
+
+### 🎬 Media & Embedding
+
+- **GDPR-compliant video embeds** (YouTube/Vimeo) met cookie consent
+- **MP4 upload** ondersteuning voor directe video hosting
+- **Custom poster images** voor alle video types
+- **Responsive image handling** met Sanity CDN optimalisatie
+
+### 🎯 Design & Layout
+
+- **Breakout Grid System** met 5 niveau's (full, page, feature, popout, content)
+- **Dark Mode** met localStorage persistentie
+- **View Transitions** voor smooth page navigatie
+- **Responsive typography** met Utopia type scale
+- **SCSS modules** voor gestructureerde styling
+
+### 🚀 Performance
+
+- Static site generation met Astro
+- Optimized image delivery via Sanity CDN
+- Code splitting en lazy loading
+- Netlify deployment ready
 
 ## ♿ (Accessibility) Features
 
@@ -90,31 +122,99 @@ Sanity Studio draait nu op `http://localhost:3333`
 | `npm run dev`     | Start lokale dev server op `localhost:4321` |
 | `npm run build`   | Bouwt productie site naar `./dist/`         |
 | `npm run preview` | Preview je build lokaal, voor deployen      |
+| `npm run format`  | Format alle bestanden met Prettier          |
+
+## 📐 Content Blocks
+
+Het project bevat 11 verschillende content blocks die je in Sanity Studio kunt gebruiken:
+
+| Block                | Beschrijving                                         |
+| -------------------- | ---------------------------------------------------- |
+| **TextBlock**        | Rijke tekst content met Portable Text                |
+| **ImageBlock**       | Afbeeldingen met optionele captions en sizing        |
+| **VideoBlock**       | YouTube/Vimeo embeds (GDPR-compliant) of MP4 uploads |
+| **ColumnsBlock**     | 2-4 kolommen met geneste content blocks              |
+| **ServicesBlock**    | Service overzicht met optionele beschrijvingen       |
+| **TeamBlock**        | Team member presentatie                              |
+| **TestimonialBlock** | Klant testimonials met foto's                        |
+| **ClientsBlock**     | Client logos overzicht                               |
+| **ColorBlock**       | Volledige breedte kleur blokken                      |
+| **EmbedBlock**       | Custom embed code                                    |
+| **TextGridBlock**    | Grid layout voor tekst content                       |
+
+Alle blocks ondersteunen verschillende size opties (content, popout, feature, page, full) voor flexibele layout controle.
+
+## 🎨 Layout System
+
+Het project gebruikt een **Breakout Grid System** met 5 niveau's:
+
+- **full**: Volledige viewport breedte
+- **page**: Max breedte met consistente padding
+- **feature**: Breed content gebied
+- **popout**: Medium content gebied
+- **content**: Standaard leesbare breedte
+
+Blocks kunnen deze sizes gebruiken voor responsieve, flexibele layouts.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Astro](https://astro.build) 5.15.1
+- **CMS**: [Sanity](https://www.sanity.io) 4.11.0
+- **Styling**: SCSS + Tailwind CSS
+- **Type Safety**: TypeScript
+- **Image Optimization**: @sanity/image-url
+- **Video Embeds**: @orestbida/iframemanager + vanilla-cookieconsent
+- **Deployment**: Netlify
 
 ## 🔐 Security
 
 **BELANGRIJK**:
 
-- Commit **NOOIT** je `.env` bestanden
-- `.env.example` is een template - kopieer en vul in met je eigen credentials
-- Rotate tokens regelmatig, vooral na repository migraties
+- ⚠️ Commit **NOOIT** je `.env` bestanden
+- 📝 `.env.example` is een template - kopieer en vul in met je eigen credentials
+- 🔄 Rotate tokens regelmatig, vooral na repository migraties
+- 🔒 Alle gevoelige data is uit git history verwijderd
 
-## 📦 Other Accessible Astro projects
+## 📁 Project Structuur
 
-- [Accessible Astro Dashboard](https://github.com/markteekman/accessible-astro-dashboard/)
-- [Accessible Astro Components](https://github.com/markteekman/accessible-astro-components/)
+```
+narwal-astro-sanity/
+├── src/
+│   ├── components/
+│   │   ├── blocks/          # Content block components
+│   │   ├── templates/        # Page templates
+│   │   └── ...               # Overige components
+│   ├── layouts/              # Astro layouts
+│   ├── pages/                # Route pages
+│   ├── sanity/               # Sanity configuratie
+│   └── assets/               # Styles en assets
+├── studio/                   # Sanity Studio
+│   ├── schemas/              # Sanity schemas
+│   └── sanity.config.ts
+└── public/                   # Static assets
+```
 
-## ❤️ Helping out
+## 🚢 Deployment
 
-If you find that something isn't working right then I'm always happy to hear it to improve this starter! You can contribute in many ways and forms. Let me know by either:
+### Netlify
 
-1. [Filing an issue](https://github.com/markteekman/accessible-astro-starter/issues)
-2. [Submitting a pull request](https://github.com/markteekman/accessible-astro-starter/pulls)
-3. [Starting a discussion](https://github.com/markteekman/accessible-astro-starter/discussions)
-4. [Buying me a coffee!](https://www.buymeacoffee.com/markteekman)
+Het project is geconfigureerd voor Netlify deployment:
 
-## ☕ Thank you!
+1. **Environment Variables** instellen in Netlify dashboard:
+   - `PUBLIC_SANITY_PROJECT_ID`
+   - `PUBLIC_SANITY_DATASET`
+   - `PUBLIC_SANITY_API_VERSION`
 
-A big thank you to the creators of the awesome Astro static site generator and to all using this starter to make the web a bit more accessible for all people around the world :)
+2. **Build settings**:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
 
-[![buymeacoffee-button](https://user-images.githubusercontent.com/3909046/150683481-be070424-7bb0-4dd7-a3cb-43b5605163f5.png)](https://www.buymeacoffee.com/markteekman)
+### Andere platforms
+
+Het project kan ook gedeployed worden naar andere static hosting providers zoals Vercel, Cloudflare Pages, of GitHub Pages.
+
+## 📚 Resources
+
+- [Astro Documentation](https://docs.astro.build)
+- [Sanity Documentation](https://www.sanity.io/docs)
+- [Sanity Studio Guide](https://www.sanity.io/docs/structure-builder-introduction)
