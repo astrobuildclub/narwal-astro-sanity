@@ -194,6 +194,7 @@ export default defineType({
         { type: 'columnsBlock' },
         { type: 'colorBlock' },
         { type: 'galleryBlock' },
+        { type: 'carouselBlock' },
         { type: 'textGridBlock' },
         { type: 'teamBlock' },
         { type: 'servicesBlock' },

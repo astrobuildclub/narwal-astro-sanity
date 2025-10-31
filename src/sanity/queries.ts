@@ -249,6 +249,25 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
       },
       imgposition
     },
+    gallery[] {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    quote,
+    name,
+    role,
+    photo {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    layout,
+    columns,
+    showCaptions,
+    size,
     "members": members[]-> {
       _id,
       title,
@@ -345,6 +364,25 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
       },
       imgposition
     },
+    gallery[] {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    quote,
+    name,
+    role,
+    photo {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    layout,
+    columns,
+    showCaptions,
+    size,
     "members": members[]-> {
       _id,
       title,

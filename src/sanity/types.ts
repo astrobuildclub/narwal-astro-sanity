@@ -181,7 +181,19 @@ export interface SanityVideoBlock extends SanityBlock {
 
 export interface SanityGalleryBlock extends SanityBlock {
   _type: 'galleryBlock';
-  images: SanityImage[];
+  title?: string;
+  gallery?: SanityImage[];
+  layout?: 'grid' | 'masonry';
+  columns?: number;
+  showCaptions?: boolean;
+}
+
+export interface SanityCarouselBlock extends SanityBlock {
+  _type: 'carouselBlock';
+  title?: string;
+  gallery?: SanityImage[];
+  size?: 'feature' | 'full';
+  showCaptions?: boolean;
 }
 
 export interface SanityTestimonialBlock extends SanityBlock {
@@ -189,6 +201,8 @@ export interface SanityTestimonialBlock extends SanityBlock {
   quote: string;
   author?: string;
   role?: string;
+  photo?: SanityImage;
+  size?: 'content' | 'popout' | 'feature' | 'page';
 }
 
 export interface SanityTextGridBlock extends SanityBlock {

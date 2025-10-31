@@ -1,21 +1,21 @@
 import { defineType, defineField } from 'sanity';
-import { ImagesIcon } from '@sanity/icons';
+import { PresentationIcon } from '@sanity/icons';
 
 export default defineType({
-  name: 'galleryBlock',
-  title: 'Gallery Block',
+  name: 'carouselBlock',
+  title: 'Carousel Block',
   type: 'object',
-  icon: ImagesIcon,
+  icon: PresentationIcon,
   fields: [
     defineField({
       name: 'title',
       type: 'string',
-      title: 'Gallery Title',
+      title: 'Carousel Title',
     }),
     defineField({
       name: 'gallery',
       type: 'array',
-      title: 'Gallery Images',
+      title: 'Carousel Images',
       of: [
         {
           type: 'image',
@@ -38,23 +38,16 @@ export default defineType({
       validation: (Rule) => Rule.min(1),
     }),
     defineField({
-      name: 'layout',
+      name: 'size',
       type: 'string',
-      title: 'Gallery Layout',
+      title: 'Size',
       options: {
         list: [
-          { title: 'Grid', value: 'grid' },
-          { title: 'Masonry', value: 'masonry' },
+          { title: 'Feature', value: 'feature' },
+          { title: 'Full Width', value: 'full' },
         ],
       },
-      initialValue: 'grid',
-    }),
-    defineField({
-      name: 'columns',
-      type: 'number',
-      title: 'Columns (Grid Layout)',
-      initialValue: 3,
-      validation: (Rule) => Rule.min(1).max(6),
+      initialValue: 'feature',
     }),
     defineField({
       name: 'showCaptions',
@@ -67,14 +60,15 @@ export default defineType({
     select: {
       title: 'title',
       gallery: 'gallery',
-      layout: 'layout',
+      size: 'size',
     },
-    prepare({ title, gallery, layout }) {
+    prepare({ title, gallery, size }) {
       return {
-        title: title || 'Gallery Block',
-        subtitle: `${gallery?.length || 0} images - ${layout} layout`,
-        media: 'Gallery',
+        title: title || 'Carousel Block',
+        subtitle: `${gallery?.length || 0} images - ${size || 'feature'} size`,
+        media: PresentationIcon,
       };
     },
   },
 });
+

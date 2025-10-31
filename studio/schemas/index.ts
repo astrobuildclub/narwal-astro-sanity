@@ -10,6 +10,7 @@ import testimonialBlock from './blocks/testimonialBlock';
 import columnsBlock from './blocks/columnsBlock';
 import colorBlock from './blocks/colorBlock';
 import galleryBlock from './blocks/galleryBlock';
+import carouselBlock from './blocks/carouselBlock';
 import textGridBlock from './blocks/textGridBlock';
 import teamBlock from './blocks/teamBlock';
 import servicesBlock from './blocks/servicesBlock';
@@ -37,6 +38,7 @@ export const schemaTypes = [
   columnsBlock,
   colorBlock,
   galleryBlock,
+  carouselBlock,
   textGridBlock,
   teamBlock,
   servicesBlock,
