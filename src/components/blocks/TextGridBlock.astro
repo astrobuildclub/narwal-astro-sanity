@@ -57,7 +57,7 @@ if (import.meta.env.DEV) {
   <h2 class="textgridblock-title">{title}</h2>
   
   <!-- Outer grid: 2 kolommen als er een afbeelding is, anders 1 kolom -->
-  <div class={`grid textgridblock-content gap-8 ${finalSourceUrl ? 'lg:grid-cols-2 ' : ''}`}>
+  <div class={`grid textgridblock-content items-start gap-8 ${finalSourceUrl ? 'lg:grid-cols-2 ' : ''}`}>
 
     {finalSourceUrl && (
       <Image 
@@ -73,7 +73,7 @@ if (import.meta.env.DEV) {
     )}
 
     <!-- Inner grid: als er geen afbeelding is, dan 3 kolommen op desktop, 2 op tablet, 1 op mobiel -->
-    <div class={`grid gap-8 items 
+    <div class={`grid gap-12 items 
       ${finalSourceUrl 
         ? '' 
         : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} 
