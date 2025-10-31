@@ -49,11 +49,11 @@ if (import.meta.env.DEV) {
 ---
 
 <!--TextGridBlock-->
-<div class="grid grid-cols-1 textgridblock full">
+<div class="grid grid-cols-1 textgridblock page">
   <h2 class="textgridblock-title">{title}</h2>
   
   <!-- Outer grid: 2 kolommen als er een afbeelding is, anders 1 kolom -->
-  <div class={`grid textgridblock-content ${finalSourceUrl ? 'lg:grid-cols-2' : ''}`}>
+  <div class={`grid textgridblock-content gap-8 ${finalSourceUrl ? 'lg:grid-cols-2 ' : ''}`}>
 
     {finalSourceUrl && (
       <Image 
@@ -93,7 +93,7 @@ if (import.meta.env.DEV) {
   }
 
   .textgridblock-content {
-    gap: var(--gap);
+    /* gap: var(--gap-default); */
   }
 
   .content-item-title,
@@ -107,7 +107,9 @@ if (import.meta.env.DEV) {
     font-size: var(--fs--1);
     opacity: 0.7;
     font-weight: 400;
-    line-height: 112.5%;
+    line-height: 133%;
+    text-wrap: pretty;
+    max-width: 45ch;
   }
 
   .img-align-right {

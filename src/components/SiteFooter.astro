@@ -6,7 +6,7 @@ import Newsletter from '../components/Newsletter.astro'
 const currentYear = new Date().getFullYear()
 ---
 
-<footer class="relative content-around h-screen md:bottom-0 page-layout md:fixed -z-10">
+<footer class="relative md:min-h-screen md:grid md:content-between md:bottom-0 md:py-[var(--space-l)] page-layout md:fixed -z-10">
   
   
     <div class="flex flex-col flex-grow justify-between page">
@@ -32,7 +32,8 @@ const currentYear = new Date().getFullYear()
       
       
     </div>
-    <di class="page"><div class="grid grid-cols-1 gap-12 lg:gap-24 md:grid-cols-4">
+    <div class="page footer__widgets flex flex-col gap-[var(--space-l)]">
+      <div class="grid grid-cols-1 gap-12 lg:gap-24 md:grid-cols-4">
         <Widget title="Join our Newsletter">
           <Newsletter />
         </Widget>
@@ -54,16 +55,14 @@ const currentYear = new Date().getFullYear()
           </ul>
         </Widget>
         <Widget title="Get in touch">
-          <ul role="list">
+          <ul role="list" class="list-none">
             <li><a href="tel:+31302270459" aria-label="Call us" >+31 (0)30 227 04 59</a></li>
             <li><a href="mailto:info@narwalcreative.com?subject=Hello!"  aria-label="E-mail us" >info@narwalcreative.com</a></li>
           </ul>
         </Widget>
       </div>
   <div class="flex justify-between items-end text-xs text-2xs legal page">
-     <button data-cc="show-preferencesModal" type="button" class="">
-            Cookie voorkeuren
-          </button>
+     <button data-cc="show-preferencesModal" type="button" class="button-cookieconsent">Cookie voorkeuren</button>
         <p>
           &copy; {currentYear} - Narwal Creative 
         </p>
@@ -97,6 +96,10 @@ const currentYear = new Date().getFullYear()
     min-height: 100vh;
   }
 
+  .footer__widgets {  
+    margin-block: 0;
+  }
+
 
   ul li {
     margin-block: 0.0125em;
@@ -113,6 +116,10 @@ const currentYear = new Date().getFullYear()
   footer .legal {
     
     font-size: var(--fs--3);
+  }
+
+  .button-cookieconsent {
+    border:none;
   }
 
 
