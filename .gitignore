@@ -12,6 +12,10 @@ yarn-error.log*
 
 # environment variables
 .env
+.env.*
+!.env.example
+.env.backup
+.env.local
 .env.production
 
 # macOS-specific files
