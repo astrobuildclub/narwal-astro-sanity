@@ -7,6 +7,12 @@ export interface SanityImage {
   };
   alt?: string;
   caption?: string;
+  crop?: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
   hotspot?: {
     x: number;
     y: number;

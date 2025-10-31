@@ -25,7 +25,9 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
     subtitle,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     videoUrl,
     link {
@@ -54,7 +56,9 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
     thumbnail {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       size,
       alt,
@@ -85,7 +89,9 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
     subtitle,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     videoUrl,
     link {
@@ -114,7 +120,9 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
     thumbnail {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       size,
       alt,
@@ -135,7 +143,9 @@ export const ALL_PROJECTS_QUERY = `*[_type == "work"] | order(_createdAt desc) {
   thumbnail {
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     size,
     aspectRatio
@@ -164,14 +174,18 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     intro,
     coverMedia {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     color
   },
   thumbnail {
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     size,
     aspectRatio
@@ -194,7 +208,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     thumbnail {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       size
     },
@@ -209,11 +225,15 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     ...,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     images[] {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     items[] {
       _key,
@@ -223,7 +243,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     media {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       imgposition
     },
@@ -232,7 +254,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
       title,
       featuredImage {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       roles[] {
         name,
@@ -258,7 +282,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
       title,
       logo {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       }
     }
   },
@@ -295,11 +321,15 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
     ...,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     images[] {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     items[] {
       _key,
@@ -309,7 +339,9 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
     media {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       imgposition
     },
@@ -318,7 +350,9 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
       title,
       featuredImage {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       roles[] {
         name,
@@ -344,7 +378,9 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
       title,
       logo {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       }
     }
   },

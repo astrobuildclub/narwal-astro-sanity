@@ -29,7 +29,11 @@ let imagePosition = media?.imgposition;
 
 if (media?.image?.asset) {
   try {
-    finalSourceUrl = urlForImage(media.image)?.url() || '';
+    // Optimaliseer afbeelding voor grid layout (max 960px breed op desktop, want 2 kolommen)
+    // De .auto('format') en .fit('max') worden al toegepast door urlForImage
+    finalSourceUrl = urlForImage(media.image)
+      ?.width(960)  // Max width voor grid afbeelding
+      .url() || '';
     finalAltText = media.image.alt || '';
   } catch (error) {
     if (import.meta.env.DEV) {
