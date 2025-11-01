@@ -22,13 +22,11 @@ type ProjectProps = {
   fitCards?: boolean
   aspectRatio?: string
   // Sanity specific props
-  _type?: string
-  _key?: string
   thumbnail?: any
   client?: any
 }
 
-// Defaults
+// Extract and normalize props (Sanity takes precedence over direct props)
 const { 
   clientname, 
   title, 
@@ -40,172 +38,193 @@ const {
   services, 
   fitCards,
   aspectRatio = '16:9',
-  // Sanity props
-  _type,
-  _key,
   thumbnail,
   client
 } = Astro.props as ProjectProps
 
-// DEBUG: Log project card data
-if (import.meta.env.DEV) {
-  console.log('🎨 ProjectCard received:', {
-    title,
-    clientname,
-    size,
-    imgsrc,
-    imgalt,
-    vidsrc,
-    servicesCount: services?.length || 0,
-    link,
-    hasThumbnail: !!thumbnail
-  });
-}
+// Normalize values - Sanity data overrides direct props
+const clientName = client?.title || clientname;
+const projectTitle = title || '';
+const projectLink = link || '#';
+const projectServices = services || [];
+const projectSize = thumbnail?.size || size;
+const projectFitCards = fitCards || false;
+const projectAspectRatio = thumbnail?.aspectRatio || aspectRatio;
 
-// Process Sanity data
-const processedProps = {
-  clientname: client?.title || clientname,
-  title: title,
-  imgsrc: thumbnail?.image?.asset?.url || imgsrc,
-  imgalt: thumbnail?.alt || imgalt,
-  vidsrc: thumbnail?.video || vidsrc,
-  link: link,
-  size: thumbnail?.size || size,
-  services: services || [],
-  fitCards: fitCards,
-  aspectRatio: thumbnail?.aspectRatio || aspectRatio
-};
+// Generate image URL for Sanity or use direct URL
+let imageSrc = imgsrc || '';
+let imageAlt = imgalt;
 
-if (import.meta.env.DEV) {
-  console.log('🎨 Processed Sanity props:', processedProps);
-}
-
-// Use processed props
-const { 
-  clientname: finalClientname, 
-  title: finalTitle, 
-  imgsrc: finalImgsrc, 
-  imgalt: finalImgalt, 
-  vidsrc: finalVidsrc, 
-  link: finalLink, 
-  size: finalSize, 
-  services: finalServices, 
-  fitCards: finalFitCards 
-} = processedProps;
-
-// Get final aspect ratio
-const finalAspectRatio = processedProps.aspectRatio || aspectRatio;
-let cardclasses = ''
-
-if (finalFitCards !== true) {
-  if (finalSize) {
-    switch (finalSize) {
-      case 'small':
-        cardclasses = 'lg:col-span-4'
-        break
-      case 'large':
-        cardclasses = 'lg:col-span-8'
-        break
-      case 'full':
-        cardclasses = 'lg:col-span-12'
-        break
-      default:
-        cardclasses = 'lg:col-span-6'
-    }
-  }
-} else {
-  cardclasses = 'lg:col-span-2'
-}
-
-const serviceTitles = finalServices?.map(service => slugify(service.title)).join(' ') || '';
-
-// Generate image URL for Sanity
-let imageSrc = finalImgsrc;
 if (thumbnail?.image?.asset) {
   try {
-    imageSrc = urlForImage(thumbnail.image)?.width(800).height(600).url() || '';
+    imageSrc = urlForImage(thumbnail.image)?.width(800).height(600).url() || imageSrc;
+    imageAlt = thumbnail?.alt || imageAlt;
   } catch (error) {
     if (import.meta.env.DEV) {
       console.warn('⚠️ Failed to generate Sanity image URL:', error);
     }
-    imageSrc = finalImgsrc; // Fallback to direct URL
   }
 }
 
-// Aspect ratio CSS class
-const aspectRatioClass = `aspect-${finalAspectRatio.replace(':', '-')}`;
+// Video source (Sanity takes precedence)
+const videoSrc = thumbnail?.video || vidsrc;
 
-const theImage:any = imageSrc? await getImage({
-    src: imageSrc, 
-    inferSize: true, 
-    widths: [540, 960, 1440, 1920],
-    sizes: "(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px",
-    alt: finalImgalt || "",
-    title: finalTitle || "",
-    format: 'webp'
-  }) : "";
+// Generate poster image for video if needed
+const posterImage = videoSrc && imageSrc 
+  ? await getImage({
+      src: imageSrc, 
+      inferSize: true, 
+      widths: [540, 960, 1440, 1920],
+      sizes: "(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px",
+      alt: imageAlt,
+      title: projectTitle,
+      format: 'webp'
+    }) 
+  : null;
+
+// Calculate card classes based on size
+let cardClasses = '';
+if (!projectFitCards) {
+  switch (projectSize) {
+    case 'small':
+      cardClasses = 'lg:col-span-4';
+      break;
+    case 'large':
+      cardClasses = 'lg:col-span-8';
+      break;
+    case 'full':
+      cardClasses = 'lg:col-span-12';
+      break;
+    default:
+      cardClasses = 'lg:col-span-6';
+  }
+} else {
+  cardClasses = 'lg:col-span-2';
+}
+
+// Service titles for filtering
+const serviceTitles = projectServices.map(service => slugify(service.title)).join(' ') || '';
+
+// Aspect ratio CSS class
+const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
+
+// DEBUG: Log in development
+if (import.meta.env.DEV) {
+  console.log('🎨 ProjectCard:', {
+    title: projectTitle,
+    clientname: clientName,
+    size: projectSize,
+    link: projectLink,
+    servicesCount: projectServices.length,
+    hasVideo: !!videoSrc,
+    hasImage: !!imageSrc
+  });
+}
 ---
 
-<div class={`project-card ${cardclasses}`} data-services={serviceTitles}>
+<div 
+  class={`project-card ${cardClasses}`}
+  data-services={serviceTitles}
+>
   <div class={`overflow-hidden project-media ${aspectRatioClass}`}>
-    {
-      finalVidsrc ? ( // if vidsrc is set, show video with poster image
-        <div class="project-video">
-          <video
-            preload="metadata"
-            tabindex="-1"
-            disablepictureinpicture
-            playsinline
-            loop
-            title={finalTitle}
-            src={finalVidsrc}
-            poster={theImage?.src || imageSrc}
-            autoplay={true}
-            muted
+    {videoSrc ? (
+      <div class="project-video">
+        <video
+          preload="metadata"
+          tabindex="-1"
+          disablepictureinpicture
+          playsinline
+          loop
+          title={projectTitle}
+          src={videoSrc}
+          poster={posterImage?.src || imageSrc || undefined}
+          autoplay={true}
+          muted
+        />
+      </div>
+    ) : (
+      imageSrc && (
+        <div class="project-image">
+          <Image 
+            src={imageSrc}
+            inferSize
+            widths={[540, 960, 1440, 1920]}
+            sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
+            format="avif"
+            alt={imageAlt}
+            title={projectTitle}
           />
         </div>
-      ) : (
-        imageSrc && ( // if no video, show image
-          <div class="project-image">
-            <Image 
-              src={imageSrc}
-              inferSize
-              widths={[540, 960, 1440, 1920]}
-              sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
-              format='avif'
-              alt={finalImgalt || ""}
-              title={finalTitle || ""}
-            />
-          </div>
-        )
       )
-    }
+    )}
   </div>
 
   <div class="project-content">
     <div class="flex justify-between pt-6 mb-0 align-middle project-meta">
-      {finalClientname && <h3 class="font-medium opacity-80 project-client self-baseline">{finalClientname}</h3>}
-      {finalServices && <TagGroup tags={finalServices} />}
+      {clientName && (
+        <h3 class="font-medium opacity-80 project-client self-baseline">
+          {clientName}
+        </h3>
+      )}
+      {projectServices.length > 0 && <TagGroup tags={projectServices} />}
     </div>
 
-    {
-      finalTitle && (
-        <h2 class="leading-4 project-title">
-          <a href={finalLink} class="project-link" data-astro-reload>
-            {finalTitle}
-          </a>
-        </h2>
-      )
-    }
+    {projectTitle && (
+      <h2 class="leading-4 project-title">
+        <a 
+          href={projectLink} 
+          class="project-card-link"
+          data-astro-reload
+        >
+          {projectTitle}
+        </a>
+      </h2>
+    )}
   </div>
+</div>
 
   <style is:global>
-
+    /* Position context for the link's pseudo-element */
     .project-card {    
       position: relative;
-      
       color: var(--font-color);
       transition: transform 0.4s var(--easing-easeOutExpo);
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+    }
+
+    /* Link styling */
+    .project-card-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Expand hitbox of link over whole card using pseudo-element */
+    /* Positioned relative to .project-card (nearest positioned ancestor) */
+    .project-card-link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    /* Focus styles for accessibility */
+    .project-card-link:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+
+    /* Ensure nested interactive elements (like buttons) stay above the pseudo-element */
+    .project-card button,
+    .project-card a:not(.project-card-link) {
+      position: relative;
+      z-index: 20;
     }
 
     .project-client {
@@ -218,15 +237,9 @@ const theImage:any = imageSrc? await getImage({
       font-size: var(--fs-2);
       letter-spacing: -0.0125em;
       line-height: 100%;
-      font-weight:300;
-      margin:0;
-      padding:0;
-    }
-
-    /* Remove duplicate width rule - now handled by aspect ratio CSS */
-
-    .project-title {
-      /* text-edge: cap alphabetic; */
+      font-weight: 300;
+      margin: 0;
+      padding: 0;
     }
 
     /* Aspect ratio classes */
