@@ -16,9 +16,10 @@ export function getCount(parent, getChildrensChildren){
   return relevantChildren;
 }
 
-export function replaceUrls(content, replacementUrl){
-  return content.replaceAll(`${import.meta.env.PUBLIC_WP_URL}`, replacementUrl);
-};
+// DEPRECATED: WordPress URL replacement - niet meer nodig na migratie naar Sanity
+// export function replaceUrls(content, replacementUrl){
+//   return content.replaceAll(`${import.meta.env.PUBLIC_WP_URL}`, replacementUrl);
+// };
 
 export function slugify(input) {
   if (!input)
