@@ -9,7 +9,13 @@ export default defineConfig({
   title: 'Narwal Creative',
   projectId: 'q178y836',
   dataset: 'production',
-  plugins: [structureTool(), visionTool(), linkField()],
+  plugins: [
+    structureTool(),
+    visionTool(),
+    linkField({
+      linkableSchemaTypes: ['page', 'work'],
+    }),
+  ],
   schema: {
     types: schemaTypes,
   },

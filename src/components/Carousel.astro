@@ -31,23 +31,60 @@ const processedSlides = slides.map((slide: any) => {
       hasImage: !!slide.image,
       hasAsset: !!slide.image?.asset,
       imageRef: slide.image?.asset?._ref,
-      hasKey: !!slide._key
+      hasKey: !!slide._key,
+      link: slide.link
     });
   }
 
-  // Sanity data structure
+  // Sanity data structure - build URL based on link type
   const linkObj = slide.link;
-  const updatedTitle = linkObj?.title || "";
-  const updatedUrl = linkObj?.url || "";
-  const updatedTarget = linkObj?.target || "_top";
+  let updatedUrl = "";
+  let updatedTitle = slide.title || "";
+  const updatedTarget = "_self"; // Default to same tab
+
+  if (linkObj) {
+    if (linkObj.linkType === 'external' && linkObj.url) {
+      // External link
+      updatedUrl = linkObj.url;
+    } else if (linkObj.linkType === 'internal' && linkObj.internalLink) {
+      // Internal link - check if it's a project (work) or page
+      const internalLink = linkObj.internalLink;
+      const slug = internalLink.slug?.current || internalLink.slug;
+      
+      if (slug) {
+        if (internalLink._type === 'work') {
+          // Project link - use /project/ prefix
+          updatedUrl = `/project/${slug}`;
+        } else if (internalLink._type === 'page') {
+          // Page link - use direct slug
+          updatedUrl = `/${slug}`;
+        } else {
+          // Fallback - try to use slug directly
+          updatedUrl = `/${slug}`;
+        }
+      }
+    } else if (linkObj.internalLink) {
+      // Fallback: if linkType is not set but internalLink exists
+      const internalLink = linkObj.internalLink;
+      const slug = internalLink.slug?.current || internalLink.slug;
+      
+      if (slug) {
+        if (internalLink._type === 'work') {
+          updatedUrl = `/project/${slug}`;
+        } else {
+          updatedUrl = `/${slug}`;
+        }
+      }
+    }
+  }
 
   return {
     ...slide,
-    link: {
+    link: updatedUrl ? {
       title: updatedTitle,
       url: updatedUrl,
       target: updatedTarget
-    }
+    } : null
   };
 });
 
@@ -143,7 +180,7 @@ if (import.meta.env.DEV) {
             foregroundSlides.map((slide:any)=>( // slide
             <div role="listitem" class="swiper-slide">
               {slide.link ?
-                <a class="slide-text" href={slide.link.url} target={slide.link.target} aria-label={`View the ${slide.link.title} project`}>
+                <a class="slide-text" href={slide.link.url} target={slide.link.target} aria-label={`${slide.link.title || slide.title}`}>
                   <h3 class="opacity-80">{slide.subtitle}</h3>
                   <h1 class="md:text-9xl text-balance">{slide.title}</h1>
                 </a>
