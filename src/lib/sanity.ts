@@ -197,3 +197,54 @@ export async function getAllProjects() {
     throw error;
   }
 }
+
+/**
+ * Haal navigation data op (compatibele structuur voor DefaultLayout)
+ * Retourneert menus en generalSettings zoals verwacht door de layout
+ */
+export async function getNavigation() {
+  try {
+    const siteSettings = await getSiteSettings();
+    
+    // Transformeer naar compatibele structuur
+    const menus = {
+      nodes: [{
+        menuItems: {
+          nodes: (siteSettings.navigation?.menuItems || []).map(item => {
+            // Haal slug op (kan string zijn vanwege query aliasing, of object met current)
+            const slug = typeof item.link?.internalLink?.slug === 'string' 
+              ? item.link.internalLink.slug 
+              : item.link?.internalLink?.slug?.current || '';
+            
+            // Bepaal URI en URL
+            const uri = slug || (item.link?.url?.replace(/^https?:\/\//, '') || '');
+            const url = item.link?.linkType === 'external' && item.link.url
+              ? item.link.url
+              : slug ? `/${slug}` : '';
+            
+            return {
+              label: item.label,
+              uri,
+              url,
+              order: item.order || 0
+            };
+          })
+        }
+      }]
+    };
+
+    const generalSettings = {
+      title: siteSettings.title,
+      url: siteSettings.url,
+      description: siteSettings.description
+    };
+
+    return {
+      menus,
+      generalSettings
+    };
+  } catch (error) {
+    console.error('❌ Failed to load navigation:', error);
+    throw error;
+  }
+}

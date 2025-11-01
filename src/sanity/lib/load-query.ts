@@ -55,6 +55,8 @@ export async function loadQuery<QueryResponse>({
     }
 
     // Throw error instead of returning null - laat de frontend crashen
-    throw new Error(`Sanity query failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Sanity query failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 }
