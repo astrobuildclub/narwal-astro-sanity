@@ -55,6 +55,13 @@ export default defineType({
       title: 'Show Captions',
       initialValue: false,
     }),
+    defineField({
+      name: 'showTitle',
+      type: 'boolean',
+      title: 'Show Title',
+      description: 'Display the carousel title',
+      initialValue: false,
+    }),
   ],
   preview: {
     select: {
@@ -71,4 +78,3 @@ export default defineType({
     },
   },
 });
-

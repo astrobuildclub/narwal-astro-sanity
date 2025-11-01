@@ -11,10 +11,11 @@ interface Props {
   layout?: 'grid' | 'masonry';
   columns?: number;
   showCaptions?: boolean;
+  showTitle?: boolean;
 }
 
 // Define vars
-const { title, gallery, layout = 'grid', columns = 3, showCaptions = false } = Astro.props;
+const { title, gallery, layout = 'grid', columns = 3, showCaptions = false, showTitle = false } = Astro.props;
 
 // Calculate optimal image width based on columns
 // Page width is ~1400px, divide by columns and add some padding
@@ -64,11 +65,11 @@ if (import.meta.env.DEV) {
 
 <!--GalleryBlock-->
 <div class="galleryblock page">
-  {title && <h2 class="galleryblock-title">{title}</h2>}
+  {showTitle && title && <h2 class="galleryblock-title">{title}</h2>}
   
   {layout === 'grid' && (
     <div 
-      class="galleryblock-grid grid gap-4 grid-cols-1 sm:grid-cols-2"
+      class="galleryblock-grid grid gap-[var(--gap-default)] grid-cols-1 sm:grid-cols-2"
       style={`--grid-cols: ${columns};`}
     >
       {processedImages.map((img) => (
@@ -92,11 +93,11 @@ if (import.meta.env.DEV) {
 
   {layout === 'masonry' && (
     <div 
-      class="galleryblock-masonry columns-1 sm:columns-2 gap-4"
+      class="gap-[var(--gap-default)] galleryblock-masonry columns-1 sm:columns-2"
       style={`--columns: ${columns};`}
     >
       {processedImages.map((img) => (
-        <div class="galleryblock-item break-inside-avoid mb-4">
+        <div class="mb-[var(--gap-default)] galleryblock-item break-inside-avoid">
           <Image 
             src={img.url}
             inferSize
@@ -157,7 +158,7 @@ if (import.meta.env.DEV) {
     width: 100%;
     height: auto;
     display: block;
-    border-radius: var(--radius-md, 4px);
+    /* border-radius: var(--radius-md, 4px); */
   }
 
   .galleryblock-caption {
@@ -165,7 +166,7 @@ if (import.meta.env.DEV) {
     opacity: 0.7;
     font-weight: 400;
     line-height: 133%;
-    margin-top: var(--space-xs);
+    
   }
 
   /* Break-inside avoid voor masonry */

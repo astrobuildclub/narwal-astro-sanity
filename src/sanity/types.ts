@@ -186,6 +186,7 @@ export interface SanityGalleryBlock extends SanityBlock {
   layout?: 'grid' | 'masonry';
   columns?: number;
   showCaptions?: boolean;
+  showTitle?: boolean;
 }
 
 export interface SanityCarouselBlock extends SanityBlock {
@@ -194,6 +195,9 @@ export interface SanityCarouselBlock extends SanityBlock {
   gallery?: SanityImage[];
   size?: 'feature' | 'full';
   showCaptions?: boolean;
+  showTitle?: boolean;
+  slidesPerView?: number;
+  slidesPerViewAuto?: boolean;
 }
 
 export interface SanityTestimonialBlock extends SanityBlock {

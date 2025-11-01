@@ -267,7 +267,11 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     layout,
     columns,
     showCaptions,
+    showTitle,
+    showTitle,
     size,
+    slidesPerView,
+    slidesPerViewAuto,
     "members": members[]-> {
       _id,
       title,
@@ -382,7 +386,11 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
     layout,
     columns,
     showCaptions,
+    showTitle,
+    showTitle,
     size,
+    slidesPerView,
+    slidesPerViewAuto,
     "members": members[]-> {
       _id,
       title,

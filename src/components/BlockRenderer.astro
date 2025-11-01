@@ -93,6 +93,7 @@ const { prefix, blocks } = Astro.props;
             layout={block.layout || 'grid'}
             columns={block.columns}
             showCaptions={block.showCaptions}
+            showTitle={block.showTitle}
           />
         case 'carouselBlock':
           return <CarouselBlock 
@@ -100,6 +101,7 @@ const { prefix, blocks } = Astro.props;
             gallery={block.gallery}
             size={block.size || 'feature'}
             showCaptions={block.showCaptions}
+            showTitle={block.showTitle}
           />
         case 'embedBlock':
           return <EmbedBlock code={block.code} size={block.size} />

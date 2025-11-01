@@ -62,6 +62,13 @@ export default defineType({
       title: 'Show Captions',
       initialValue: false,
     }),
+    defineField({
+      name: 'showTitle',
+      type: 'boolean',
+      title: 'Show Title',
+      description: 'Display the gallery title',
+      initialValue: false,
+    }),
   ],
   preview: {
     select: {

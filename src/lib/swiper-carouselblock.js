@@ -1,11 +1,10 @@
 // @ts-nocheck
-// core version + navigation, pagination modules:
+// core version + navigation modules:
 import Swiper from "swiper";
-import { Autoplay, Navigation, EffectFade } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 
 // import Swiper and modules styles
 import "swiper/css";
-import "swiper/css/effect-fade";
 
 import { numberWithZero } from "./utils";
 
@@ -13,6 +12,7 @@ document.addEventListener('astro:page-load', function() {
   const carousels = document.querySelectorAll(".carouselblock-gallery");
 
   carousels.forEach(function (comp) {
+    // Query elementen BINNEN deze specifieke carousel container
     const elBackgroundCarousel = comp.querySelector(".carousel-background");
     const elNextButton = comp.querySelector(".swiper-button-next");
     const elPrevButton = comp.querySelector(".swiper-button-prev");
@@ -20,44 +20,76 @@ document.addEventListener('astro:page-load', function() {
     const elTotalIndicator = comp.querySelector(".swiper-number-total");
 
     if (elBackgroundCarousel && elNextButton && elPrevButton) {
-      const backgroundSwiper = new Swiper(elBackgroundCarousel, {
-        autoplay: {
-          delay: 5000,
-        },
-        slidesPerView: 1,
+      const slideCount = elBackgroundCarousel.querySelectorAll('.swiper-slide').length;
+      
+      // Eenvoudige Swiper configuratie
+      const swiperConfig = {
+        spaceBetween: 32, // Default gap tussen carousel items (in pixels)
+        slidesPerView: 'auto',
         slidesPerGroup: 1,
-        loop: true,
+        loop: slideCount > 0,
+        loopAddBlankSlides: true,
         speed: 400,
-        effect: 'fade',
-        fadeEffect: {
-          crossFade: true
-        },
         allowTouchMove: true,
         navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
+          nextEl: elNextButton,
+          prevEl: elPrevButton,
         },
-        modules: [EffectFade, Navigation, Autoplay],
+        modules: [Navigation],
+        breakpoints: {
+          320: { slidesPerView: 'auto', slidesPerGroup: 1 },
+          768: { slidesPerView: 'auto', slidesPerGroup: 1 },
+          1024: { slidesPerView: 'auto', slidesPerGroup: 1 },
+        },
+      };
+
+      const swiper = new Swiper(elBackgroundCarousel, swiperConfig);
+      
+      // Update functie voor resize en init timing (belangrijk voor full width)
+      const updateSwiper = () => {
+        if (swiper) {
+          swiper.update();
+          swiper.updateSlides();
+          swiper.updateSlidesClasses();
+        }
+      };
+      
+      // Wacht op layout completion (belangrijk voor full width containers)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          updateSwiper();
+        });
+      });
+      
+      // Update bij resize
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateSwiper, 150);
       });
 
-      // Set initial indicator
+      // Set indicators
       if (elCurrentIndicator && elTotalIndicator) {
-        let numCurrentSlide = backgroundSwiper.activeIndex + 1;
-        let currentSlide = numberWithZero(numCurrentSlide);
-
-        let numTotalSlides = backgroundSwiper.slides.length;
-        let totalSlides = numberWithZero(numTotalSlides);
-
-        // Update values
-        elCurrentIndicator.textContent = currentSlide;
-        elTotalIndicator.textContent = totalSlides;
-
-        backgroundSwiper.on("slideChange", function (e) {
-          currentSlide = numberWithZero(e.realIndex + 1);
-          elCurrentIndicator.textContent = currentSlide;
+        const updateIndicators = () => {
+          const current = swiper.realIndex !== undefined ? swiper.realIndex + 1 : swiper.activeIndex + 1;
+          const total = slideCount;
+          elCurrentIndicator.textContent = numberWithZero(current);
+          elTotalIndicator.textContent = numberWithZero(total);
+        };
+        
+        // Initial update
+        setTimeout(updateIndicators, 100);
+        
+        // Update bij slide change
+        swiper.on("slideChange", () => {
+          updateIndicators();
+        });
+        
+        // Update bij resize
+        swiper.on("resize", () => {
+          updateIndicators();
         });
       }
     }
   });
 }, { once: false });
-
