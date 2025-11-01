@@ -59,8 +59,13 @@ export interface SanityHome {
   _type: 'page';
   _id: string;
   title: string;
+  pageType?: 'homepage';
   intro: string;
   statement: string;
+  introCols?: Array<{
+    _key: string;
+    content: any[]; // Portable Text
+  }>;
   slides: SanitySlide[];
   featuredProjects: SanityProject[];
   seo?: SanitySEO;
@@ -122,6 +127,16 @@ export interface SanityPage {
   }>;
   content?: SanityBlock[];
   seo?: SanitySEO;
+  work?: {
+    nodes: SanityProject[];
+  };
+}
+
+// Type for ALL_SLUGS_QUERY response
+export interface SanityAllSlugs {
+  pages?: string[];
+  projects?: string[];
+  homepage?: string;
 }
 
 // Block types

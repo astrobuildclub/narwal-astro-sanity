@@ -189,7 +189,7 @@ if (import.meta.env.DEV) {
       }
     )
     // This will fire when the element leaves the viewport
-    return (leaveInfo) => {
+    return (_leaveInfo) => {
       controls.stop()
       animate(info.target, { opacity: 0, transform: ["translateY(0px)", "translateY(20px)"] }, { duration: 0.6 })
     }
@@ -213,7 +213,7 @@ if (import.meta.env.DEV) {
       }
     )
     // This will fire when the element leaves the viewport
-    return (leaveInfo) => {
+    return (_leaveInfo) => {
       controls.stop()
       animate(info.target, { opacity: 0, transform: ["translateY(0px)", "translateY(20px)"] }, { duration: 0.6 })
     }

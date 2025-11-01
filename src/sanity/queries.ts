@@ -1,9 +1,4 @@
-import type {
-  SanityHome,
-  SanityProject,
-  SanityPage,
-  SanitySiteSettings,
-} from './types';
+// Types worden gebruikt in de query definities maar niet direct geïmporteerd
 
 // Homepage query - zoek specifiek naar pageType "homepage"
 export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {

@@ -1,12 +1,10 @@
 // Nieuwe Sanity imports
 import { getHomeData, getPageData, getProjectData } from './sanity';
-import type { SanityHome, SanityProject, SanityPage } from '../sanity/types';
 
 // templates
 import Single from '../components/templates/Single.astro';
 import WorkOverview from '../components/templates/WorkOverview.astro';
 import WorkDetail from '../components/templates/WorkDetail.astro';
-import Archive from '../components/templates/Archive.astro';
 import Page from '../components/templates/Page.astro';
 import Home from '../components/templates/Home.astro';
 

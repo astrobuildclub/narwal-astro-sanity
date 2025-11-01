@@ -1,6 +1,5 @@
 ---
 // Import Components & Scripts
-import { Image } from 'astro:assets'
 import { urlForImage } from '../../sanity/lib/image'
 import type { SanityImage } from '../../sanity/types'
 
@@ -24,14 +23,10 @@ const {
 
 // Generate image URL - Sanity data only
 let finalPhotoUrl = '';
-let finalAltText = '';
-let finalTitleText = '';
 
 if (photo?.asset) {
     try {
         finalPhotoUrl = urlForImage(photo)?.width(200).height(200).url() || '';
-        finalAltText = photo.alt || '';
-        finalTitleText = photo.caption || '';
     } catch (error) {
         console.warn('Failed to generate photo URL:', error);
     }

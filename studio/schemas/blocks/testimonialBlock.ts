@@ -59,7 +59,7 @@ export default defineType({
       quote: 'quote',
       media: 'photo',
     },
-    prepare({ name, role, quote, media }) {
+    prepare({ name, role, quote: _quote, media }) {
       return {
         title: name || 'Testimonial',
         subtitle: `Testimonial Block • ${role || 'No role'}`,
