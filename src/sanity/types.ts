@@ -7,6 +7,12 @@ export interface SanityImage {
   };
   alt?: string;
   caption?: string;
+  crop?: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
   hotspot?: {
     x: number;
     y: number;
@@ -53,8 +59,13 @@ export interface SanityHome {
   _type: 'page';
   _id: string;
   title: string;
+  pageType?: 'homepage';
   intro: string;
   statement: string;
+  introCols?: Array<{
+    _key: string;
+    content: any[]; // Portable Text
+  }>;
   slides: SanitySlide[];
   featuredProjects: SanityProject[];
   seo?: SanitySEO;
@@ -116,6 +127,16 @@ export interface SanityPage {
   }>;
   content?: SanityBlock[];
   seo?: SanitySEO;
+  work?: {
+    nodes: SanityProject[];
+  };
+}
+
+// Type for ALL_SLUGS_QUERY response
+export interface SanityAllSlugs {
+  pages?: string[];
+  projects?: string[];
+  homepage?: string;
 }
 
 // Block types
@@ -175,7 +196,23 @@ export interface SanityVideoBlock extends SanityBlock {
 
 export interface SanityGalleryBlock extends SanityBlock {
   _type: 'galleryBlock';
-  images: SanityImage[];
+  title?: string;
+  gallery?: SanityImage[];
+  layout?: 'grid' | 'masonry';
+  columns?: number;
+  showCaptions?: boolean;
+  showTitle?: boolean;
+}
+
+export interface SanityCarouselBlock extends SanityBlock {
+  _type: 'carouselBlock';
+  title?: string;
+  gallery?: SanityImage[];
+  size?: 'feature' | 'full';
+  showCaptions?: boolean;
+  showTitle?: boolean;
+  slidesPerView?: number;
+  slidesPerViewAuto?: boolean;
 }
 
 export interface SanityTestimonialBlock extends SanityBlock {
@@ -183,20 +220,39 @@ export interface SanityTestimonialBlock extends SanityBlock {
   quote: string;
   author?: string;
   role?: string;
+  photo?: SanityImage;
+  size?: 'content' | 'popout' | 'feature' | 'page';
+}
+
+export interface SanityTextGridBlock extends SanityBlock {
+  _type: 'textGridBlock';
+  title?: string;
+  items?: Array<{
+    _key?: string;
+    title?: string;
+    text?: string;
+  }>;
+  media?: {
+    image?: SanityImage;
+    imgposition?: string;
+  };
+  columns?: number;
 }
 
 export interface SanityTeamBlock extends SanityBlock {
   _type: 'teamBlock';
   title?: string;
-  team: Array<{
-    _type: 'reference';
-    title: string;
+  members?: Array<{
+    _id?: string;
+    title?: string;
     roles?: Array<{
-      name: string;
+      name?: string;
       description?: string;
     }>;
     featuredImage?: SanityImage;
   }>;
+  layout?: string;
+  columns?: number;
 }
 
 export interface SanityServicesBlock extends SanityBlock {

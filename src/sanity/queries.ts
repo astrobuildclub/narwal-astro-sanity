@@ -1,9 +1,4 @@
-import type {
-  SanityHome,
-  SanityProject,
-  SanityPage,
-  SanitySiteSettings,
-} from './types';
+// Types worden gebruikt in de query definities maar niet direct geïmporteerd
 
 // Homepage query - zoek specifiek naar pageType "homepage"
 export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
@@ -25,7 +20,9 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
     subtitle,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     videoUrl,
     link {
@@ -54,7 +51,9 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
     thumbnail {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       size,
       alt,
@@ -85,7 +84,9 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
     subtitle,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     videoUrl,
     link {
@@ -114,7 +115,9 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
     thumbnail {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       size,
       alt,
@@ -135,7 +138,9 @@ export const ALL_PROJECTS_QUERY = `*[_type == "work"] | order(_createdAt desc) {
   thumbnail {
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     size,
     aspectRatio
@@ -164,14 +169,18 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     intro,
     coverMedia {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     color
   },
   thumbnail {
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     size,
     aspectRatio
@@ -194,7 +203,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     thumbnail {
       image {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       },
       size
     },
@@ -209,11 +220,66 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     ...,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     images[] {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
+    },
+    items[] {
+      _key,
+      title,
+      text
+    },
+    media {
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot
+      },
+      imgposition
+    },
+    gallery[] {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    quote,
+    name,
+    role,
+    photo {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    layout,
+    columns,
+    showCaptions,
+    showTitle,
+    showTitle,
+    size,
+    slidesPerView,
+    slidesPerViewAuto,
+    "members": members[]-> {
+      _id,
+      title,
+      featuredImage {
+        ...,
+        asset->,
+        crop,
+        hotspot
+      },
+      roles[] {
+        name,
+        description
+      }
     },
     "team": team[]-> {
       _id,
@@ -234,7 +300,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
       title,
       logo {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       }
     }
   },
@@ -271,11 +339,66 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
     ...,
     image {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
     },
     images[] {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
+    },
+    items[] {
+      _key,
+      title,
+      text
+    },
+    media {
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot
+      },
+      imgposition
+    },
+    gallery[] {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    quote,
+    name,
+    role,
+    photo {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    layout,
+    columns,
+    showCaptions,
+    showTitle,
+    showTitle,
+    size,
+    slidesPerView,
+    slidesPerViewAuto,
+    "members": members[]-> {
+      _id,
+      title,
+      featuredImage {
+        ...,
+        asset->,
+        crop,
+        hotspot
+      },
+      roles[] {
+        name,
+        description
+      }
     },
     "team": team[]-> {
       _id,
@@ -296,7 +419,9 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
       title,
       logo {
         ...,
-        asset->
+        asset->,
+        crop,
+        hotspot
       }
     }
   },

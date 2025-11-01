@@ -105,7 +105,7 @@ export default defineType({
       backgroundColor: 'backgroundColor',
       size: 'size',
     },
-    prepare({ colorMode, backgroundColor, size }) {
+    prepare({ colorMode, backgroundColor: _backgroundColor, size }) {
       return {
         title: 'Color Block',
         subtitle: `Color Block • ${colorMode || 'light'} • ${size || 'content'}`,

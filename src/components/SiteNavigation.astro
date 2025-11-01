@@ -1,6 +1,5 @@
 ---
 import { getSiteSettings } from '../lib/sanity'; // Nieuwe import
-import type { SanitySiteSettings } from '../sanity/types';
 
 // Test de nieuwe functie
 const siteSettings = await getSiteSettings();
@@ -29,7 +28,7 @@ if (import.meta.env.DEV) {
 }
 ---
 
-<nav class="fixed z-10 w-full page-layout">
+<nav class="fixed z-10 w-full h-16 page-layout">
   <div class="flex justify-between items-center page inner">
     <div class="flex items-center mr-6 text-white">
     <a href="/" aria-label="Homepage">

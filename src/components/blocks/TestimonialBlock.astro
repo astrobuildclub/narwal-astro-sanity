@@ -1,6 +1,5 @@
 ---
 // Import Components & Scripts
-import { Image } from 'astro:assets'
 import { urlForImage } from '../../sanity/lib/image'
 import type { SanityImage } from '../../sanity/types'
 
@@ -10,7 +9,7 @@ interface Props {
     name?: string;
     role?: string;
     photo?: SanityImage;
-    size?: 'content' | 'popout' | 'feature' | 'full';
+    size?: 'content' | 'popout' | 'feature' | 'page';
 }
 
 // Define Vars
@@ -19,35 +18,17 @@ const {
     name, 
     role, 
     photo, 
-    size = 'content'
+    size = 'page'
 } = Astro.props;
 
 // Generate image URL - Sanity data only
 let finalPhotoUrl = '';
-let finalAltText = '';
-let finalTitleText = '';
 
 if (photo?.asset) {
     try {
         finalPhotoUrl = urlForImage(photo)?.width(200).height(200).url() || '';
-        finalAltText = photo.alt || '';
-        finalTitleText = photo.caption || '';
     } catch (error) {
         console.warn('Failed to generate photo URL:', error);
-    }
-}
-
-// Size class mapping
-function getSizeClass(size: string) {
-    switch (size) {
-        case "popout":
-            return "popout";
-        case "feature":
-            return "feature";
-        case "full":
-            return "full";
-        default:
-            return "content";
     }
 }
 
@@ -63,10 +44,10 @@ if (import.meta.env.DEV) {
 }
 ---
 <!--TestimonialBlock-->
-<section class={`testimonialblock ${getSizeClass(size)}`}>
+<section class={`testimonialblock ${size}`}>
    <blockquote class="testimonialblock-quote">{quote}</blockquote>
     <div class="testimonialblock-details">
-        {finalPhotoUrl &&
+        <!-- {finalPhotoUrl &&
         <Image 
             src={finalPhotoUrl}
             inferSize
@@ -74,8 +55,8 @@ if (import.meta.env.DEV) {
             title={finalTitleText}
             class="testimonialblock-img"
         />
-        }
-         <div class="testimonialblock-person">
+        } -->
+         <div class="flex justify-center items-center align-baseline col testimonialblock-person">
             <h3 class="testimonialblock-name">{name}</h3>
             <h4 class="testimonialblock-role">{role}</h4>
         </div>
@@ -83,89 +64,48 @@ if (import.meta.env.DEV) {
 </section>
 
 <style>
-    .testimonialblock {
-        width: 100%;
-        padding: var(--space-lg);
-        background: var(--clr-light, #f8f9fa);
-        border-radius: var(--radius-md, 8px);
-        border-left: 4px solid var(--clr-primary, #007bff);
-    }
+    
+  .testimonial-block {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-    /* Size-based grid positioning */
-    .testimonialblock.content {
-        grid-column: content;
-    }
+  blockquote {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family-special);
+    font-size: var(--fs-5);
+    color: var(--color-neutral-100);
+    line-height: 112.5%;
+    text-wrap: balance;
+    text-align: center;
+  }
 
-    .testimonialblock.popout {
-        grid-column: popout;
-    }
+  blockquote p {
+    margin: 0;
+  }
 
-    .testimonialblock.feature {
-        grid-column: feature;
-    }
+  figcaption {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: var(--color-neutral-100);
+    text-align: center;
+  }
 
-    .testimonialblock.full {
-        grid-column: full;
-    }
+  figcaption strong {
+    font-weight: bold;
+  }
 
-    .testimonialblock-quote {
-        font-size: var(--fs-lg, 1.25rem);
-        font-style: italic;
-        margin: 0 0 var(--space-md) 0;
-        line-height: 1.6;
-        color: var(--clr-text, #333);
-    }
+  .role {
+    font-style: normal;
+    opacity: 0.5;
+  }
 
-    .testimonialblock-details {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .testimonialblock-person {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .testimonialblock-name {
-        font-size: var(--fs-base, 1rem);
-        font-weight: 600;
-        margin: 0;
-        line-height: 1.2;
-        color: var(--clr-text, #333);
-    }
-
-    .testimonialblock-role {
-        font-size: var(--fs-sm, 0.875rem);
-        font-weight: 400;
-        margin: 0;
-        line-height: 1.2;
-        color: var(--clr-muted, #666);
-    }
-
-    .testimonialblock-img {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-        flex-shrink: 0;
-    }
-
-    /* Size-based styling */
-    .testimonialblock.content {
-        grid-column: content;
-    }
-
-    .testimonialblock.popout {
-        grid-column: popout;
-    }
-
-    .testimonialblock.feature {
-        grid-column: feature;
-    }
-
-    .testimonialblock.full {
-        grid-column: full;
-    }
+  .company {
+    font-style: normal;
+    opacity: 0.5;
+  }
 </style>

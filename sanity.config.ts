@@ -2,7 +2,8 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { linkField } from 'sanity-plugin-link-field';
-import { schemaTypes } from './schemas';
+// Import schema types from studio directory
+import { schemaTypes } from './studio/schemas';
 
 export default defineConfig({
   name: 'narwal-creative',
@@ -17,6 +18,7 @@ export default defineConfig({
     }),
   ],
   schema: {
-    types: schemaTypes,
+    types: schemaTypes as any,
   },
 });
+

@@ -21,8 +21,8 @@
   --primary-background: var(--primary-100);
   --neutral-background: var(--neutral-200);
 
-  --gap-default: var(--space-s);
-  --grid-gutter: var(--space-m);
+  --gap-default: var(--space-m-l);
+  --grid-gutter: var(--space-xl);
   /* Spacing - now handled by Utopia in SCSS */
   --site-padding: var(--space-l);
 

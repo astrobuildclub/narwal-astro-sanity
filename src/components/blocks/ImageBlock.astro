@@ -32,9 +32,37 @@ let finalAltText = '';
 let finalTitleText = '';
 let finalCaptionText = '';
 
+// Map size to optimal width constraints
+function getWidthForSize(size?: string): number {
+  switch (size) {
+    case 'content':
+      return 800;
+    case 'popout':
+      return 1000;
+    case 'feature':
+      return 1200;
+    case 'page':
+      return 1400;
+    case 'full':
+      return 1920;
+    default:
+      return 1200; // Default voor content/unknown sizes
+  }
+}
+
 if (image?.asset) {
   try {
-    finalSourceUrl = urlForImage(image)?.url() || '';
+    const imageWidth = getWidthForSize(size);
+    const imageBuilder = urlForImage(image);
+    
+    if (size !== 'inherit') {
+      // Voeg width constraint toe voor alle sizes behalve inherit
+      finalSourceUrl = imageBuilder?.width(imageWidth).url() || '';
+    } else {
+      // Voor inherit, gebruik alleen base optimalisaties
+      finalSourceUrl = imageBuilder?.url() || '';
+    }
+    
     finalAltText = image.alt || alt || '';
     finalTitleText = image.caption || title || '';
     finalCaptionText = image.caption || caption || '';

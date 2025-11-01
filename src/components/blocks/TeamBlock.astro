@@ -1,13 +1,18 @@
 ---
 // Import Components & Scripts
 import PersonCard from '../PersonCard.astro';
+import type { SanityImage } from '../../sanity/types';
 
 // Define Types
+interface role {
+  name?: string;
+  description?: string;
+}
 interface member{
-  id?: string;
+  _id?: string;
   title?: string;
-  roles?: [];
-  featuredImage?: object;
+  roles?: role[];
+  featuredImage?: SanityImage;
 }
 interface Props{
   title: string;
@@ -16,20 +21,30 @@ interface Props{
 
 // Define Vars
 const {title, members} = Astro.props;
+
+if (import.meta.env.DEV) {
+  console.log('👥 TeamBlock received:', {
+    title,
+    membersCount: members?.length || 0,
+    members: members?.map(m => ({
+      name: m.title,
+      hasPhoto: !!m.featuredImage,
+      rolesCount: m.roles?.length || 0
+    }))
+  });
+}
 ---
 
 <!-- TeamBlock -->
-<div class:list={['teamblock','full']}>
+<div class:list={['teamblock','page']}>
   <h2 class="teamblock-title">{title}</h2>
   <div class="grid gap-8 md:grid-cols-3">
     {members &&
-      members.map((member:any)=>( // member
+      members.map((member: member) => (
         <PersonCard 
           name={member.title}
-          roles={member.roles?.nodes}
-          photoSourceUrl={member.featuredImage?.node.sourceUrl}
-          photoAltText={member.featuredImage?.node.altText}
-          photoTitleText={member.featuredImage?.node.titleText}
+          roles={member.roles}
+          photo={member.featuredImage}
         />
       ))
     } 

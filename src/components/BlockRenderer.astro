@@ -12,7 +12,8 @@ import EmbedBlock from './blocks/EmbedBlock.astro'
 import TeamBlock from './blocks/TeamBlock.astro'
 import ServicesBlock from './blocks/ServicesBlock.astro'
 import ClientsBlock from './blocks/ClientsBlock.astro'
-// import GalleryBlock from './blocks/GalleryBlock.astro'
+import GalleryBlock from './blocks/GalleryBlock.astro'
+import CarouselBlock from './blocks/CarouselBlock.astro'
 
 
 
@@ -85,10 +86,23 @@ const { prefix, blocks } = Astro.props;
           return <ClientsBlock 
                     title={block.title} 
                     clients={block.clients} />
-        // case 'galleryBlock':
-        //   return <GalleryBlock 
-        //             title={block.title} 
-        //             images={block.images} />
+        case 'galleryBlock':
+          return <GalleryBlock 
+            title={block.title}
+            gallery={block.gallery}
+            layout={block.layout || 'grid'}
+            columns={block.columns}
+            showCaptions={block.showCaptions}
+            showTitle={block.showTitle}
+          />
+        case 'carouselBlock':
+          return <CarouselBlock 
+            title={block.title}
+            gallery={block.gallery}
+            size={block.size || 'feature'}
+            showCaptions={block.showCaptions}
+            showTitle={block.showTitle}
+          />
         case 'embedBlock':
           return <EmbedBlock code={block.code} size={block.size} />
         

@@ -8,14 +8,14 @@ import {
   ALL_PROJECTS_QUERY,
   SITE_SETTINGS_QUERY 
 } from '../sanity/queries';
-import type { SanityHome, SanityProject, SanityPage, SanitySiteSettings } from '../sanity/types';
+import type { SanityHome, SanityProject, SanityPage, SanitySiteSettings, SanityAllSlugs } from '../sanity/types';
 
 /**
  * Haal alle URIs op voor static path generatie
  */
 export async function getAllUris() {
   try {
-    const { data } = await loadQuery({ query: ALL_SLUGS_QUERY });
+    const { data } = await loadQuery<SanityAllSlugs>({ query: ALL_SLUGS_QUERY });
 
     if (!data) {
       throw new Error('No data returned from Sanity');
@@ -30,12 +30,12 @@ export async function getAllUris() {
 
     // Add pages
     if (data.pages) {
-      uris.push(...data.pages.map(slug => ({ params: { uri: slug } })));
+      uris.push(...data.pages.map((slug: string) => ({ params: { uri: slug } })));
     }
 
     // Add projects with project/ prefix
     if (data.projects) {
-      uris.push(...data.projects.map(slug => ({ params: { uri: `project/${slug}` } })));
+      uris.push(...data.projects.map((slug: string) => ({ params: { uri: `project/${slug}` } })));
     }
 
     if (import.meta.env.DEV) {
@@ -110,11 +110,11 @@ export async function getPageData(slug: string): Promise<SanityPage> {
     switch (data.pageType) {
       case 'work':
         // WorkOverview pagina - voeg projecten toe
-        const { data: projects } = await loadQuery({ query: ALL_PROJECTS_QUERY });
+        const { data: projects } = await loadQuery<SanityProject[]>({ query: ALL_PROJECTS_QUERY });
         return {
           ...data,
           work: { nodes: projects || [] }
-        };
+        } as SanityPage & { work: { nodes: SanityProject[] } };
       
       case 'about':
       case 'services':

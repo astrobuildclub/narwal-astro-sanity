@@ -83,21 +83,21 @@ if (import.meta.env.DEV) {
 
 
   .layout-list {
-    background: yellow;
+    /* background: yellow; */
     
   }
 
   
    .layout-grid .project-list {
     /* homepage grid */
-    background-color: blue;
+    /* background-color: blue; */
     grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: start;
   }
 
   .layout-list .project-list {
     /* overview grid */
-    background-color: red;
+    /* background-color: red; */
      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     align-items: start;
   }
@@ -189,7 +189,7 @@ if (import.meta.env.DEV) {
       }
     )
     // This will fire when the element leaves the viewport
-    return (leaveInfo) => {
+    return (_leaveInfo) => {
       controls.stop()
       animate(info.target, { opacity: 0, transform: ["translateY(0px)", "translateY(20px)"] }, { duration: 0.6 })
     }
@@ -213,7 +213,7 @@ if (import.meta.env.DEV) {
       }
     )
     // This will fire when the element leaves the viewport
-    return (leaveInfo) => {
+    return (_leaveInfo) => {
       controls.stop()
       animate(info.target, { opacity: 0, transform: ["translateY(0px)", "translateY(20px)"] }, { duration: 0.6 })
     }

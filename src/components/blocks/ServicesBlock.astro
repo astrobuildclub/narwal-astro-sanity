@@ -15,7 +15,7 @@ interface Props{
 }
 
 // Define Vars
-const { title, services, layout = 'list', showDescriptions = true } = Astro.props;
+const { title, services, showDescriptions = true } = Astro.props;
 
 // PortableText components
 const components = {
@@ -28,7 +28,7 @@ const components = {
 ---
 
 <!-- ServicesBlock -->
-<div class:list={['servicesblock','full']}>
+<div class:list={['servicesblock','page']}>
   <h2 class="servicesblock-title">{title}</h2>
   
   <div class="mt-8">
