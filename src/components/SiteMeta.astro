@@ -11,7 +11,7 @@ const seoTitle = seo?.title || title
 const seoDescription = seo?.description || description
 const seoImage = seo?.metaImage || seo?.openGraph?.image || image
 const imageUrl = seoImage?.asset 
-  ? getImageUrl(seoImage, Astro.site?.toString())
+  ? getImageUrl(seoImage)
   : (seoImage?.imageUrl || (Astro.site ? `${Astro.site}${seoImage}` : seoImage || '/social-preview-image.png'))
 const fullImageUrl = imageUrl?.startsWith('http') ? imageUrl : (Astro.site ? `${Astro.site}${imageUrl}` : imageUrl)
 
@@ -21,7 +21,7 @@ const ogDescription = seo?.openGraph?.description || seoDescription
 const ogType = seo?.openGraph?.type || 'website'
 const ogSiteName = seo?.openGraph?.siteName || ''
 const ogImage = seo?.openGraph?.imageUrl || seo?.openGraph?.image?.asset 
-  ? getImageUrl(seo?.openGraph?.image, Astro.site?.toString())
+  ? getImageUrl(seo?.openGraph?.image)
   : fullImageUrl
 
 // Twitter
@@ -30,7 +30,7 @@ const twitterSite = seo?.twitter?.site || ''
 const twitterTitle = seo?.twitter?.title || seoTitle
 const twitterDescription = seo?.twitter?.description || seoDescription
 const twitterImage = seo?.twitter?.imageUrl || seo?.twitter?.image?.asset
-  ? getImageUrl(seo?.twitter?.image, Astro.site?.toString())
+  ? getImageUrl(seo?.twitter?.image)
   : fullImageUrl
 
 // Canonical URL

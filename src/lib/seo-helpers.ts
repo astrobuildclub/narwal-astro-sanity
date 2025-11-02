@@ -115,7 +115,7 @@ export function getSeoData(
 /**
  * Helper om image URL te genereren van Sanity image
  */
-export function getImageUrl(image: any, siteUrl?: string): string {
+export function getImageUrl(image: any): string {
   // Als imageUrl beschikbaar is (van URL type)
   if (image?.imageUrl) {
     return image.imageUrl;
