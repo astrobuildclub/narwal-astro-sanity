@@ -318,16 +318,43 @@ export interface SanitySiteSettings {
       linkedin?: string;
     };
   };
+  openGraphSiteName?: string;
+  twitterSite?: string;
   defaultSeo?: SanitySEO;
 }
 
-// SEO types
+// SEO types - Updated for sanity-plugin-seofields
 export interface SanitySEO {
+  _type?: 'seoFields';
   title?: string;
   description?: string;
   keywords?: string[];
-  image?: SanityImage;
-  canonical?: string;
+  canonicalUrl?: string;
+  metaImage?: SanityImage;
+  openGraph?: {
+    _type?: 'openGraph';
+    title?: string;
+    description?: string;
+    siteName?: string;
+    type?: 'website' | 'article' | 'profile' | 'book' | 'music' | 'video' | 'product';
+    imageType?: 'upload' | 'url';
+    image?: SanityImage;
+    imageUrl?: string;
+  };
+  twitter?: {
+    _type?: 'twitter';
+    card?: 'summary' | 'summary_large_image' | 'app' | 'player';
+    site?: string;
+    title?: string;
+    description?: string;
+    imageType?: 'upload' | 'url';
+    image?: SanityImage;
+    imageUrl?: string;
+  };
+  robots?: {
+    noIndex?: boolean;
+    noFollow?: boolean;
+  };
 }
 
 // Columns Block types

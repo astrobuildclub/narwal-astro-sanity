@@ -83,23 +83,26 @@ const posterImage = videoSrc && imageSrc
   : null;
 
 // Calculate card classes based on size
+// Mobile: all cards full width (1 column grid)
+// Tablet (md): 2 column grid
+// Desktop (lg): 12 column grid
 let cardClasses = '';
 if (!projectFitCards) {
   switch (projectSize) {
     case 'small':
-      cardClasses = 'lg:col-span-4';
+      cardClasses = 'md:col-span-1 lg:col-span-4';
       break;
     case 'large':
-      cardClasses = 'lg:col-span-8';
+      cardClasses = 'md:col-span-2 lg:col-span-8';
       break;
     case 'full':
-      cardClasses = 'lg:col-span-12';
+      cardClasses = 'md:col-span-2 lg:col-span-12';
       break;
     default:
-      cardClasses = 'lg:col-span-6';
+      cardClasses = 'md:col-span-2 lg:col-span-6';
   }
 } else {
-  cardClasses = 'lg:col-span-2';
+  cardClasses = 'md:col-span-1 lg:col-span-2';
 }
 
 // Service titles for filtering

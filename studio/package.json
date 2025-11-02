@@ -16,7 +16,7 @@
     "@sanity/vision": "^4.11.0",
     "sanity": "^4.11.0",
     "sanity-plugin-link-field": "^1.4.2",
-    "sanity-plugin-seo": "^1.3.6",
+    "sanity-plugin-seofields": "^1.0.8",
     "styled-components": "^6.1.19"
   }
 }
