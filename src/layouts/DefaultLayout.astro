@@ -16,12 +16,19 @@ type Props = {
   title: string;
   description?: string;
   image?: any;
-  author?: any; 
+  author?: any;
+  seo?: any;
+  url?: string;
 }
 
-const { title, description, image = '/social-preview-image.png', author = 'AstroBuildClub™' } = Astro.props
+const { title, description, image = '/social-preview-image.png', author = 'AstroBuildClub™', seo, url } = Astro.props
 const { menus, generalSettings } = await getNavigation()
 const primaryMenu = menus.nodes[0]
+
+// Debug logging (uitgecomment - alleen nodig bij troubleshooting)
+// if (import.meta.env.DEV && seo) {
+//   console.log('🎯 Layout SEO:', { title: seo.title?.substring(0, 30), url });
+// }
 ---
 
 <html lang="en" dir="ltr">
@@ -69,13 +76,12 @@ const primaryMenu = menus.nodes[0]
     />
 
     <SiteMeta
-      title={title}
-      description={description?.substring(0, 100)}
-      url={Astro.site
-        ? `${Astro.site}/${title.toLowerCase().replaceAll(' ', '-')}`
-        : `https://accessible-astro.dev/${title.toLowerCase().replaceAll(' ', '-')}`}
-      image={image}
+      title={seo?.title || title}
+      description={seo?.description || description}
+      url={seo?.canonicalUrl || url || (Astro.site ? Astro.site.toString() : 'https://accessible-astro.dev')}
+      image={seo?.metaImage || seo?.openGraph?.image || image}
       author={author}
+      seo={seo}
     />
   </head>
 

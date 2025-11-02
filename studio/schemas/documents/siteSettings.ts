@@ -186,43 +186,28 @@ export default defineType({
         }),
       ],
     }),
+    // Site-wide SEO settings (siteName, twitterSite)
+    // These are handled by the plugin's fieldVisibility config for siteSettings
+    defineField({
+      name: 'openGraphSiteName',
+      type: 'string',
+      title: 'Open Graph Site Name',
+      description: 'The name of your site (for social media sharing)',
+      group: 'seo',
+    }),
+    defineField({
+      name: 'twitterSite',
+      type: 'string',
+      title: 'X (Twitter) Site Handle',
+      description: 'Your X/Twitter handle (e.g., @yourhandle)',
+      group: 'seo',
+    }),
     defineField({
       name: 'defaultSeo',
-      type: 'object',
+      type: 'seoFields',
       title: 'Default SEO Settings',
+      description: 'Default SEO settings used as fallback for pages without their own SEO',
       group: 'seo',
-      fields: [
-        defineField({
-          name: 'title',
-          type: 'string',
-          title: 'Default SEO Title',
-          description: 'Default title for search engines',
-        }),
-        defineField({
-          name: 'description',
-          type: 'text',
-          title: 'Default Meta Description',
-          description: 'Default description for search engines',
-          rows: 3,
-        }),
-        defineField({
-          name: 'keywords',
-          type: 'array',
-          title: 'Default Keywords',
-          of: [{ type: 'string' }],
-          options: {
-            layout: 'tags',
-          },
-        }),
-        defineField({
-          name: 'image',
-          type: 'image',
-          title: 'Default Social Media Image',
-          description: 'Default image for social media sharing',
-          options: { hotspot: true },
-          fields: [{ name: 'alt', type: 'string', title: 'Alt Text' }],
-        }),
-      ],
     }),
   ],
   preview: {

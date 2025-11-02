@@ -2,6 +2,7 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { linkField } from 'sanity-plugin-link-field';
+import seofields from 'sanity-plugin-seofields';
 import { schemaTypes } from './schemas';
 
 // Load environment variables
@@ -24,6 +25,23 @@ export default defineConfig({
     visionTool(),
     linkField({
       linkableSchemaTypes: ['page', 'work'],
+    }),
+    seofields({
+      seoPreview: true,
+      fieldVisibility: {
+        page: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        work: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        career: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        siteSettings: {
+          hiddenFields: ['title', 'description', 'openGraph', 'twitter', 'canonicalUrl', 'robots', 'metaAttributes'],
+        },
+      },
     }),
   ],
   schema: {

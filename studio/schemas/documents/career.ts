@@ -170,51 +170,8 @@ export default defineType({
     }),
     defineField({
       name: 'seo',
-      type: 'object',
-      title: 'SEO',
-      fields: [
-        defineField({
-          name: 'title',
-          type: 'string',
-          title: 'SEO Title',
-          description:
-            'Title for search engines (leave empty to use job title)',
-        }),
-        defineField({
-          name: 'description',
-          type: 'text',
-          title: 'Meta Description',
-          description: 'Description for search engines',
-          rows: 3,
-          validation: (Rule) =>
-            Rule.max(160).warning(
-              'Meta descriptions should be under 160 characters',
-            ),
-        }),
-        defineField({
-          name: 'keywords',
-          type: 'array',
-          title: 'Keywords',
-          of: [{ type: 'string' }],
-          options: {
-            layout: 'tags',
-          },
-        }),
-        defineField({
-          name: 'image',
-          type: 'image',
-          title: 'Social Media Image',
-          description: 'Image for social media sharing',
-          options: { hotspot: true },
-          fields: [{ name: 'alt', type: 'string', title: 'Alt Text' }],
-        }),
-        defineField({
-          name: 'canonical',
-          type: 'url',
-          title: 'Canonical URL',
-          description: 'Canonical URL for this job',
-        }),
-      ],
+      title: 'SEO & Social Media',
+      type: 'seoFields',
     }),
   ],
   preview: {

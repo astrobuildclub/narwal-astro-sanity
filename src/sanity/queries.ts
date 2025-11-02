@@ -61,7 +61,55 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
       aspectRatio
     }
   },
- 
+  seo {
+    _type,
+    title,
+    description,
+    keywords,
+    canonicalUrl,
+    metaImage {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    openGraph {
+      _type,
+      title,
+      description,
+      siteName,
+      type,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    twitter {
+      _type,
+      card,
+      site,
+      title,
+      description,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    robots {
+      noIndex,
+      noFollow
+    }
+  }
 }`;
 
 // Fallback query voor als pageType niet is ingesteld
@@ -125,7 +173,55 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
       aspectRatio
     }
   },
-  
+  seo {
+    _type,
+    title,
+    description,
+    keywords,
+    canonicalUrl,
+    metaImage {
+      ...,
+      asset->,
+      crop,
+      hotspot
+    },
+    openGraph {
+      _type,
+      title,
+      description,
+      siteName,
+      type,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    twitter {
+      _type,
+      card,
+      site,
+      title,
+      description,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    robots {
+      noIndex,
+      noFollow
+    }
+  }
 }`;
 
 // All projects query
@@ -307,12 +403,52 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     }
   },
   seo {
+    _type,
     title,
     description,
     keywords,
-    image {
+    canonicalUrl,
+    metaImage {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
+    },
+    openGraph {
+      _type,
+      title,
+      description,
+      siteName,
+      type,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    twitter {
+      _type,
+      card,
+      site,
+      title,
+      description,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    robots {
+      noIndex,
+      noFollow
     }
   }
 }`;
@@ -426,12 +562,52 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
     }
   },
   seo {
+    _type,
     title,
     description,
     keywords,
-    image {
+    canonicalUrl,
+    metaImage {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
+    },
+    openGraph {
+      _type,
+      title,
+      description,
+      siteName,
+      type,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    twitter {
+      _type,
+      card,
+      site,
+      title,
+      description,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    robots {
+      noIndex,
+      noFollow
     }
   }
 }`;
@@ -479,13 +655,55 @@ export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0] {
       linkedin
     }
   },
+  openGraphSiteName,
+  twitterSite,
   defaultSeo {
+    _type,
     title,
     description,
     keywords,
-    image {
+    canonicalUrl,
+    metaImage {
       ...,
-      asset->
+      asset->,
+      crop,
+      hotspot
+    },
+    openGraph {
+      _type,
+      title,
+      description,
+      siteName,
+      type,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    twitter {
+      _type,
+      card,
+      site,
+      title,
+      description,
+      imageType,
+      image {
+        ...,
+        asset->,
+        crop,
+        hotspot,
+        alt
+      },
+      imageUrl
+    },
+    robots {
+      noIndex,
+      noFollow
     }
   }
 }`;
