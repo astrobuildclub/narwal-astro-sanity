@@ -20,6 +20,16 @@
   --action-color-state: var(--primary-500);
   --primary-background: var(--primary-100);
   --neutral-background: var(--neutral-200);
+
+  --gap-default: var(--space-m-l);
+  --grid-gutter: var(--space-xl);
+  --site-padding: var(--space-l);
+  --font-measure: 70ch;
+  --font-family-default:
+    'Instrument Sans', Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans',
+    Arial, sans-serif;
+  --font-family-special: 'Instrument Serif', serif;
+  --font-mono: 'Geist Mono Variable', monospace;
 }
 
 :root[data-theme='dark'] {
