@@ -8,6 +8,12 @@
 
 /* Fonts are now loaded via Google Fonts in DefaultLayout.astro */
 
+
+:root {
+  --font-family-default: 'Instrument Sans', sans-serif;
+}
+
+
 body {
   font-family: var(--font-family-default);
   text-shadow: rgba(0, 0, 0, 0.01) 0 0 1px;

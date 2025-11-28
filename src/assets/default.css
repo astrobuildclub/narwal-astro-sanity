@@ -20,26 +20,6 @@
   --action-color-state: var(--primary-500);
   --primary-background: var(--primary-100);
   --neutral-background: var(--neutral-200);
-
-  --gap-default: var(--space-m-l);
-  --grid-gutter: var(--space-xl);
-  /* Spacing - now handled by Utopia in SCSS */
-  --site-padding: var(--space-l);
-
-  --font-measure: 70ch;
-  --font-family-default:
-    'Instrument Sans', Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans',
-    Arial, sans-serif;
-  --font-family-special: 'Instrument Serif', serif;
-  --font-mono: 'Geist Mono Variable', monospace;
-
-  --radius-small: 3px;
-  --radius-large: 6px;
-  --radius-default: clamp(1rem, 0.7692rem + 1.0256vw, 2rem);
-
-  --easing-easeOutBack: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --easing-easeInOutQuart: cubic-bezier(0.76, 0, 0.24, 1);
-  --easing-easeOutExpo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root[data-theme='dark'] {

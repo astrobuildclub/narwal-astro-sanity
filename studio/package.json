@@ -14,6 +14,7 @@
   "dependencies": {
     "@sanity/icons": "^3.7.4",
     "@sanity/vision": "^4.11.0",
+    "dotenv": "^17.2.3",
     "sanity": "^4.11.0",
     "sanity-plugin-link-field": "^1.4.2",
     "sanity-plugin-seofields": "^1.0.8",
