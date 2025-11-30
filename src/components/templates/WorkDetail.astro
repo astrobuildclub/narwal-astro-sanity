@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets'
 import Hero from '../Hero.astro'
 import BlockRenderer from '../BlockRenderer.astro'
-import { urlForImage } from '../../sanity/lib/image'
+import { urlForImage } from '../../../sanity/lib/image'
 
 type Props = {
   data: any
@@ -83,12 +83,14 @@ if (import.meta.env.DEV) {
             
             return (
               <a href={`/project/${project.slug}`} class="related-project-card" data-astro-reload>
-                <Image 
-                  src={thumbnailUrl} 
-                  alt={project.title}
-                  inferSize
-                  class="related-project-img"
-                />
+                {thumbnailUrl && (
+                  <Image 
+                    src={thumbnailUrl} 
+                    alt={project.title || ''}
+                    inferSize
+                    class="related-project-img"
+                  />
+                )}
                 <h3>{project.title}</h3>
                 {project.client && <p>{project.client.title}</p>}
               </a>

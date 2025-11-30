@@ -1,5 +1,5 @@
 import type { SanitySEO, SanitySiteSettings } from '../sanity/types';
-import { urlForImage } from '../sanity/lib/image';
+import { urlForImage } from '../../src/sanity/lib/image'
 
 /**
  * Helper functie om SEO data op te halen met fallback logica:

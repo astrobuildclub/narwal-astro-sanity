@@ -1,7 +1,7 @@
 ---
 // Import Components & Scripts
 import { Image } from 'astro:assets';
-import { urlForImage } from '../../sanity/lib/image';
+import { urlForImage } from '../../../sanity/lib/image';
 import type { SanityImage } from '../../sanity/types';
 
 // Define Types
@@ -77,9 +77,6 @@ if (import.meta.env.DEV) {
           <Image 
             src={img.url}
             inferSize
-            widths={[300, 600, 900, 1200]}
-            sizes={`(max-width: 640px) 300px, (max-width: 1024px) 600px, ${imageWidth}px`}
-            format="avif"
             alt={img.alt || ''}
             class="galleryblock-image"
           />
@@ -101,9 +98,6 @@ if (import.meta.env.DEV) {
           <Image 
             src={img.url}
             inferSize
-            widths={[300, 600, 900, 1200]}
-            sizes={`(max-width: 640px) 300px, (max-width: 1024px) 600px, ${imageWidth}px`}
-            format="avif"
             alt={img.alt || ''}
             class="galleryblock-image"
           />

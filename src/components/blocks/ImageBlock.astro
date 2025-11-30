@@ -1,7 +1,7 @@
 ---
 // Import Components & Scripts
 import { Image } from 'astro:assets'
-import { urlForImage } from '../../sanity/lib/image'
+import { urlForImage } from '../../../sanity/lib/image'
 import type { SanityImage } from '../../sanity/types'
 
 // Define Types
@@ -90,8 +90,8 @@ if (import.meta.env.DEV) {
   <Image 
     src={finalSourceUrl}
     inferSize
-    alt={finalAltText} 
-    title={finalTitleText}
+    alt={finalAltText || ''} 
+    title={finalTitleText || undefined}
     class="imageblock-img"
   />
   {(showCaption || finalCaptionText) &&

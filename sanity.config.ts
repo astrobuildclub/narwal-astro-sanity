@@ -1,34 +1,65 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
-import { visionTool } from '@sanity/vision';
+import { schemaTypes } from './src/sanity/schemaTypes';
+import { presentationTool } from 'sanity/presentation';
+import { resolve } from './src/sanity/lib/resolve';
 import { linkField } from 'sanity-plugin-link-field';
-// Import schema types from studio directory
-import { schemaTypes } from './studio/schemas';
-
-// Load environment variables
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.SANITY_STUDIO_DATASET || process.env.PUBLIC_SANITY_DATASET || 'production';
-
-if (!projectId) {
-  throw new Error(
-    'Missing Sanity project ID. Please set SANITY_STUDIO_PROJECT_ID or PUBLIC_SANITY_PROJECT_ID environment variable.'
-  );
-}
+import seofields from 'sanity-plugin-seofields';
 
 export default defineConfig({
-  name: 'narwal-creative',
-  title: 'Narwal Creative',
-  projectId,
-  dataset,
+  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+  dataset: import.meta.env.PUBLIC_SANITY_DATASET,
   plugins: [
     structureTool(),
-    visionTool(),
+    presentationTool({
+      resolve,
+      previewUrl: location.origin,
+    }),
+
     linkField({
       linkableSchemaTypes: ['page', 'work'],
     }),
+    seofields({
+      seoPreview: true,
+      fieldVisibility: {
+        page: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        work: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        career: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        siteSettings: {
+          hiddenFields: [
+            'title',
+            'description',
+            'canonicalUrl',
+            'metaImage',
+            'keywords',
+            'openGraphUrl',
+            'openGraphTitle',
+            'openGraphDescription',
+            'openGraphType',
+            'openGraphImageType',
+            'openGraphImage',
+            'openGraphImageUrl',
+            'twitterCard',
+            'twitterCreator',
+            'twitterTitle',
+            'twitterDescription',
+            'twitterImageType',
+            'twitterImage',
+            'twitterImageUrl',
+            'robots',
+            'metaAttributes',
+          ],
+        },
+      },
+    }),
   ],
   schema: {
-    types: schemaTypes as any,
+    types: schemaTypes,
   },
 });
-
