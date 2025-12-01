@@ -125,24 +125,26 @@ const components = {
   }
 
   .project-footer-column .title {
-   
     opacity: 0.6;
     font-size: var(--fs--1);
     font-weight: 600;
     line-height: 1;
     margin-block: 1rem;
-
   }
 
   .project-footer-text {
-       font-size: var(--fs--1);
+    font-size: var(--fs--1);
     line-height: 133%;
     letter-spacing: -0.0125rem;
     text-wrap: balance;
   }
 
-  .project-footer-text p {
-    
+  :global(.project-footer-text p:first-child) {
+    font-size: var(--fs-0);
+    font-weight: 600;
+  }
+
+  :global(.project-footer-text p) {
     margin-bottom: 1em;
   }
 
@@ -150,24 +152,27 @@ const components = {
     list-style: none;
     padding: 0;
     margin: 0;
-    font-size: var(--fs-0);
+    font-size: var(--fs--2);
     line-height: 133%;
   }
-
- 
 
   .project-footer-services-list li {
     margin-bottom: 0.5em;
   }
-.project-footer-credits .project-footer-text ul,
-.project-footer-credits .project-footer-text ol {
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  font-size: var(--fs-0);
-  line-height: 133%;
-}
 
+  /* Credits lijsten styling - gebruik :global() om PortableText gegenereerde lijsten te targeten */
+  .project-footer-credits :global(.project-footer-text ul),
+  .project-footer-credits :global(.project-footer-text ol) {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: var(--fs--2);
+    line-height: 100%;
+  }
 
-
+  .project-footer-credits :global(.project-footer-text ul li),
+  .project-footer-credits :global(.project-footer-text ol li) {
+    margin-bottom: 0.5em;
+    color: red;
+  }
 </style>

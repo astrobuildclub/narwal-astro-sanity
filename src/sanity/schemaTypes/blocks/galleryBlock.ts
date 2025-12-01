@@ -80,7 +80,7 @@ export default defineType({
       return {
         title: title || 'Gallery Block',
         subtitle: `${gallery?.length || 0} images - ${layout} layout`,
-        media: 'Gallery',
+        media: ImagesIcon,
       };
     },
   },

@@ -10,8 +10,9 @@
 
 :root {
   --bg: #111;
+
   --white: #fdfdfa;
-  --black: #222;
+  --black: rgb(12, 12, 12);
   --primary: #00b7c6;
   --grey--dark: #7b7974;
   --font-color: var(--black);
@@ -50,7 +51,7 @@
 }
 
 :root[data-theme='dark'] {
-  --white: #111;
+  --white: rgb(12, 12, 12);
   --black: #e6e6e4;
   --primary: #ff851b;
   --font-color: var(--neutral-100);

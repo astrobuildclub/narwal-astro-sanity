@@ -159,10 +159,10 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
     }
   </div>
 
-  <div class="project-meta mb-0 flex justify-between pt-6 align-middle">
+  <div class="flex justify-between pt-6 mb-0 align-middle project-meta">
     {
       clientName && (
-        <h3 class="project-client self-baseline font-medium opacity-80">
+        <h3 class="font-medium opacity-80 project-client self-baseline">
           {clientName}
         </h3>
       )
@@ -173,7 +173,7 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
   {
     projectTitle && (
       <a href={projectLink} class="project-card-link" data-astro-reload>
-        <h2 class="project-title leading-4">{projectTitle}</h2>
+        <h2 class="leading-4 project-title">{projectTitle}</h2>
       </a>
     )
   }

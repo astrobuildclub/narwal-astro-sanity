@@ -12,21 +12,21 @@ type Props = {
 const { data } = Astro.props;
 
 // DEBUG: Log project detail data
-if (import.meta.env.DEV) {
-  console.log('🎨 WorkDetail received data:', {
-    _type: data._type,
-    title: data.title,
-    hasHero: !!data.hero,
-    contentBlocks: data.content?.length || 0,
-    hasInfo: !!data.info,
-    infoLength: data.info?.length || 0,
-    hasServices: !!data.services,
-    servicesLength: data.services?.length || 0,
-    hasCredits: !!data.credits,
-    creditsLength: data.credits?.length || 0,
-    relatedProjects: data.relatedProjects?.length || 0,
-  });
-}
+// if (import.meta.env.DEV) {
+//   console.log('🎨 WorkDetail received data:', {
+//     _type: data._type,
+//     title: data.title,
+//     hasHero: !!data.hero,
+//     contentBlocks: data.content?.length || 0,
+//     hasInfo: !!data.info,
+//     infoLength: data.info?.length || 0,
+//     hasServices: !!data.services,
+//     servicesLength: data.services?.length || 0,
+//     hasCredits: !!data.credits,
+//     creditsLength: data.credits?.length || 0,
+//     relatedProjects: data.relatedProjects?.length || 0,
+//   });
+// }
 
 // Sanity data structuur
 const hero = data.hero;
@@ -44,11 +44,11 @@ const heroData = {
   clients: data.client ? [data.client] : [],
 };
 
-if (import.meta.env.DEV) {
-  console.log('🎨 Processed hero data:', heroData);
-  console.log('🎨 Content blocks count:', content?.length || 0);
-  console.log('🎨 Related projects count:', relatedProjects?.length || 0);
-}
+// if (import.meta.env.DEV) {
+//   console.log('🎨 Processed hero data:', heroData);
+//   console.log('🎨 Content blocks count:', content?.length || 0);
+//   console.log('🎨 Related projects count:', relatedProjects?.length || 0);
+// }
 ---
 
 <Hero data={heroData} />
