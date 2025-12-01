@@ -6,12 +6,10 @@
 
 
 
-/* Fonts are now loaded via Google Fonts in DefaultLayout.astro */
+/* Fonts are now loaded via Adobe Typekit in DefaultLayout.astro */
 
 
-:root {
-  --font-family-default: 'Instrument Sans', sans-serif;
-}
+
 
 
 body {
@@ -25,7 +23,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
 
-  a:not(.button) {
+  article a:not(.button) {
     color: var(--action-color);
     text-decoration: underline;
 

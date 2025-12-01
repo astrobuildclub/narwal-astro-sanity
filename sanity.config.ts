@@ -22,43 +22,41 @@ export default defineConfig({
       linkableSchemaTypes: ['page', 'work'],
     }),
     seofields({
-      seofields: {
-        seoPreview: true,
-        fieldVisibility: {
-          page: {
-            hiddenFields: ['openGraphSiteName', 'twitterSite'],
-          },
-          work: {
-            hiddenFields: ['openGraphSiteName', 'twitterSite'],
-          },
-          career: {
-            hiddenFields: ['openGraphSiteName', 'twitterSite'],
-          },
-          siteSettings: {
-            hiddenFields: [
-              'title',
-              'description',
-              'canonicalUrl',
-              'metaImage',
-              'keywords',
-              'openGraphUrl',
-              'openGraphTitle',
-              'openGraphDescription',
-              'openGraphType',
-              'openGraphImageType',
-              'openGraphImage',
-              'openGraphImageUrl',
-              'twitterCard',
-              'twitterCreator',
-              'twitterTitle',
-              'twitterDescription',
-              'twitterImageType',
-              'twitterImage',
-              'twitterImageUrl',
-              'robots',
-              'metaAttributes',
-            ],
-          },
+      seoPreview: true,
+      fieldVisibility: {
+        page: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        work: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        career: {
+          hiddenFields: ['openGraphSiteName', 'twitterSite'],
+        },
+        siteSettings: {
+          hiddenFields: [
+            'title',
+            'description',
+            'canonicalUrl',
+            'metaImage',
+            'keywords',
+            'openGraphUrl',
+            'openGraphTitle',
+            'openGraphDescription',
+            'openGraphType',
+            'openGraphImageType',
+            'openGraphImage',
+            'openGraphImageUrl',
+            'twitterCard',
+            'twitterCreator',
+            'twitterTitle',
+            'twitterDescription',
+            'twitterImageType',
+            'twitterImage',
+            'twitterImageUrl',
+            'robots',
+            'metaAttributes',
+          ],
         },
       },
     }),

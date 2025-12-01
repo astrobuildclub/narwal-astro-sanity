@@ -58,11 +58,11 @@ const aspectRatioMap = {
   '9:20': '9/20'
 };
 
-const aspectRatioCSS = ratio && aspectRatioMap[ratio] ? aspectRatioMap[ratio] : null;
+const aspectRatioCSS = ratio && aspectRatioMap.hasOwnProperty(ratio) ? aspectRatioMap[ratio] : '16/9';
 
 // Generate video file URL
 let videoFileUrl = '';
-if (videoFile?.asset) {
+if (videoFile && videoFile.asset && typeof videoFile.asset._ref === 'string') {
   try {
     // For Sanity files, we need to construct the URL manually
     const assetId = videoFile.asset._ref.replace('file-', '').replace('-mp4', '');
@@ -98,10 +98,7 @@ function getSizeClass(size: string) {
     <section class={`video-container ${getSizeClass(finalSize)}`}>
       {videoType === 'upload' && videoFileUrl && (
         <!-- MP4 Upload Video -->
-        <div 
-          class="videoblock upload" 
-          style={aspectRatioCSS ? `aspect-ratio: ${aspectRatioCSS};` : undefined}
-        >
+        <div class="videoblock upload" style={`aspect-ratio: ${aspectRatioCSS};`}>
           <video
             controls
             preload="metadata"
@@ -127,7 +124,7 @@ function getSizeClass(size: string) {
           data-title={title || 'Video'}
           data-params={params ? `${params}&enablejsapi=1` : "enablejsapi=1"}
           data-thumbnail={thumbnailUrl}
-          {...(ratio && ratio.trim() ? { 'data-ratio': ratio } : {})}
+          data-ratio={ratio}
           data-autoscale={autoscale ? "" : undefined}
           data-widget={widget ? "" : undefined}
         >
@@ -162,23 +159,14 @@ function getSizeClass(size: string) {
     border-radius: var(--radius-sm, 4px);
   }
 
-  /* Video zonder aspect-ratio: gebruik natuurlijke hoogte */
-  .videoblock.upload:not([style*="aspect-ratio"]) video {
-    width: 100%;
-    height: auto;
-    display: block;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* Video met aspect-ratio: gebruik cover */
-  .videoblock.upload[style*="aspect-ratio"] video {
+  .videoblock.upload video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-    margin: 0;
-    padding: 0;
+    object-fit: cover;
+  display: block; /* Voeg dit toe */
+  margin: 0; /* Voeg dit toe */
+  padding: 0; /* Voeg dit toe */
   }
 
   .videoblock.error {
@@ -196,28 +184,6 @@ function getSizeClass(size: string) {
   div[data-service] .cll,
   div[data-service] .cll a,
   div[data-service] .cll button {
-  }
-
-  /* Video embeds zonder data-ratio: gebruik natuurlijke aspect ratio */
-  /* Overschrijf de default 16:9 aspect ratio van iframemanager */
-  .video-container div[data-service]:not([data-ratio])::before {
-    display: none !important;
-    padding-top: 0 !important;
-  }
-
-  .video-container div[data-service]:not([data-ratio]) {
-    min-height: auto;
-  }
-
-  .video-container div[data-service]:not([data-ratio]) .cll {
-    position: relative;
-  }
-
-  .video-container div[data-service]:not([data-ratio]) .cll iframe {
-    position: relative !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: auto !important;
   }
 
   /* Size-based styling - following EmbedBlock pattern */

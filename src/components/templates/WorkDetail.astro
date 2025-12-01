@@ -84,12 +84,12 @@ if (import.meta.env.DEV) {
             return (
               <a href={`/project/${project.slug}`} class="related-project-card" data-astro-reload>
                 {thumbnailUrl && (
-                  <Image 
-                    src={thumbnailUrl} 
+                <Image 
+                  src={thumbnailUrl} 
                     alt={project.title || ''}
-                    inferSize
-                    class="related-project-img"
-                  />
+                  inferSize
+                  class="related-project-img"
+                />
                 )}
                 <h3>{project.title}</h3>
                 {project.client && <p>{project.client.title}</p>}

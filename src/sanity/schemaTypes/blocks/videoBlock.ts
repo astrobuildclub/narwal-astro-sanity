@@ -57,10 +57,8 @@ export default defineType({
       name: 'ratio',
       type: 'string',
       title: 'Aspect Ratio',
-      description: 'Laat leeg om de natuurlijke aspect ratio van de video te gebruiken',
       options: {
         list: [
-          { title: 'Auto (natuurlijke ratio)', value: '' },
           { title: '1:1', value: '1:1' },
           { title: '2:1', value: '2:1' },
           { title: '3:2', value: '3:2' },
@@ -74,6 +72,7 @@ export default defineType({
           { title: '9:20', value: '9:20' },
         ],
       },
+      initialValue: '16:9',
     }),
     defineField({
       name: 'autoscale',
