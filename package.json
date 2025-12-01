@@ -5,14 +5,12 @@
   "author": "Mark Teekman",
   "homepage": "https://accessible-astro.netlify.app/",
   "scripts": {
-    "dev": "concurrently \"npm:dev:astro\" \"npm:dev:sanity\"",
-    "dev:astro": "astro dev",
-    "dev:sanity": "sanity dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
+    "dev": "astro dev",
+    "build": "astro build",
     "preview": "astro preview",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md,astro}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md,astro}\""
+    "astro": "astro",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@astrojs/mdx": "^4.3.8",

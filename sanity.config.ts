@@ -5,10 +5,18 @@ import { presentationTool } from 'sanity/presentation';
 import { resolve } from './src/sanity/lib/resolve';
 import { linkField } from 'sanity-plugin-link-field';
 import seofields from 'sanity-plugin-seofields';
+import { loadEnv } from 'vite';
+
+const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
+  process.env.NODE_ENV || 'development',
+  process.cwd(),
+  '',
+);
 
 export default defineConfig({
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET,
+  projectId:
+    PUBLIC_SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+  dataset: PUBLIC_SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET,
   plugins: [
     structureTool(),
     presentationTool({
