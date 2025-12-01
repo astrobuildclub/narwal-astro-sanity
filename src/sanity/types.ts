@@ -190,6 +190,7 @@ export interface SanityVideoBlock extends SanityBlock {
   autoplay?: boolean;
   loop?: boolean;
   muted?: boolean;
+  controls?: boolean;
   directUrl?: string;
   caption?: string;
 }

@@ -25,7 +25,8 @@ const {
   loop = true,
   muted = true,
   directUrl,
-  caption
+  caption,
+  controls = true
 } = video;
 
 // Type guard for videoType to help TypeScript
@@ -118,7 +119,7 @@ function getSizeClass(size: string) {
         <!-- MP4 Upload Video -->
         <div class="videoblock upload" style={`aspect-ratio: ${aspectRatioCSS};`}>
           <video
-            controls
+            controls={controls ? true : undefined}
             preload="metadata"
             playsinline
             loop={loop}
@@ -137,7 +138,7 @@ function getSizeClass(size: string) {
         <!-- Direct URL Video -->
         <div class="videoblock direct" style={`aspect-ratio: ${aspectRatioCSS};`}>
           <video
-            controls
+            controls={controls ? true : undefined}
             preload="metadata"
             playsinline
             loop={loop}

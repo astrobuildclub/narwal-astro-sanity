@@ -118,6 +118,14 @@ export default defineType({
       title: 'Loop',
       initialValue: true,
     }),
+    defineField({
+      name: 'controls',
+      type: 'boolean',
+      title: 'Show Controls',
+      initialValue: true,
+      hidden: ({ parent }) =>
+        parent?.videoType !== 'upload' && parent?.videoType !== 'direct',
+    }),
     // 7. Title
     defineField({
       name: 'title',
