@@ -7,6 +7,7 @@ export default defineType({
   type: 'object',
   icon: PlayIcon,
   fields: [
+    // 1. Video Type
     defineField({
       name: 'videoType',
       type: 'string',
@@ -16,12 +17,12 @@ export default defineType({
           { title: 'Upload (MP4)', value: 'upload' },
           { title: 'YouTube Embed', value: 'youtube' },
           { title: 'Vimeo Embed', value: 'vimeo' },
+          { title: 'Direct URL', value: 'direct' },
         ],
       },
       initialValue: 'upload',
     }),
-    // Embed fields (YouTube/Vimeo) - following EmbedBlock structure
-    // Service is automatically determined from videoType
+    // 2. Input (ID, URL or Upload)
     defineField({
       name: 'id',
       type: 'string',
@@ -32,27 +33,51 @@ export default defineType({
         parent?.videoType !== 'youtube' && parent?.videoType !== 'vimeo',
     }),
     defineField({
-      name: 'title',
-      type: 'string',
-      title: 'Video Title',
+      name: 'videoFile',
+      type: 'file',
+      title: 'Video File',
+      options: {
+        accept: 'video/mp4',
+      },
+      hidden: ({ parent }) => parent?.videoType !== 'upload',
     }),
     defineField({
-      name: 'params',
-      type: 'string',
-      title: 'Embed Parameters',
-      description: 'Optional: autoplay=1&mute=1&loop=1',
-      hidden: ({ parent }) =>
-        parent?.videoType !== 'youtube' && parent?.videoType !== 'vimeo',
+      name: 'directUrl',
+      type: 'url',
+      title: 'Video URL',
+      description:
+        'Directe URL naar video bestand (bijv. Vimeo progressive redirect: https://player.vimeo.com/progressive_redirect/playback/...)',
+      hidden: ({ parent }) => parent?.videoType !== 'direct',
     }),
+    // 3. Size
+    defineField({
+      name: 'size',
+      type: 'string',
+      title: 'Size',
+      options: {
+        list: [
+          { title: 'Content', value: 'content' },
+          { title: 'Popout', value: 'popout' },
+          { title: 'Feature', value: 'feature' },
+          { title: 'Page', value: 'page' },
+          { title: 'Full Width', value: 'full' },
+          { title: 'Inherit', value: 'inherit' },
+        ],
+      },
+      initialValue: 'page',
+    }),
+    // 4. Thumbnail
     defineField({
       name: 'thumbnail',
       type: 'image',
       title: 'Thumbnail Image',
-      description: 'Custom thumbnail image for the video',
+      description:
+        'Custom thumbnail image for the video (voor poster image en zichtbaar als de video niet autoplayed)',
       options: {
         hotspot: true,
       },
     }),
+    // 5. Aspect Ratio
     defineField({
       name: 'ratio',
       type: 'string',
@@ -74,6 +99,39 @@ export default defineType({
       },
       initialValue: '16:9',
     }),
+    // 6. Parameters (autoplay, mute, loop)
+    defineField({
+      name: 'autoplay',
+      type: 'boolean',
+      title: 'Autoplay',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'muted',
+      type: 'boolean',
+      title: 'Muted',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'loop',
+      type: 'boolean',
+      title: 'Loop',
+      initialValue: true,
+    }),
+    // 7. Title
+    defineField({
+      name: 'title',
+      type: 'string',
+      title: 'Video Title',
+    }),
+    // 8. Caption
+    defineField({
+      name: 'caption',
+      type: 'text',
+      title: 'Caption',
+      description: 'Onderschrift voor de video',
+    }),
+    // Hidden fields for embed functionality
     defineField({
       name: 'autoscale',
       type: 'boolean',
@@ -88,54 +146,6 @@ export default defineType({
       initialValue: false,
       hidden: true, // Hidden - always false for normal video embeds
     }),
-    defineField({
-      name: 'size',
-      type: 'string',
-      title: 'Size',
-      options: {
-        list: [
-          { title: 'Inline (Default)', value: 'inline' },
-          { title: 'Content', value: 'content' },
-          { title: 'Popout', value: 'popout' },
-          { title: 'Feature', value: 'feature' },
-          { title: 'Page', value: 'page' },
-          { title: 'Full Width', value: 'full' },
-          { title: 'Inherit', value: 'inherit' },
-        ],
-      },
-      initialValue: 'inline',
-    }),
-    // Upload fields (MP4)
-    defineField({
-      name: 'videoFile',
-      type: 'file',
-      title: 'Video File',
-      options: {
-        accept: 'video/mp4',
-      },
-      hidden: ({ parent }) => parent?.videoType !== 'upload',
-    }),
-    defineField({
-      name: 'autoplay',
-      type: 'boolean',
-      title: 'Autoplay',
-      initialValue: false,
-      hidden: ({ parent }) => parent?.videoType !== 'upload',
-    }),
-    defineField({
-      name: 'loop',
-      type: 'boolean',
-      title: 'Loop',
-      initialValue: false,
-      hidden: ({ parent }) => parent?.videoType !== 'upload',
-    }),
-    defineField({
-      name: 'muted',
-      type: 'boolean',
-      title: 'Muted',
-      initialValue: true,
-      hidden: ({ parent }) => parent?.videoType !== 'upload',
-    }),
   ],
   preview: {
     select: {
@@ -148,13 +158,15 @@ export default defineType({
     prepare({ title, videoType, size, thumbnail }) {
       let subtitle = 'Video Block';
       if (videoType === 'youtube') {
-        subtitle = `Video Block • YouTube • ${size || 'inline'}`;
+        subtitle = `Video Block • YouTube • ${size || 'page'}`;
       } else if (videoType === 'vimeo') {
-        subtitle = `Video Block • Vimeo • ${size || 'inline'}`;
+        subtitle = `Video Block • Vimeo • ${size || 'page'}`;
       } else if (videoType === 'upload') {
-        subtitle = `Video Block • MP4 Upload • ${size || 'inline'}`;
+        subtitle = `Video Block • MP4 Upload • ${size || 'page'}`;
+      } else if (videoType === 'direct') {
+        subtitle = `Video Block • Direct URL • ${size || 'page'}`;
       } else {
-        subtitle = `Video Block • ${size || 'inline'}`;
+        subtitle = `Video Block • ${size || 'page'}`;
       }
 
       return {
