@@ -1,6 +1,6 @@
 ---
-import DefaultLayout from "../layouts/DefaultLayout.astro";
-import { getNodeData, getTemplateByRoute } from "../lib/routes";
+import DefaultLayout from '../layouts/DefaultLayout.astro';
+import { getNodeData, getTemplateByRoute } from '../lib/routes';
 import { getSiteSettings } from '../lib/sanity';
 import { getSeoData } from '../lib/seo-helpers';
 
@@ -9,7 +9,7 @@ export const prerender = false;
 
 // Dynamische parameter ophalen
 const { uri } = Astro.params;
-const slug = uri ? `/${uri}/` : "/";
+const slug = uri ? `/${uri}/` : '/';
 
 // Haal searchParams op voor Visual Editing (preview mode)
 const requestUrl = new URL(Astro.request.url);
@@ -32,7 +32,7 @@ const seoData = getSeoData(
   siteSettings,
   node.title,
   'Our amazing studio from Rotterdam',
-  pageUrl
+  pageUrl,
 );
 
 // Debug logging (uitgecomment - alleen nodig bij troubleshooting)

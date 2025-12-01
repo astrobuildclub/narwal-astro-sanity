@@ -1,14 +1,15 @@
 ---
-import { Image } from 'astro:assets'
-import Hero from '../Hero.astro'
-import BlockRenderer from '../BlockRenderer.astro'
-import { urlForImage } from '../../../sanity/lib/image'
+import { Image } from 'astro:assets';
+import Hero from '../Hero.astro';
+import BlockRenderer from '../BlockRenderer.astro';
+import ProjectFooter from '../ProjectFooter.astro';
+import { urlForImage } from '../../../sanity/lib/image';
 
 type Props = {
-  data: any
-}
+  data: any;
+};
 
-const { data } = Astro.props
+const { data } = Astro.props;
 
 // DEBUG: Log project detail data
 if (import.meta.env.DEV) {
@@ -17,15 +18,22 @@ if (import.meta.env.DEV) {
     title: data.title,
     hasHero: !!data.hero,
     contentBlocks: data.content?.length || 0,
+    hasInfo: !!data.info,
+    infoLength: data.info?.length || 0,
+    hasServices: !!data.services,
+    servicesLength: data.services?.length || 0,
     hasCredits: !!data.credits,
-    relatedProjects: data.relatedProjects?.length || 0
+    creditsLength: data.credits?.length || 0,
+    relatedProjects: data.relatedProjects?.length || 0,
   });
 }
 
 // Sanity data structuur
 const hero = data.hero;
 const content = data.content;
+const info = data.info;
 const credits = data.credits;
+const services = data.services;
 const relatedProjects = data.relatedProjects;
 
 const heroData = {
@@ -33,7 +41,7 @@ const heroData = {
   subtitle: hero?.subtitle,
   intro: hero?.intro,
   coverMedia: hero?.coverMedia,
-  clients: data.client ? [data.client] : []
+  clients: data.client ? [data.client] : [],
 };
 
 if (import.meta.env.DEV) {
@@ -54,19 +62,8 @@ if (import.meta.env.DEV) {
 }
 
 {
-  credits && credits.length > 0 && (
-    <section class="credits page">
-      <div class="credits-content">
-        <h2>Credits</h2>
-        <div class="credits-text">
-          {credits.map((block: any) => (
-            <div class={`text-${block.style || 'normal'}`}>
-              {block.children?.map((child: any) => child.text).join('')}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+  (info || services || credits) && (
+    <ProjectFooter info={info} services={services} credits={credits} />
   )
 }
 
@@ -77,19 +74,26 @@ if (import.meta.env.DEV) {
         <h2>Related Projects</h2>
         <div class="related-projects-grid">
           {relatedProjects.map((project: any) => {
-            const thumbnailUrl = project.thumbnail?.image?.asset 
-              ? urlForImage(project.thumbnail.image)?.width(400).height(300).url() || ''
+            const thumbnailUrl = project.thumbnail?.image?.asset
+              ? urlForImage(project.thumbnail.image)
+                  ?.width(400)
+                  .height(300)
+                  .url() || ''
               : '';
-            
+
             return (
-              <a href={`/project/${project.slug}`} class="related-project-card" data-astro-reload>
+              <a
+                href={`/project/${project.slug}`}
+                class="related-project-card"
+                data-astro-reload
+              >
                 {thumbnailUrl && (
-                <Image 
-                  src={thumbnailUrl} 
+                  <Image
+                    src={thumbnailUrl}
                     alt={project.title || ''}
-                  inferSize
-                  class="related-project-img"
-                />
+                    inferSize
+                    class="related-project-img"
+                  />
                 )}
                 <h3>{project.title}</h3>
                 {project.client && <p>{project.client.title}</p>}
@@ -105,20 +109,6 @@ if (import.meta.env.DEV) {
 <style>
   .project {
     /* Padding now handled by page-layout grid via --site-padding */
-  }
-
-  .credits {
-    
-    background: var(--clr-light);
-  }
-
-  .credits-content h2 {
-    margin-bottom: var(--space-lg);
-  }
-
-  .credits-text {
-    display: grid;
-    gap: var(--space-sm);
   }
 
   .related-projects {

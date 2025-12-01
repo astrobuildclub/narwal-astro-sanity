@@ -8,7 +8,10 @@ import WorkDetail from '../components/templates/WorkDetail.astro';
 import Page from '../components/templates/Page.astro';
 import Home from '../components/templates/Home.astro';
 
-export async function getNodeData(slug: string, searchParams?: URLSearchParams) {
+export async function getNodeData(
+  slug: string,
+  searchParams?: URLSearchParams,
+) {
   // Homepage - alleen Sanity
   if (slug === '/' || slug === '') {
     try {

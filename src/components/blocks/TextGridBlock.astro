@@ -10,17 +10,17 @@ interface textItem {
   title?: string;
   text?: string;
 }
-interface Props{
+interface Props {
   title?: string;
-  media?: { 
-    image?: SanityImage; 
-    imgposition?: string; 
+  media?: {
+    image?: SanityImage;
+    imgposition?: string;
   };
   items?: textItem[];
 }
 
 // Define vars
-const {title, media, items} = Astro.props;
+const { title, media, items } = Astro.props;
 
 // Generate image URL - Sanity data only
 let finalSourceUrl = '';
@@ -31,49 +31,59 @@ if (media?.image?.asset) {
   try {
     // Optimaliseer afbeelding voor grid layout (max 960px breed op desktop, want 2 kolommen)
     // De .auto('format') en .fit('max') worden al toegepast door urlForImage
-    finalSourceUrl = urlForImage(media.image)
-      ?.width(960)  // Max width voor grid afbeelding
-      .url() || '';
+    finalSourceUrl =
+      urlForImage(media.image)
+        ?.width(960) // Max width voor grid afbeelding
+        .url() || '';
     finalAltText = media.image.alt || '';
   } catch (error) {
     // Failed to generate image URL
   }
 }
-
 ---
 
 <!--TextGridBlock-->
-<div class="grid grid-cols-1 textgridblock page">
+<div class="textgridblock page grid grid-cols-1">
   <h2 class="textgridblock-title">{title}</h2>
-  
-  <!-- Outer grid: 2 kolommen als er een afbeelding is, anders 1 kolom -->
-  <div class={`grid textgridblock-content items-start gap-8 ${finalSourceUrl ? 'lg:grid-cols-2 ' : ''}`}>
 
-    {finalSourceUrl && (
-      <Image 
-        src={finalSourceUrl}
-        inferSize
-        widths={[540, 960, 1440, 1920]}
-        sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
-        format="avif"
-        alt={finalAltText || ''} 
-        title={finalAltText || ''}
-        class={`content-image image-wrap img-align-${imagePosition}`}
-      />
-    )}
+  <!-- Outer grid: 2 kolommen als er een afbeelding is, anders 1 kolom -->
+  <div
+    class={`grid textgridblock-content items-start gap-8 ${finalSourceUrl ? 'lg:grid-cols-2 ' : ''}`}
+  >
+    {
+      finalSourceUrl && (
+        <Image
+          src={finalSourceUrl}
+          inferSize
+          widths={[540, 960, 1440, 1920]}
+          sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
+          format="avif"
+          alt={finalAltText || ''}
+          title={finalAltText || ''}
+          class={`content-image image-wrap img-align-${imagePosition}`}
+        />
+      )
+    }
 
     <!-- Inner grid: als er geen afbeelding is, dan 3 kolommen op desktop, 2 op tablet, 1 op mobiel -->
-    <div class={`grid gap-12 items 
-      ${finalSourceUrl 
-        ? '' 
-        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} 
-    `}>
-      {items && items.map((item: textItem) => (
-        <div class="flex flex-col gap-2 content-item md:gap-2">
-          {item.title && <h3 class="content-item-title" set:html={item.title} />}
-          {item.text && <div class="content-item-desc" set:html={item.text} />}
-        </div>
-      ))}
+    <div
+      class={`grid gap-12 items 
+      ${finalSourceUrl ? '' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} 
+    `}
+    >
+      {
+        items &&
+          items.map((item: textItem) => (
+            <div class="content-item flex flex-col gap-2 md:gap-2">
+              {item.title && (
+                <h3 class="content-item-title" set:html={item.title} />
+              )}
+              {item.text && (
+                <div class="content-item-desc" set:html={item.text} />
+              )}
+            </div>
+          ))
+      }
     </div>
   </div>
 </div>

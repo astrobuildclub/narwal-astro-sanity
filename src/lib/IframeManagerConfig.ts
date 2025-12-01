@@ -1,12 +1,23 @@
 export const iframeManagerConfig = {
-  onChange: ({ changedServices, eventSource }: { changedServices: string[], eventSource: { type: string } }) => {
+  onChange: ({
+    changedServices,
+    eventSource,
+  }: {
+    changedServices: string[];
+    eventSource: { type: string };
+  }) => {
     if (eventSource.type === 'click') {
       const servicesToAccept = [
-        ...(window as any).CookieConsent.getUserPreferences().acceptedServices['analytics'],
+        ...(window as any).CookieConsent.getUserPreferences().acceptedServices[
+          'analytics'
+        ],
         ...changedServices,
       ];
 
-      (window as any).CookieConsent.acceptService(servicesToAccept, 'analytics');
+      (window as any).CookieConsent.acceptService(
+        servicesToAccept,
+        'analytics',
+      );
     }
   },
 
@@ -42,7 +53,10 @@ export const iframeManagerConfig = {
         allow: 'fullscreen; picture-in-picture;',
       },
 
-      thumbnailUrl: async (dataId: string, setThumbnail: (url: string) => void) => {
+      thumbnailUrl: async (
+        dataId: string,
+        setThumbnail: (url: string) => void,
+      ) => {
         const url = `https://vimeo.com/api/v2/video/${dataId}.json`;
         const response = await (await fetch(url)).json();
         const thumbnailUrl = response[0]?.thumbnail_large;
@@ -54,7 +68,7 @@ export const iframeManagerConfig = {
           notice:
             'Deze content wordt gehost door een derde partij. Door de externe content te tonen accepteer je de <a rel="noreferrer noopener" href="https://vimeo.com/terms" target="_blank">voorwaarden</a> van vimeo.com.',
           loadBtn: 'Eenmalig laden',
-          loadAllBtn: "Niet meer vragen",
+          loadAllBtn: 'Niet meer vragen',
         },
         en: {
           notice:

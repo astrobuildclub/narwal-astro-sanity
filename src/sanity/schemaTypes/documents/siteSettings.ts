@@ -206,7 +206,8 @@ export default defineType({
       name: 'defaultSeo',
       type: 'seoFields',
       title: 'Default SEO Settings',
-      description: 'Default SEO settings used as fallback for pages without their own SEO',
+      description:
+        'Default SEO settings used as fallback for pages without their own SEO',
       group: 'seo',
     }),
   ],

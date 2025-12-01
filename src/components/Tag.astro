@@ -1,26 +1,23 @@
 ---
-const { label } = Astro.props
+const { label } = Astro.props;
 ---
 
-<li class="tracking-tighter leading-none rounded-full tag">
-  {label}  
+<li class="tag rounded-full leading-none tracking-tighter">
+  {label}
 </li>
 
 <style>
   .tag {
-    padding: calc(var(--space-2xs)*0.5) calc(var(--space-2xs) / 1.25);
+    padding: calc(var(--space-2xs) * 0.5) calc(var(--space-2xs) / 1.25);
     font-size: calc(var(--fs--3) - 0.0125em);
     letter-spacing: -0.025em;
     background: var(--color-bg-focus);
     leading-trim: both;
     text-edge: cap alphabetic;
     color: var(--clr-tag-text);
-  
   }
 
   .tag a {
     text-decoration: none;
-    
-
   }
 </style>

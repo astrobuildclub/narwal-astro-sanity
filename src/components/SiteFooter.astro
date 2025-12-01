@@ -1,16 +1,17 @@
 ---
-import Widget from '../components/Widget.astro'
-import Newsletter from '../components/Newsletter.astro'
+import Widget from '../components/Widget.astro';
+import Newsletter from '../components/Newsletter.astro';
 
-
-const currentYear = new Date().getFullYear()
+const currentYear = new Date().getFullYear();
 ---
 
-<footer class="relative md:min-h-screen md:grid md:content-between md:bottom-0 page-layout md:fixed -z-10">
-  
-  
-    <div class="flex flex-col flex-grow justify-between footer__top pt-[var(--space-xl)] gap-[var(--space-xl)] page">
-      <!-- <div class="flex items-center py-0 h-16 logo__footer">
+<footer
+  class="page-layout relative -z-10 md:fixed md:bottom-0 md:grid md:min-h-screen md:content-between"
+>
+  <div
+    class="footer__top page flex flex-grow flex-col justify-between gap-[var(--space-xl)] pt-[var(--space-xl)]"
+  >
+    <!-- <div class="flex items-center py-0 h-16 logo__footer">
           <a href="/" aria-label="Homepage">
             <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -27,53 +28,87 @@ const currentYear = new Date().getFullYear()
         ><defs><clipPath id="a"><path fill="currentcolor" d="M0 0h150.943v40H0z"></path></clipPath></defs></svg>
     </a>
   </div> -->
-      <p class="text-8xl tracking-tight text-balance">We're always up for conversation
-<br> <span class="">Let's connect</span></p>
-      
-      
-    </div>
-    <div class="page footer__widgets flex flex-col gap-[var(--space-l)]">
-      <div class="grid grid-cols-1 gap-12 lg:gap-24 md:grid-cols-4">
-        <Widget title="Join our Newsletter">
-          <Newsletter />
-        </Widget>
-        <Widget title="Address">
-          <address>
-            <ul role="list" class="list-none">
-              <li>Narwal Creative</li>
-              <li>Westerkade 4 — 5</li>
-              <li>3511 HA Utrecht</li>
-              <li>The Netherlands</li>
-            </ul>
-          </address>
-        </Widget>
-        <Widget title="Socialize">
-          <ul role="list" class="list-none">
-            <li><a href="https://www.instagram.com/narwalcreative/" aria-label="Follow us on instagram" target="_blank">Instagram</a></li>
-            <li><a href="https://www.behance.net/jelmerscheffer" aria-label="Follow us on behance" target="_blank">Behance</a></li>
-            <li><a href="https://www.linkedin.com/company/narwal-creative" aria-label="Follow us on linkedin" target="_blank">Linkedin</a></li>
-          </ul>
-        </Widget>
-        <Widget title="Get in touch">
-          <ul role="list" class="list-none">
-            <li><a href="tel:+31302270459" aria-label="Call us" >+31 (0)30 227 04 59</a></li>
-            <li><a href="mailto:info@narwalcreative.com?subject=Hello!"  aria-label="E-mail us" >info@narwalcreative.com</a></li>
-          </ul>
-        </Widget>
-      </div>
-  <div class="flex justify-between py-[var(--space-s)] items-end text-xs text-2xs legal page">
-     <button data-cc="show-preferencesModal" type="button" class="button-cookieconsent">Cookie voorkeuren</button>
-        <p>
-          &copy; {currentYear} - Narwal Creative 
-        </p>
-        <div class="flex gap-4">
-         
-          <a href="https://astro.build/" aria-label="Read our legal Terms & Conditions" >Terms & Conditions</a>
-        </div>
-      </div>
-      
+    <p class="text-balance text-8xl tracking-tight">
+      We're always up for conversation
+      <br />
+      <span class="">Let's connect</span>
+    </p>
   </div>
-  
+  <div class="page footer__widgets flex flex-col gap-[var(--space-l)]">
+    <div class="grid grid-cols-1 gap-12 md:grid-cols-4 lg:gap-24">
+      <Widget title="Join our Newsletter">
+        <Newsletter />
+      </Widget>
+      <Widget title="Address">
+        <address>
+          <ul role="list" class="list-none">
+            <li>Narwal Creative</li>
+            <li>Westerkade 4 — 5</li>
+            <li>3511 HA Utrecht</li>
+            <li>The Netherlands</li>
+          </ul>
+        </address>
+      </Widget>
+      <Widget title="Socialize">
+        <ul role="list" class="list-none">
+          <li>
+            <a
+              href="https://www.instagram.com/narwalcreative/"
+              aria-label="Follow us on instagram"
+              target="_blank">Instagram</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.behance.net/jelmerscheffer"
+              aria-label="Follow us on behance"
+              target="_blank">Behance</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.linkedin.com/company/narwal-creative"
+              aria-label="Follow us on linkedin"
+              target="_blank">Linkedin</a
+            >
+          </li>
+        </ul>
+      </Widget>
+      <Widget title="Get in touch">
+        <ul role="list" class="list-none">
+          <li>
+            <a href="tel:+31302270459" aria-label="Call us"
+              >+31 (0)30 227 04 59</a
+            >
+          </li>
+          <li>
+            <a
+              href="mailto:info@narwalcreative.com?subject=Hello!"
+              aria-label="E-mail us">info@narwalcreative.com</a
+            >
+          </li>
+        </ul>
+      </Widget>
+    </div>
+    <div
+      class="text-2xs legal page flex items-end justify-between py-[var(--space-s)] text-xs"
+    >
+      <button
+        data-cc="show-preferencesModal"
+        type="button"
+        class="button-cookieconsent">Cookie voorkeuren</button
+      >
+      <p>
+        &copy; {currentYear} - Narwal Creative
+      </p>
+      <div class="flex gap-4">
+        <a
+          href="https://astro.build/"
+          aria-label="Read our legal Terms & Conditions">Terms & Conditions</a
+        >
+      </div>
+    </div>
+  </div>
 </footer>
 
 <style>
@@ -82,8 +117,8 @@ const currentYear = new Date().getFullYear()
 
   } */
 
-  p{
-    margin:0;
+  p {
+    margin: 0;
   }
 
   address {
@@ -92,39 +127,34 @@ const currentYear = new Date().getFullYear()
 
   footer {
     width: 100%;
-    
+
     min-height: 100vh;
   }
 
   .footer__top {
-    margin-block: 0;}
-
-  .footer__widgets {  
     margin-block: 0;
   }
 
+  .footer__widgets {
+    margin-block: 0;
+  }
 
   ul li {
     margin-block: 0.0125em;
     font-size: var(--fs--3);
     line-height: 150%;
-    
   }
 
-    ul li a {
-      opacity: 0.9;
-      text-decoration: none;
-    }
+  ul li a {
+    opacity: 0.9;
+    text-decoration: none;
+  }
 
   footer .legal {
-    
     font-size: var(--fs--3);
   }
 
   .button-cookieconsent {
-    border:none;
+    border: none;
   }
-
-
-  
 </style>

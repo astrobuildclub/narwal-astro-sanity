@@ -90,8 +90,10 @@ export interface SanityProject {
   };
   thumbnail?: {
     image?: SanityImage;
-    size?: 'small' | 'default' | 'large';
+    size?: 'small' | 'default' | 'large' | 'full';
     aspectRatio?: string;
+    useVideo?: boolean;
+    video?: string;
   };
   client?: {
     _type: 'reference';
@@ -99,9 +101,11 @@ export interface SanityProject {
   };
   services?: Array<{
     _type: 'reference';
-    title: string;
+    _id?: string;
+    title?: string;
   }>;
-  credits?: string;
+  info?: any[]; // Portable Text array
+  credits?: any[]; // Portable Text array
   relatedProjects?: SanityProject[];
   content?: SanityBlock[];
   seo?: SanitySEO;
@@ -179,13 +183,7 @@ export interface SanityVideoBlock extends SanityBlock {
     | '9:20';
   autoscale?: boolean;
   widget?: boolean;
-  size?:
-    | 'content'
-    | 'popout'
-    | 'feature'
-    | 'page'
-    | 'full'
-    | 'inherit';
+  size?: 'content' | 'popout' | 'feature' | 'page' | 'full' | 'inherit';
   videoFile?: SanityFile;
   autoplay?: boolean;
   loop?: boolean;
@@ -337,7 +335,14 @@ export interface SanitySEO {
     title?: string;
     description?: string;
     siteName?: string;
-    type?: 'website' | 'article' | 'profile' | 'book' | 'music' | 'video' | 'product';
+    type?:
+      | 'website'
+      | 'article'
+      | 'profile'
+      | 'book'
+      | 'music'
+      | 'video'
+      | 'product';
     imageType?: 'upload' | 'url';
     image?: SanityImage;
     imageUrl?: string;

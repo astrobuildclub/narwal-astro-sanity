@@ -66,7 +66,11 @@ export default defineType({
       name: 'introCols',
       type: 'array',
       title: 'Intro Columns',
-      description: (({ document }: { document?: { pageType?: string } }): string => {
+      description: (({
+        document,
+      }: {
+        document?: { pageType?: string };
+      }): string => {
         const isWorkPage = document?.pageType === 'work';
         return isWorkPage
           ? 'Maximum 1 column for Work Overview pages (Project Filter will be in column 2)'

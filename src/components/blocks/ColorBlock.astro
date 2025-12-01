@@ -1,13 +1,12 @@
 ---
 // Define Types
-interface Props{
+interface Props {
   color?: string;
-  size?: "inline" | "popout" | "feature" | "full" | "inherit";
+  size?: 'inline' | 'popout' | 'feature' | 'full' | 'inherit';
 }
 
 // Define Vars
-const { color = "#000000", size } = Astro.props;
-
+const { color = '#000000', size } = Astro.props;
 ---
 
 <div class:list={['colorblock', size]} style={`background-color: ${color};`}>
@@ -21,7 +20,7 @@ const { color = "#000000", size } = Astro.props;
     align-items: center;
     justify-content: center;
   }
-  
+
   .colorblock-content {
     width: 100%;
     height: 100%;
