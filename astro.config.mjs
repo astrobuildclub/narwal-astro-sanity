@@ -4,11 +4,11 @@ import { defineConfig } from 'astro/config';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
-import netlify from '@astrojs/netlify';
+// import netlify from '@astrojs/netlify';
 
 import { loadEnv } from 'vite';
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
-  process.env.NODE_ENV,
+  process.env.NODE_ENV || 'development',
   process.cwd(),
   '',
 );
@@ -31,5 +31,10 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
   ],
-  // adapter: netlify(),
+
+  adapter: netlify(),
+
+  // image: {
+  //   domains: ['cdn.sanity.io'],
+  // },
 });

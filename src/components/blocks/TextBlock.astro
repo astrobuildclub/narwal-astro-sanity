@@ -31,15 +31,6 @@ const components = {
   }
 };
 
-if (import.meta.env.DEV) {
-  console.log('📝 TextBlock received:', {
-    title,
-    content: typeof content,
-    size,
-    isArray: Array.isArray(content),
-    contentLength: Array.isArray(content) ? content.length : 0
-  });
-}
 ---
 
 <!--TextBlock -->

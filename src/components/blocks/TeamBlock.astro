@@ -22,17 +22,6 @@ interface Props{
 // Define Vars
 const {title, members} = Astro.props;
 
-if (import.meta.env.DEV) {
-  console.log('👥 TeamBlock received:', {
-    title,
-    membersCount: members?.length || 0,
-    members: members?.map(m => ({
-      name: m.title,
-      hasPhoto: !!m.featuredImage,
-      rolesCount: m.roles?.length || 0
-    }))
-  });
-}
 ---
 
 <!-- TeamBlock -->

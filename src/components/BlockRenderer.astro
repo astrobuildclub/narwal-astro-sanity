@@ -32,11 +32,11 @@ const { prefix, blocks } = Astro.props;
       const blockType = block._type;
       
       if (import.meta.env.DEV) {
-        console.log('🧩 BlockRenderer processing block:', {
-          _type: block._type,
-          blockType: blockType,
-          prefix: prefix
-        });
+        // console.log('🧩 BlockRenderer processing block:', {
+        //   _type: block._type,
+        //   blockType: blockType,
+        //   prefix: prefix
+        // });
       }
       
       switch (blockType) {

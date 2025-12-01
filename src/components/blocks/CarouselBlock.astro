@@ -21,15 +21,6 @@ const {
   showTitle = false
 } = Astro.props;
 
-// DEBUG: Log gallery data
-if (import.meta.env.DEV) {
-  console.log('🎠 CarouselBlock received:', {
-    title,
-    size,
-    showCaptions,
-    imagesCount: gallery?.length || 0
-  });
-}
 
 // Process gallery images into slides format
 const backgroundSlides = gallery?.map((image: SanityImage) => {
@@ -43,9 +34,6 @@ const backgroundSlides = gallery?.map((image: SanityImage) => {
       imageAlt = image.alt || '';
       imageCaption = image.caption || '';
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.warn('⚠️ Failed to generate image URL in CarouselBlock:', error);
-      }
       // Fallback: imageUrl blijft leeg als urlForImage faalt
       imageUrl = "";
     }
@@ -58,9 +46,6 @@ const backgroundSlides = gallery?.map((image: SanityImage) => {
   };
 }).filter(slide => slide.imgsrc) || [];
 
-if (import.meta.env.DEV) {
-  console.log('🎠 CarouselBlock processed slides:', backgroundSlides.length);
-}
 ---
 
 <!--CarouselBlock-->

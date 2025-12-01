@@ -1,22 +1,21 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
-import { getAllUris } from "../lib/sanity";
 import { getNodeData, getTemplateByRoute } from "../lib/routes";
-
-// export const prerender = true; // SSR CMS stuff
-
-export async function getStaticPaths() {
-    return await getAllUris();
-}
-
 import { getSiteSettings } from '../lib/sanity';
 import { getSeoData } from '../lib/seo-helpers';
+
+// SSR mode voor Visual Editing support
+export const prerender = false;
 
 // Dynamische parameter ophalen
 const { uri } = Astro.params;
 const slug = uri ? `/${uri}/` : "/";
 
-let node = await getNodeData(slug);
+// Haal searchParams op voor Visual Editing (preview mode)
+const requestUrl = new URL(Astro.request.url);
+const searchParams = requestUrl.searchParams;
+
+let node = await getNodeData(slug, searchParams);
 const Template = getTemplateByRoute(node);
 
 // Haal site settings op voor SEO fallbacks

@@ -28,20 +28,10 @@ if (photo?.asset) {
     try {
         finalPhotoUrl = urlForImage(photo)?.width(200).height(200).url() || '';
     } catch (error) {
-        console.warn('Failed to generate photo URL:', error);
+        // Failed to generate photo URL
     }
 }
 
-if (import.meta.env.DEV) {
-    console.log('💬 TestimonialBlock received:', {
-        quote: quote?.substring(0, 50) + '...',
-        name,
-        role,
-        hasPhoto: !!photo,
-        hasPhotoUrl: !!finalPhotoUrl,
-        size
-    });
-}
 ---
 <!--TestimonialBlock-->
 <section class={`testimonialblock ${size}`}>

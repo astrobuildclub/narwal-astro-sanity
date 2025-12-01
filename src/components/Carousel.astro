@@ -6,34 +6,34 @@ import { urlForImage } from '../../src/sanity/lib/image'
 
 const {slides} = Astro.props;
 
-// DEBUG: Log de volledige slides data
-if (import.meta.env.DEV) {
-  console.log('🎠 Carousel received slides:', JSON.stringify(slides, null, 2));
-  console.log('🎠 Slides count:', slides?.length || 0);
+// // DEBUG: Log de volledige slides data
+// if (import.meta.env.DEV) {
+//   console.log('🎠 Carousel received slides:', JSON.stringify(slides, null, 2));
+//   console.log('🎠 Slides count:', slides?.length || 0);
 
-  // Log elke slide individueel
-  slides?.forEach((slide: any, index: number) => {
-    console.log(`🎠 Slide ${index}:`, {
-      _type: slide._type,
-      title: slide.title,
-      subtitle: slide.subtitle,
-      image: slide.image,
-      link: slide.link,
-      videoUrl: slide.videoUrl
-    });
-  });
-}
+//   // Log elke slide individueel
+//   slides?.forEach((slide: any, index: number) => {
+//     console.log(`🎠 Slide ${index}:`, {
+//       _type: slide._type,
+//       title: slide.title,
+//       subtitle: slide.subtitle,
+//       image: slide.image,
+//       link: slide.link,
+//       videoUrl: slide.videoUrl
+//     });
+//   });
+// }
 
 // Process Sanity slides
 const processedSlides = slides.map((slide: any) => {
   if (import.meta.env.DEV) {
-    console.log(`🎠 Processing slide "${slide.title}":`, {
-      hasImage: !!slide.image,
-      hasAsset: !!slide.image?.asset,
-      imageRef: slide.image?.asset?._ref,
-      hasKey: !!slide._key,
-      link: slide.link
-    });
+    // console.log(`🎠 Processing slide "${slide.title}":`, {
+    //   hasImage: !!slide.image,
+    //   hasAsset: !!slide.image?.asset,
+    //   imageRef: slide.image?.asset?._ref,
+    //   hasKey: !!slide._key,
+    //   link: slide.link
+    // });
   }
 
   // Sanity data structure - build URL based on link type
@@ -105,15 +105,15 @@ const backgroundSlides = processedSlides.map((slide: any) => {
 
   // DEBUG: Log image details
   if (import.meta.env.DEV) {
-    console.log('🖼️ Sanity slide image processing:', {
-      slideTitle: slide.title,
-      hasImage: !!slide.image,
-      hasAsset: !!slide.image?.asset,
-      assetRef: slide.image?.asset?._ref,
-      alt: slide.image?.alt,
-      generatedUrl: imageUrl,
-      directUrl: slide.image?.asset?.url
-    });
+    // console.log('🖼️ Sanity slide image processing:', {
+    //   slideTitle: slide.title,
+    //   hasImage: !!slide.image,
+    //   hasAsset: !!slide.image?.asset,
+    //   assetRef: slide.image?.asset?._ref,
+    //   alt: slide.image?.alt,
+    //   generatedUrl: imageUrl,
+    //   directUrl: slide.image?.asset?.url
+    // });
   }
 
   return {

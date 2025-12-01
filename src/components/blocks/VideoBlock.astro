@@ -39,7 +39,7 @@ if (thumbnail?.asset) {
   try {
     thumbnailUrl = urlForImage(thumbnail)?.width(1280).height(720).url() || '';
   } catch (error) {
-    console.warn('Failed to generate thumbnail URL:', error);
+    // Failed to generate thumbnail URL
   }
 }
 
@@ -68,7 +68,7 @@ if (videoFile?.asset) {
     const assetId = videoFile.asset._ref.replace('file-', '').replace('-mp4', '');
     videoFileUrl = `https://cdn.sanity.io/files/${import.meta.env.PUBLIC_SANITY_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_DATASET}/${assetId}.mp4`;
   } catch (error) {
-    console.warn('Failed to generate video file URL:', error);
+    // Failed to generate video file URL
   }
 }
 
@@ -92,28 +92,6 @@ function getSizeClass(size: string) {
   }
 }
 
-if (import.meta.env.DEV) {
-  console.log('🎥 VideoBlock received:', {
-    videoType,
-    service: service || 'N/A',
-    id,
-    title: title || 'No title',
-    hasVideoFile: !!videoFile,
-    hasThumbnail: !!thumbnail,
-    size: finalSize,
-    thumbnailUrl,
-    videoFileUrl,
-    ratio,
-    aspectRatioCSS
-  });
-  
-  console.log('🎥 Thumbnail details:', {
-    thumbnail,
-    thumbnailAsset: thumbnail?.asset,
-    thumbnailUrl,
-    urlForImageResult: thumbnail?.asset ? urlForImage(thumbnail) : 'No thumbnail asset'
-  });
-}
 ---
 
     <!-- VideoBlock - following EmbedBlock structure -->

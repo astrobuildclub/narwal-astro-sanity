@@ -8,12 +8,6 @@ interface Props{
 // Define Vars
 const { color = "#000000", size } = Astro.props;
 
-if (import.meta.env.DEV) {
-  console.log('🎨 ColorBlock received:', {
-    color,
-    size
-  });
-}
 ---
 
 <div class:list={['colorblock', size]} style={`background-color: ${color};`}>

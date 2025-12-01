@@ -72,9 +72,14 @@ export async function getAllUris() {
 /**
  * Haal homepage data op
  */
-export async function getHomeData(): Promise<SanityHome> {
+export async function getHomeData(
+  searchParams?: URLSearchParams,
+): Promise<SanityHome> {
   try {
-    const { data } = await loadQuery<SanityHome>({ query: HOME_QUERY });
+    const { data } = await loadQuery<SanityHome>({
+      query: HOME_QUERY,
+      searchParams,
+    });
 
     if (!data) {
       throw new Error('No homepage data found');
@@ -100,11 +105,15 @@ export async function getHomeData(): Promise<SanityHome> {
 /**
  * Haal page data op by slug - met pagina type ondersteuning
  */
-export async function getPageData(slug: string): Promise<SanityPage> {
+export async function getPageData(
+  slug: string,
+  searchParams?: URLSearchParams,
+): Promise<SanityPage> {
   try {
     const { data } = await loadQuery<SanityPage>({
       query: PAGE_BY_SLUG_QUERY,
       params: { slug },
+      searchParams,
     });
 
     if (!data) {
@@ -126,6 +135,7 @@ export async function getPageData(slug: string): Promise<SanityPage> {
         // WorkOverview pagina - voeg projecten toe
         const { data: projects } = await loadQuery<SanityProject[]>({
           query: ALL_PROJECTS_QUERY,
+          searchParams,
         });
         return {
           ...data,
@@ -177,11 +187,15 @@ export async function getSiteSettings(): Promise<SanitySiteSettings> {
 /**
  * Haal project data op by slug
  */
-export async function getProjectData(slug: string): Promise<SanityProject> {
+export async function getProjectData(
+  slug: string,
+  searchParams?: URLSearchParams,
+): Promise<SanityProject> {
   try {
     const { data } = await loadQuery<SanityProject>({
       query: PROJECT_BY_SLUG_QUERY,
       params: { slug },
+      searchParams,
     });
 
     if (!data) {
