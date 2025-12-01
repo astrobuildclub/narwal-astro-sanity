@@ -1,8 +1,10 @@
+// ./sanity.config.ts
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { schemaTypes } from './src/sanity/schemaTypes';
 import { presentationTool } from 'sanity/presentation';
 import { resolve } from './src/sanity/lib/resolve';
+// plug-ins
 import { linkField } from 'sanity-plugin-link-field';
 import seofields from 'sanity-plugin-seofields';
 
@@ -15,7 +17,7 @@ export default defineConfig({
       resolve,
       previewUrl: location.origin,
     }),
-
+    // Zet deze plugins NA presentationTool
     linkField({
       linkableSchemaTypes: ['page', 'work'],
     }),

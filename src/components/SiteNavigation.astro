@@ -5,9 +5,9 @@ import { getSiteSettings } from '../lib/sanity'; // Nieuwe import
 const siteSettings = await getSiteSettings();
 
 // DEBUG: Log site settings data
-if (import.meta.env.DEV) {
-  console.log('🧭 SiteNavigation received siteSettings via sanity.ts:', JSON.stringify(siteSettings, null, 2));
-}
+// if (import.meta.env.DEV) {
+//   console.log('🧭 SiteNavigation received siteSettings via sanity.ts:', JSON.stringify(siteSettings, null, 2));
+// }
 
 // Verwerk navigation data
 const menuItems = siteSettings?.navigation?.menuItems || [];

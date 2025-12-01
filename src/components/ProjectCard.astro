@@ -121,17 +121,17 @@ const serviceTitles = projectServices.map(service => slugify(service.title)).joi
 const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
 
 // DEBUG: Log in development
-if (import.meta.env.DEV) {
-  console.log('🎨 ProjectCard:', {
-    title: projectTitle,
-    clientname: clientName,
-    size: projectSize,
-    link: projectLink,
-    servicesCount: projectServices.length,
-    hasVideo: !!videoSrc,
-    hasImage: !!imageSrc
-  });
-}
+// if (import.meta.env.DEV) {
+//   console.log('🎨 ProjectCard:', {
+//     title: projectTitle,
+//     clientname: clientName,
+//     size: projectSize,
+//     link: projectLink,
+//     servicesCount: projectServices.length,
+//     hasVideo: !!videoSrc,
+//     hasImage: !!imageSrc
+//   });
+// }
 ---
 
 <div 
