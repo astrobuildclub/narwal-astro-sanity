@@ -1,8 +1,9 @@
 ---
 // Import Components & Scripts
 import { Image } from 'astro:assets';
-import { urlForImage } from '../../sanity/lib/image';
+import { urlForImage } from '../../../sanity/lib/image';
 import type { SanityImage } from '../../sanity/types';
+import { cleanLayout } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
@@ -15,7 +16,14 @@ interface Props {
 }
 
 // Define vars
-const { title, gallery, layout = 'grid', columns = 3, showCaptions = false, showTitle = false } = Astro.props;
+const {
+  title,
+  gallery,
+  columns = 3,
+  showCaptions = false,
+  showTitle = false,
+} = Astro.props;
+const layout = cleanLayout(Astro.props.layout) || 'grid';
 
 // Calculate optimal image width based on columns
 // Page width is ~1400px, divide by columns and add some padding
@@ -27,93 +35,81 @@ function getImageWidth(cols: number): number {
 const imageWidth = getImageWidth(columns);
 
 // Process gallery images
-const processedImages = gallery?.map((image: SanityImage) => {
-  let imageUrl = '';
-  let imageAlt = '';
-  let imageCaption = '';
+const processedImages =
+  gallery
+    ?.map((image: SanityImage) => {
+      let imageUrl = '';
+      let imageAlt = '';
+      let imageCaption = '';
 
-  if (image?.asset) {
-    try {
-      imageUrl = urlForImage(image)?.width(imageWidth).url() || '';
-      imageAlt = image.alt || '';
-      imageCaption = image.caption || '';
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.warn('Failed to generate image URL in GalleryBlock:', error);
+      if (image?.asset) {
+        try {
+          imageUrl = urlForImage(image)?.width(imageWidth).url() || '';
+          imageAlt = image.alt || '';
+          imageCaption = image.caption || '';
+        } catch (error) {
+          // Failed to generate image URL
+        }
       }
-    }
-  }
 
-  return {
-    url: imageUrl,
-    alt: imageAlt,
-    caption: imageCaption,
-  };
-}).filter(img => img.url) || [];
-
-if (import.meta.env.DEV) {
-  console.log('🖼️ GalleryBlock received:', {
-    title,
-    layout,
-    columns,
-    showCaptions,
-    imagesCount: processedImages.length,
-    galleryCount: gallery?.length || 0
-  });
-}
+      return {
+        url: imageUrl,
+        alt: imageAlt,
+        caption: imageCaption,
+      };
+    })
+    .filter((img) => img.url) || [];
 ---
 
 <!--GalleryBlock-->
 <div class="galleryblock page">
   {showTitle && title && <h2 class="galleryblock-title">{title}</h2>}
-  
-  {layout === 'grid' && (
-    <div 
-      class="galleryblock-grid grid gap-[var(--gap-default)] grid-cols-1 sm:grid-cols-2"
-      style={`--grid-cols: ${columns};`}
-    >
-      {processedImages.map((img) => (
-        <div class="galleryblock-item">
-          <Image 
-            src={img.url}
-            inferSize
-            widths={[300, 600, 900, 1200]}
-            sizes={`(max-width: 640px) 300px, (max-width: 1024px) 600px, ${imageWidth}px`}
-            format="avif"
-            alt={img.alt || ''}
-            class="galleryblock-image"
-          />
-          {showCaptions && img.caption && (
-            <p class="galleryblock-caption" set:html={img.caption} />
-          )}
-        </div>
-      ))}
-    </div>
-  )}
 
-  {layout === 'masonry' && (
-    <div 
-      class="gap-[var(--gap-default)] galleryblock-masonry columns-1 sm:columns-2"
-      style={`--columns: ${columns};`}
-    >
-      {processedImages.map((img) => (
-        <div class="mb-[var(--gap-default)] galleryblock-item break-inside-avoid">
-          <Image 
-            src={img.url}
-            inferSize
-            widths={[300, 600, 900, 1200]}
-            sizes={`(max-width: 640px) 300px, (max-width: 1024px) 600px, ${imageWidth}px`}
-            format="avif"
-            alt={img.alt || ''}
-            class="galleryblock-image"
-          />
-          {showCaptions && img.caption && (
-            <p class="galleryblock-caption" set:html={img.caption} />
-          )}
-        </div>
-      ))}
-    </div>
-  )}
+  {
+    layout === 'grid' && (
+      <div
+        class="galleryblock-grid grid grid-cols-1 gap-[var(--gap-default)] sm:grid-cols-2"
+        style={`--grid-cols: ${columns};`}
+      >
+        {processedImages.map((img) => (
+          <div class="galleryblock-item">
+            <Image
+              src={img.url}
+              inferSize
+              alt={img.alt || ''}
+              class="galleryblock-image"
+            />
+            {showCaptions && img.caption && (
+              <p class="galleryblock-caption" set:html={img.caption} />
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    layout === 'masonry' && (
+      <div
+        class="galleryblock-masonry columns-1 gap-[var(--gap-default)] sm:columns-2"
+        style={`--columns: ${columns};`}
+      >
+        {processedImages.map((img) => (
+          <div class="galleryblock-item mb-[var(--gap-default)] break-inside-avoid">
+            <Image
+              src={img.url}
+              inferSize
+              alt={img.alt || ''}
+              class="galleryblock-image"
+            />
+            {showCaptions && img.caption && (
+              <p class="galleryblock-caption" set:html={img.caption} />
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
 </div>
 
 <style>
@@ -166,7 +162,6 @@ if (import.meta.env.DEV) {
     opacity: 0.7;
     font-weight: 400;
     line-height: 133%;
-    
   }
 
   /* Break-inside avoid voor masonry */
@@ -175,4 +170,3 @@ if (import.meta.env.DEV) {
     page-break-inside: avoid;
   }
 </style>
-

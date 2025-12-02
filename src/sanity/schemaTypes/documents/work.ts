@@ -8,17 +8,25 @@ export default defineType({
   icon: ProjectsIcon,
   groups: [
     {
-      name: 'hero',
-      title: 'Hero',
+      name: 'all',
+      title: 'All Fields',
       default: true,
+    },
+    {
+      name: 'general',
+      title: 'General',
     },
     {
       name: 'content',
       title: 'Content',
     },
     {
+      name: 'footer',
+      title: 'Footer',
+    },
+    {
       name: 'meta',
-      title: 'Project Details',
+      title: 'Meta',
     },
     {
       name: 'seo',
@@ -26,12 +34,13 @@ export default defineType({
     },
   ],
   fields: [
+    // General group
     defineField({
       name: 'title',
       type: 'string',
       title: 'Project Title',
       validation: (Rule) => Rule.required().min(3).max(100),
-      group: 'content',
+      group: 'general',
     }),
     defineField({
       name: 'slug',
@@ -46,7 +55,7 @@ export default defineType({
           }
           return true;
         }),
-      group: 'content',
+      group: 'general',
     }),
     defineField({
       name: 'hero',
@@ -82,7 +91,14 @@ export default defineType({
           ],
         }),
       ],
-      group: 'hero',
+      group: 'general',
+    }),
+    defineField({
+      name: 'client',
+      type: 'reference',
+      title: 'Client',
+      to: [{ type: 'client' }],
+      group: 'general',
     }),
     defineField({
       name: 'content',
@@ -101,6 +117,33 @@ export default defineType({
         { type: 'textGridBlock' },
       ],
       group: 'content',
+    }),
+    // Footer group
+    defineField({
+      name: 'info',
+      type: 'array',
+      title: 'Info',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            { title: 'Normal', value: 'normal' },
+            { title: 'Title', value: 'h3' },
+            { title: 'Subtitle', value: 'h4' },
+          ],
+          lists: [
+            { title: 'Bullet', value: 'bullet' },
+            { title: 'Numbered', value: 'number' },
+          ],
+          marks: {
+            decorators: [
+              { title: 'Strong', value: 'strong' },
+              { title: 'Emphasis', value: 'em' },
+            ],
+          },
+        },
+      ],
+      group: 'footer',
     }),
     defineField({
       name: 'credits',
@@ -126,14 +169,14 @@ export default defineType({
           },
         },
       ],
-      group: 'content',
+      group: 'footer',
     }),
     defineField({
       name: 'services',
       type: 'array',
       title: 'Services',
       of: [{ type: 'reference', to: [{ type: 'service' }] }],
-      group: 'meta',
+      group: 'footer',
     }),
     defineField({
       name: 'tags',
@@ -143,7 +186,7 @@ export default defineType({
       options: {
         layout: 'tags',
       },
-      group: 'meta',
+      group: 'footer',
     }),
     defineField({
       name: 'thumbnail',
@@ -178,10 +221,26 @@ export default defineType({
           initialValue: 'default',
         }),
         defineField({
+          name: 'useVideo',
+          type: 'boolean',
+          title: 'Use Video',
+          description: 'Enable to use video URL instead of image',
+          initialValue: false,
+        }),
+        defineField({
           name: 'video',
           type: 'url',
           title: 'Video URL',
-          description: 'Optional video URL for thumbnail',
+          description: 'Video URL for thumbnail',
+          hidden: ({ parent }) => !parent?.useVideo,
+          validation: (Rule) =>
+            Rule.custom((value, context) => {
+              const parent = context.parent as { useVideo?: boolean };
+              if (parent?.useVideo && !value) {
+                return 'Video URL is required when Use Video is enabled';
+              }
+              return true;
+            }),
         }),
         defineField({
           name: 'aspectRatio',
@@ -204,13 +263,6 @@ export default defineType({
           initialValue: '16:9',
         }),
       ],
-      group: 'meta',
-    }),
-    defineField({
-      name: 'client',
-      type: 'reference',
-      title: 'Client',
-      to: [{ type: 'client' }],
       group: 'meta',
     }),
     defineField({

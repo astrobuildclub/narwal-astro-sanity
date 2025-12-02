@@ -1,6 +1,7 @@
 ---
-import { urlForImage } from '../../sanity/lib/image';
+import { urlForImage } from '../../../sanity/lib/image';
 import type { SanityVideoBlock } from '../../sanity/types';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types - following EmbedBlock structure
 interface Props {
@@ -15,23 +16,45 @@ const {
   videoType = 'upload',
   id,
   title,
-  params,
   thumbnail,
-  ratio = '16:9',
+  ratio,
   autoscale = true,
   widget = false,
-  size: videoSize = 'inline',
+  size: videoSize = 'page',
   videoFile,
-  autoplay = false,
-  loop = false,
-  muted = true
+  autoplay = true,
+  loop = true,
+  muted = true,
+  directUrl,
+  caption,
+  controls = true
 } = video;
 
+// Type guard for videoType to help TypeScript
+const currentVideoType: 'upload' | 'youtube' | 'vimeo' | 'direct' = videoType || 'upload';
+
 // Determine service from videoType
-const service = videoType === 'youtube' ? 'youtube' : videoType === 'vimeo' ? 'vimeo' : undefined;
+const service = currentVideoType === 'youtube' ? 'youtube' : currentVideoType === 'vimeo' ? 'vimeo' : undefined;
 
 // Use size prop as fallback if video.size is not available
-const finalSize = videoSize || size || 'inline';
+// Clean stega characters from size values
+const cleanedVideoSize = cleanSize(videoSize);
+const cleanedSize = cleanSize(size);
+const finalSize = cleanedVideoSize || cleanedSize || 'page';
+
+// Generate embed parameters from toggles for YouTube/Vimeo
+function generateEmbedParams(autoplay: boolean, muted: boolean, loop: boolean): string {
+  const params: string[] = [];
+  if (autoplay) params.push('autoplay=1');
+  if (muted) params.push('mute=1');
+  if (loop) params.push('loop=1');
+  params.push('enablejsapi=1');
+  return params.join('&');
+}
+
+const embedParams = (currentVideoType === 'youtube' || currentVideoType === 'vimeo') 
+  ? generateEmbedParams(autoplay, muted, loop)
+  : '';
 
 // Generate thumbnail URL using @sanity/image-url
 let thumbnailUrl = '';
@@ -39,7 +62,7 @@ if (thumbnail?.asset) {
   try {
     thumbnailUrl = urlForImage(thumbnail)?.width(1280).height(720).url() || '';
   } catch (error) {
-    console.warn('Failed to generate thumbnail URL:', error);
+    // Failed to generate thumbnail URL
   }
 }
 
@@ -58,17 +81,17 @@ const aspectRatioMap = {
   '9:20': '9/20'
 };
 
-const aspectRatioCSS = aspectRatioMap[ratio] || '16/9';
+const aspectRatioCSS = ratio && aspectRatioMap.hasOwnProperty(ratio) ? aspectRatioMap[ratio] : '16/9';
 
 // Generate video file URL
 let videoFileUrl = '';
-if (videoFile?.asset) {
+if (videoFile && videoFile.asset && typeof videoFile.asset._ref === 'string') {
   try {
     // For Sanity files, we need to construct the URL manually
     const assetId = videoFile.asset._ref.replace('file-', '').replace('-mp4', '');
     videoFileUrl = `https://cdn.sanity.io/files/${import.meta.env.PUBLIC_SANITY_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_DATASET}/${assetId}.mp4`;
   } catch (error) {
-    console.warn('Failed to generate video file URL:', error);
+    // Failed to generate video file URL
   }
 }
 
@@ -92,37 +115,15 @@ function getSizeClass(size: string) {
   }
 }
 
-if (import.meta.env.DEV) {
-  console.log('🎥 VideoBlock received:', {
-    videoType,
-    service: service || 'N/A',
-    id,
-    title: title || 'No title',
-    hasVideoFile: !!videoFile,
-    hasThumbnail: !!thumbnail,
-    size: finalSize,
-    thumbnailUrl,
-    videoFileUrl,
-    ratio,
-    aspectRatioCSS
-  });
-  
-  console.log('🎥 Thumbnail details:', {
-    thumbnail,
-    thumbnailAsset: thumbnail?.asset,
-    thumbnailUrl,
-    urlForImageResult: thumbnail?.asset ? urlForImage(thumbnail) : 'No thumbnail asset'
-  });
-}
 ---
 
     <!-- VideoBlock - following EmbedBlock structure -->
     <section class={`video-container ${getSizeClass(finalSize)}`}>
-      {videoType === 'upload' && videoFileUrl && (
+      {currentVideoType === 'upload' && videoFileUrl && (
         <!-- MP4 Upload Video -->
         <div class="videoblock upload" style={`aspect-ratio: ${aspectRatioCSS};`}>
           <video
-            controls
+            controls={controls ? true : undefined}
             preload="metadata"
             playsinline
             loop={loop}
@@ -137,14 +138,33 @@ if (import.meta.env.DEV) {
         </div>
       )}
 
-      {(videoType === 'youtube' || videoType === 'vimeo') && id && (
+      {currentVideoType === 'direct' && directUrl && (
+        <!-- Direct URL Video -->
+        <div class="videoblock direct" style={`aspect-ratio: ${aspectRatioCSS};`}>
+          <video
+            controls={controls ? true : undefined}
+            preload="metadata"
+            playsinline
+            loop={loop}
+            muted={muted}
+            autoplay={autoplay}
+            poster={thumbnailUrl}
+            title={title || 'Video'}
+          >
+            <source src={directUrl} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      )}
+
+      {(currentVideoType === 'youtube' || currentVideoType === 'vimeo') && id && (
         <!-- YouTube/Vimeo Embed with IframeManager - exact EmbedBlock structure -->
         <div
           class="embed"
           data-service={service}
           data-id={id}
           data-title={title || 'Video'}
-          data-params={params ? `${params}&enablejsapi=1` : "enablejsapi=1"}
+          data-params={embedParams}
           data-thumbnail={thumbnailUrl}
           data-ratio={ratio}
           data-autoscale={autoscale ? "" : undefined}
@@ -153,18 +173,30 @@ if (import.meta.env.DEV) {
         </div>
       )}
 
-      {videoType === 'upload' && !videoFileUrl && (
+      {currentVideoType === 'upload' && !videoFileUrl && (
         <!-- Fallback for missing video file -->
         <div class="videoblock error">
           <p>Video bestand niet gevonden</p>
         </div>
       )}
 
-      {(videoType === 'youtube' || videoType === 'vimeo') && !id && (
+      {currentVideoType === 'direct' && !directUrl && (
+        <!-- Fallback for missing direct URL -->
+        <div class="videoblock error">
+          <p>Video URL niet gevonden</p>
+        </div>
+      )}
+
+      {(currentVideoType === 'youtube' || currentVideoType === 'vimeo') && !id && (
         <!-- Fallback for missing video ID -->
         <div class="videoblock error">
           <p>Video ID niet gevonden</p>
         </div>
+      )}
+
+      {caption && (
+        <!-- Caption -->
+        <p class="video-caption">{caption}</p>
       )}
     </section>
 
@@ -181,14 +213,14 @@ if (import.meta.env.DEV) {
     border-radius: var(--radius-sm, 4px);
   }
 
-  .videoblock.upload video {
+  .videoblock.upload video,
+  .videoblock.direct video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-fit: cover;
-  display: block; /* Voeg dit toe */
-  margin: 0; /* Voeg dit toe */
-  padding: 0; /* Voeg dit toe */
+    display: block;
+    margin: 0;
+    padding: 0;
   }
 
   .videoblock.error {
@@ -231,5 +263,12 @@ if (import.meta.env.DEV) {
 
   .video-container.inherit {
     grid-column: inherit;
+  }
+
+  .video-caption {
+    margin-top: var(--space-s, 0.5rem);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+    text-align: center;
   }
 </style>

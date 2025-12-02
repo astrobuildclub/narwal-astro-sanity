@@ -1,8 +1,9 @@
 ---
 // Import Components & Scripts
-import TextBlock from './TextBlock.astro'
-import ImageBlock from './ImageBlock.astro'
-import VideoBlock from './VideoBlock.astro'
+import TextBlock from './TextBlock.astro';
+import ImageBlock from './ImageBlock.astro';
+import VideoBlock from './VideoBlock.astro';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
@@ -12,24 +13,44 @@ interface Props {
 }
 
 // Define Vars
-const { size = 'page', columns } = Astro.props
+const { columns } = Astro.props;
+const size = cleanSize(Astro.props.size) || 'page';
 ---
 
 <!-- ColumnsBlock -->
-<div class={`grid gap-6 multicols ${size} lg:grid-cols-[repeat(auto-fit,_minmax(320px,_1fr))]`}>
-   {columns &&
-    columns.map((column) => {
-      switch (column._type) {
-        case 'textBlock':
-          return <div class="col"><TextBlock content={column.text} size="inherit" /></div>
-        case 'imageBlock':
-          return <div class="col"><ImageBlock image={column.image} alt={column.alt} size="inherit" /></div>
-        case 'videoBlock':
-          return <div class="col"><VideoBlock video={column} size="inherit" /></div>
-        default:
-          return null
-      }
-    })
+<div
+  class={`grid gap-6 multicols ${size} lg:grid-cols-[repeat(auto-fit,_minmax(320px,_1fr))]`}
+>
+  {
+    columns &&
+      columns.map((column) => {
+        switch (column._type) {
+          case 'textBlock':
+            return (
+              <div class="col">
+                <TextBlock content={column.text} size="inherit" />
+              </div>
+            );
+          case 'imageBlock':
+            return (
+              <div class="col">
+                <ImageBlock
+                  image={column.image}
+                  alt={column.alt}
+                  size="inherit"
+                />
+              </div>
+            );
+          case 'videoBlock':
+            return (
+              <div class="col">
+                <VideoBlock video={column} size="inherit" />
+              </div>
+            );
+          default:
+            return null;
+        }
+      })
   }
 </div>
 
@@ -37,7 +58,7 @@ const { size = 'page', columns } = Astro.props
   .multicols.page {
     grid-column: page;
   }
-  
+
   .multicols.feature {
     grid-column: feature;
   }

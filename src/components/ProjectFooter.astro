@@ -1,0 +1,178 @@
+---
+import { PortableText } from 'astro-portabletext';
+
+// Define Types
+interface Props {
+  info?: any[]; // Portable Text array
+  services?: Array<{
+    _id?: string;
+    title?: string;
+  }>;
+  credits?: any[]; // Portable Text array
+}
+
+// Define Vars
+const { info, services, credits } = Astro.props;
+
+// PortableText components
+const components = {
+  types: {},
+  marks: {},
+  block: {},
+  list: {},
+  listItem: {},
+};
+---
+
+<section class="project-footer page">
+  <div class="project-footer-content">
+    <div class="project-footer-column project-footer-info">
+      <h4 class="title">Info</h4>
+      {
+        info && info.length > 0 ? (
+          <div class="project-footer-text">
+            <PortableText value={info} components={components} />
+          </div>
+        ) : (
+          <div class="project-footer-text" />
+        )
+      }
+    </div>
+
+    <div class="project-footer-column project-footer-services">
+      <h4 class="title">Services</h4>
+      {
+        services && services.length > 0 ? (
+          <ul class="project-footer-services-list">
+            {services.map((service) => (
+              <li>{service.title}</li>
+            ))}
+          </ul>
+        ) : (
+          <ul class="project-footer-services-list" />
+        )
+      }
+    </div>
+
+    <div class="project-footer-column project-footer-credits">
+      <h4 class="title">Credits</h4>
+      {
+        credits && credits.length > 0 ? (
+          <div class="project-footer-text">
+            <PortableText value={credits} components={components} />
+          </div>
+        ) : (
+          <div class="project-footer-text" />
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .project-footer {
+    padding: var(--site-padding);
+    background: var(--clr-light);
+  }
+
+  .project-footer-content {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: var(--space-xl);
+  }
+
+  /* Desktop: Col 1 (info) start op col 4, 6 cols breed */
+  .project-footer-info {
+    grid-column: 4 / 10;
+  }
+
+  /* Desktop: Col 2 (services) start op col 10, 3 cols breed */
+  .project-footer-services {
+    grid-column: 10 / 13;
+  }
+
+  /* Desktop: Col 3 (credits) start op col 13, 4 cols breed */
+  .project-footer-credits {
+    grid-column: 13 / 17;
+  }
+
+  /* Tablet: Col 1 start op col 1 */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .project-footer-info {
+      grid-column: 1 / 9;
+    }
+
+    .project-footer-services {
+      grid-column: 9 / 13;
+    }
+
+    .project-footer-credits {
+      grid-column: 13 / 17;
+    }
+  }
+
+  /* Mobiel: alles onder elkaar */
+  @media (max-width: 767px) {
+    .project-footer-content {
+      grid-template-columns: 1fr;
+    }
+
+    .project-footer-info,
+    .project-footer-services,
+    .project-footer-credits {
+      grid-column: 1;
+    }
+  }
+
+  .project-footer-column .title {
+    opacity: 0.6;
+    font-size: var(--fs--1);
+    font-weight: 600;
+    line-height: 1;
+    margin-block: 1rem;
+  }
+
+  .project-footer-text {
+    font-size: var(--fs--1);
+    line-height: 133%;
+    letter-spacing: -0.0125rem;
+    text-wrap: balance;
+  }
+
+  :global(.project-footer-text p:first-child) {
+    font-size: var(--fs-0);
+    font-weight: 600;
+  }
+
+  :global(.project-footer-text p) {
+    margin-bottom: 1em;
+  }
+
+  .project-footer-services-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--fs--2);
+    line-height: 133%;
+  }
+
+  .project-footer-services-list li {
+    margin-bottom: 0.5em;
+  }
+
+  /* Credits lijsten styling - gebruik :global() om PortableText gegenereerde lijsten te targeten */
+  .project-footer-credits :global(.project-footer-text ul),
+  .project-footer-credits :global(.project-footer-text ol) {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: var(--fs--2);
+    line-height: 100%;
+  }
+
+  .project-footer-credits :global(.project-footer-text ul li),
+  .project-footer-credits :global(.project-footer-text ol li) {
+    margin-bottom: 0.5em;
+    color: red;
+  }
+</style>

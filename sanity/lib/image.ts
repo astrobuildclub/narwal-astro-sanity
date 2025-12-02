@@ -1,6 +1,6 @@
 import imageUrlBuilder from '@sanity/image-url';
 import { sanityClient } from 'sanity:client';
-import type { SanityImage } from '../types';
+import type { SanityImage } from '../../src/sanity/types';
 
 const builder = imageUrlBuilder(sanityClient);
 

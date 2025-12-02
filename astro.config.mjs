@@ -1,78 +1,65 @@
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
-import mdx from '@astrojs/mdx';
-import tailwind from '@astrojs/tailwind';
-import compress from 'astro-compress';
-import icon from 'astro-icon';
-import { loadEnv } from 'vite';
-import react from '@astrojs/react';
-import netlify from '@astrojs/netlify';
+
 import sanity from '@sanity/astro';
+import react from '@astrojs/react';
+import tailwind from '@astrojs/tailwind';
+import netlify from '@astrojs/netlify';
 
-const {
-  IMAGE_DOMAIN,
-  PUBLIC_SANITY_PROJECT_ID,
-  PUBLIC_SANITY_DATASET,
-  PUBLIC_SANITY_API_VERSION,
-} = loadEnv(process.env.NODE_ENV, process.cwd(), '');
+import { loadEnv } from 'vite';
+const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
+  process.env.NODE_ENV || 'production',
+  process.cwd(),
+  '',
+);
 
-// Validate required Sanity environment variables
-if (!PUBLIC_SANITY_PROJECT_ID) {
-  throw new Error(
-    '❌ PUBLIC_SANITY_PROJECT_ID is required but not set. Please configure it in Netlify environment variables.',
-  );
-}
-
-if (!PUBLIC_SANITY_DATASET) {
-  throw new Error(
-    '❌ PUBLIC_SANITY_DATASET is required but not set. Please configure it in Netlify environment variables.',
-  );
-}
-
-// Set default API version if not provided
-const apiVersion = PUBLIC_SANITY_API_VERSION || '2025-01-28';
-
-// https://astro.build/config
 export default defineConfig({
-  output: 'server',
-  adapter: netlify(),
-  image: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: IMAGE_DOMAIN,
-      },
-      {
-        protocol: 'https',
-        hostname: '**.netlify.app',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.narwalcreative.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.sanity.io',
-      },
-    ],
-  },
-  compressHTML: true,
   integrations: [
-    mdx(),
-    icon(),
-    tailwind({
-      applyBaseStyles: false,
-    }),
-    compress(),
-    react(),
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,
       dataset: PUBLIC_SANITY_DATASET,
-      useCdn: false, // Voor draft preview
-      apiVersion: apiVersion, // Gebruik de variabele met fallback
+      useCdn: false,
+      apiVersion: '2025-01-28',
       studioBasePath: '/studio',
       stega: {
         studioUrl: '/studio',
       },
     }),
+    react(),
+    tailwind({
+      applyBaseStyles: false,
+    }),
   ],
+
+  // Vite configuratie voor Sanity dependencies
+  vite: {
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        '@sanity/astro',
+        'sanity',
+        '@sanity/client',
+      ],
+      exclude: [
+        '@sanity/astro/dist/studio',
+        '@sanity/visual-editing',
+        '@sanity/presentation-comlink',
+        '@sanity/preview-url-secret',
+      ],
+    },
+    ssr: {
+      noExternal: ['@sanity/astro'],
+    },
+    server: {
+      fs: {
+        allow: ['..'],
+      },
+    },
+  },
+
+  adapter: netlify(),
+  image: {
+    domains: ['cdn.sanity.io'],
+  },
 });

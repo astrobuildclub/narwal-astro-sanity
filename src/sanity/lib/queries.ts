@@ -290,6 +290,7 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     _id,
     title
   },
+  info,
   credits,
   "relatedProjects": relatedProjects[]-> {
     _id,

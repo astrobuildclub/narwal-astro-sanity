@@ -1,12 +1,13 @@
 ---
 // Import Components & Scripts
-import { Image } from 'astro:assets'
-import { urlForImage } from '../../sanity/lib/image'
-import type { SanityImage } from '../../sanity/types'
+import { Image } from 'astro:assets';
+import { urlForImage } from '../../../sanity/lib/image';
+import type { SanityImage } from '../../sanity/types';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
-  size?: "content" | "popout" | "feature" | "page" | "full" | "inherit";
+  size?: 'content' | 'popout' | 'feature' | 'page' | 'full' | 'inherit';
   showCaption?: boolean;
   // Sanity props
   image?: SanityImage;
@@ -16,15 +17,15 @@ interface Props {
 }
 
 // Define Vars
-const { 
-  size, 
-  showCaption, 
+const {
+  showCaption,
   // Sanity props
   image,
   alt,
   title,
-  caption
+  caption,
 } = Astro.props;
+const size = cleanSize(Astro.props.size);
 
 // Generate image URL - Sanity data only
 let finalSourceUrl = '';
@@ -54,7 +55,7 @@ if (image?.asset) {
   try {
     const imageWidth = getWidthForSize(size);
     const imageBuilder = urlForImage(image);
-    
+
     if (size !== 'inherit') {
       // Voeg width constraint toe voor alle sizes behalve inherit
       finalSourceUrl = imageBuilder?.width(imageWidth).url() || '';
@@ -62,42 +63,31 @@ if (image?.asset) {
       // Voor inherit, gebruik alleen base optimalisaties
       finalSourceUrl = imageBuilder?.url() || '';
     }
-    
+
     finalAltText = image.alt || alt || '';
     finalTitleText = image.caption || title || '';
     finalCaptionText = image.caption || caption || '';
   } catch (error) {
-    console.warn('Failed to generate image URL:', error);
+    // Failed to generate image URL
   }
-}
-
-if (import.meta.env.DEV) {
-  console.log('🖼️ ImageBlock received:', {
-    sourceUrl: finalSourceUrl,
-    size,
-    altText: finalAltText,
-    titleText: finalTitleText,
-    showCaption,
-    captionText: finalCaptionText,
-    hasSanityImage: !!image
-  });
 }
 ---
 
-<!--ImageBlock -->
-{finalSourceUrl && 
-<div class:list={['imageblock', size]}>
-  <Image 
-    src={finalSourceUrl}
-    inferSize
-    alt={finalAltText} 
-    title={finalTitleText}
-    class="imageblock-img"
-  />
-  {(showCaption || finalCaptionText) &&
-    <p class="imageblock-caption" set:html={finalCaptionText} />
-  }
-</div>
+<!--ImageBlock -->{
+  finalSourceUrl && (
+    <div class:list={['imageblock', size]}>
+      <Image
+        src={finalSourceUrl}
+        inferSize
+        alt={finalAltText || ''}
+        title={finalTitleText || undefined}
+        class="imageblock-img"
+      />
+      {(showCaption || finalCaptionText) && (
+        <p class="imageblock-caption" set:html={finalCaptionText} />
+      )}
+    </div>
+  )
 }
 <style>
   .imageblock-img {

@@ -1,53 +1,39 @@
 ---
 // Import Components & Scripts
-import { urlForImage } from '../../sanity/lib/image'
-import type { SanityImage } from '../../sanity/types'
+import { urlForImage } from '../../../sanity/lib/image';
+import type { SanityImage } from '../../sanity/types';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
-    quote?: string;
-    name?: string;
-    role?: string;
-    photo?: SanityImage;
-    size?: 'content' | 'popout' | 'feature' | 'page';
+  quote?: string;
+  name?: string;
+  role?: string;
+  photo?: SanityImage;
+  size?: 'content' | 'popout' | 'feature' | 'page';
 }
 
 // Define Vars
-const { 
-    quote, 
-    name, 
-    role, 
-    photo, 
-    size = 'page'
-} = Astro.props;
+const { quote, name, role, photo } = Astro.props;
+const size = cleanSize(Astro.props.size) || 'page';
 
 // Generate image URL - Sanity data only
 let finalPhotoUrl = '';
 
 if (photo?.asset) {
-    try {
-        finalPhotoUrl = urlForImage(photo)?.width(200).height(200).url() || '';
-    } catch (error) {
-        console.warn('Failed to generate photo URL:', error);
-    }
-}
-
-if (import.meta.env.DEV) {
-    console.log('💬 TestimonialBlock received:', {
-        quote: quote?.substring(0, 50) + '...',
-        name,
-        role,
-        hasPhoto: !!photo,
-        hasPhotoUrl: !!finalPhotoUrl,
-        size
-    });
+  try {
+    finalPhotoUrl = urlForImage(photo)?.width(200).height(200).url() || '';
+  } catch (error) {
+    // Failed to generate photo URL
+  }
 }
 ---
+
 <!--TestimonialBlock-->
 <section class={`testimonialblock ${size}`}>
-   <blockquote class="testimonialblock-quote">{quote}</blockquote>
-    <div class="testimonialblock-details">
-        <!-- {finalPhotoUrl &&
+  <blockquote class="testimonialblock-quote">{quote}</blockquote>
+  <div class="testimonialblock-details">
+    <!-- {finalPhotoUrl &&
         <Image 
             src={finalPhotoUrl}
             inferSize
@@ -56,15 +42,16 @@ if (import.meta.env.DEV) {
             class="testimonialblock-img"
         />
         } -->
-         <div class="flex justify-center items-center align-baseline col testimonialblock-person">
-            <h3 class="testimonialblock-name">{name}</h3>
-            <h4 class="testimonialblock-role">{role}</h4>
-        </div>
+    <div
+      class="col testimonialblock-person flex items-center justify-center align-baseline"
+    >
+      <h3 class="testimonialblock-name">{name}</h3>
+      <h4 class="testimonialblock-role">{role}</h4>
     </div>
+  </div>
 </section>
 
 <style>
-    
   .testimonial-block {
     text-align: center;
     display: flex;

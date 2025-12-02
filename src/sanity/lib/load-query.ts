@@ -1,62 +1,60 @@
+// ./src/sanity/lib/load-query.ts
 import { type QueryParams } from 'sanity';
-import { createClient } from '@sanity/client';
+import { sanityClient } from 'sanity:client';
 
-const visualEditingEnabled =
+const envVisualEditingEnabled =
   import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true';
 const token = import.meta.env.SANITY_API_READ_TOKEN;
 
 export async function loadQuery<QueryResponse>({
   query,
   params,
+  searchParams,
 }: {
   query: string;
   params?: QueryParams;
+  searchParams?: URLSearchParams;
 }) {
-  try {
-    if (visualEditingEnabled && !token) {
-      console.warn(
-        'The `SANITY_API_READ_TOKEN` environment variable is required during Visual Editing.',
-      );
-    }
+  // Check URL parameter als fallback (voor productie)
+  const urlPreviewEnabled = searchParams?.get('preview') === 'true';
 
-    const perspective = visualEditingEnabled ? 'previewDrafts' : 'published';
+  // Visual editing enabled wanneer:
+  // - Environment variable is true, OF
+  // - URL parameter preview=true is aanwezig
+  const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
-    // Create client instance
-    const client = createClient({
-      projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-      dataset: import.meta.env.PUBLIC_SANITY_DATASET,
-      apiVersion: import.meta.env.PUBLIC_SANITY_API_VERSION || '2025-01-28',
-      useCdn: !visualEditingEnabled,
-      token: visualEditingEnabled ? token : undefined,
-      perspective,
-    });
+  // Debug logging (verwijder dit later)
+  console.log('loadQuery Debug:', {
+    envVisualEditingEnabled,
+    urlPreviewEnabled,
+    visualEditingEnabled,
+    hasToken: !!token,
+    searchParams: searchParams ? Object.fromEntries(searchParams) : null,
+  });
 
-    const { result, resultSourceMap } = await client.fetch<QueryResponse>(
-      query,
-      params ?? {},
-      {
-        filterResponse: false,
-        resultSourceMap: visualEditingEnabled ? 'withKeyArraySelector' : false,
-        stega: visualEditingEnabled,
-      },
-    );
-
-    return {
-      data: result,
-      sourceMap: resultSourceMap,
-      perspective,
-    };
-  } catch (error) {
-    // Log error in development mode
-    if (import.meta.env.DEV) {
-      console.error(`❌ Sanity query failed:`, error);
-      console.warn(`Query:`, query);
-      console.warn(`Params:`, params);
-    }
-
-    // Throw error instead of returning null - laat de frontend crashen
+  if (visualEditingEnabled && !token) {
     throw new Error(
-      `Sanity query failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'The `SANITY_API_READ_TOKEN` environment variable is required during Visual Editing.',
     );
   }
+
+  const perspective = visualEditingEnabled ? 'previewDrafts' : 'published';
+
+  const { result, resultSourceMap } = await sanityClient.fetch<QueryResponse>(
+    query,
+    params ?? {},
+    {
+      filterResponse: false,
+      perspective,
+      resultSourceMap: visualEditingEnabled ? 'withKeyArraySelector' : false,
+      stega: visualEditingEnabled,
+      ...(visualEditingEnabled ? { token } : {}),
+    },
+  );
+
+  return {
+    data: result,
+    sourceMap: resultSourceMap,
+    perspective,
+  };
 }

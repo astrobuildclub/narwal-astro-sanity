@@ -1,11 +1,14 @@
 ---
-import ProjectCard from '../components/ProjectCard.astro'
+import ProjectCard from '../components/ProjectCard.astro';
 
-const { projects, layout, fitCards } = Astro.props
+const { projects, layout, fitCards } = Astro.props;
 
 // DEBUG: Log projects data
 if (import.meta.env.DEV) {
-  console.log('📁 ProjectList received projects:', JSON.stringify(projects, null, 2));
+  console.log(
+    '📁 ProjectList received projects:',
+    JSON.stringify(projects, null, 2),
+  );
   console.log('📁 Projects count:', projects?.length || 0);
 }
 
@@ -16,7 +19,7 @@ const projectCards = projects.map((project: any) => {
       _type: project._type,
       hasKey: !!project._key,
       hasThumbnail: !!project.thumbnail,
-      hasImage: !!project.thumbnail?.image
+      hasImage: !!project.thumbnail?.image,
     });
   }
 
@@ -38,7 +41,7 @@ const projectCards = projects.map((project: any) => {
     _type: project._type,
     _key: project._key,
     thumbnail: project.thumbnail,
-    client: project.client
+    client: project.client,
   };
 });
 
@@ -56,39 +59,32 @@ if (import.meta.env.DEV) {
     },
   ]}
 >
-  <div class="grid gap-y-8 gap-12 md:gap-y-12 lg:gap-y-24 project-list start">
+  <div class="project-list start grid gap-12 gap-y-8 md:gap-y-12 lg:gap-y-24">
     {
       projectCards &&
         projectCards.map((item: any) => {
-          return <ProjectCard {...item} {fitCards} />
+          return <ProjectCard {...item} {fitCards} />;
         })
     }
   </div>
 </section>
 
-
-
 <style is:global>
   .projects-wrapper {
-    
-    padding-top:0;
+    padding-top: 0;
     padding-bottom: var(--space-6xl);
     min-height: 80vh;
   }
 
-  .layout-grid  {
+  .layout-grid {
     /* background-color: aqua; */
   }
 
-
-
   .layout-list {
     /* background: yellow; */
-    
   }
 
-  
-   .layout-grid .project-list {
+  .layout-grid .project-list {
     /* homepage grid */
     /* background-color: blue; */
     /* Mobile: 1 column */
@@ -113,10 +109,9 @@ if (import.meta.env.DEV) {
   .layout-list .project-list {
     /* overview grid */
     /* background-color: red; */
-     grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     align-items: start;
   }
-
 
   .project-card:hover,
   .project-card:focus-within {
@@ -130,7 +125,7 @@ if (import.meta.env.DEV) {
   .project-card video {
     /* transform: scale(1.0125); */
     transition: all 1.4s var(--easing-easeOutExpo);
-    opacity: 0.90;
+    opacity: 0.9;
   }
 
   .project-card:hover img,
@@ -173,63 +168,69 @@ if (import.meta.env.DEV) {
     opacity: 0.75;
   }
 
-
   @media (min-width: 1024px) {
-  .layout-list .project-list {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    .layout-list .project-list {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
   }
-}
 </style>
 
-
 <script>
-  import { inView, animate } from "motion"
+  import { inView, animate } from 'motion';
 
-  inView(".project-card .project-media", ({ target }) => {
-    target.classList.add("in-view")
-  })
+  inView('.project-card .project-media', ({ target }) => {
+    target.classList.add('in-view');
+  });
 
-  inView(".project-card .project-media",  (info) => {
+  inView('.project-card .project-media', (info) => {
     const controls = animate(
-      info.target, 
-      { 
-      opacity: [0, 0.75], 
-      transform: ["translateY(3rem)", "translateY(0px)"] 
-      }, 
+      info.target,
+      {
+        opacity: [0, 0.75],
+        transform: ['translateY(3rem)', 'translateY(0px)'],
+      },
       {
         delay: 0.2,
         duration: 0.9,
         easing: [0.16, 1, 0.3, 1],
-      }
-    )
+      },
+    );
     // This will fire when the element leaves the viewport
     return (_leaveInfo) => {
-      controls.stop()
-      animate(info.target, { opacity: 0, transform: ["translateY(0px)", "translateY(20px)"] }, { duration: 0.6 })
-    }
-  })
+      controls.stop();
+      animate(
+        info.target,
+        { opacity: 0, transform: ['translateY(0px)', 'translateY(20px)'] },
+        { duration: 0.6 },
+      );
+    };
+  });
 
-  inView(".project-card .project-content", ({ target }) => {
-    target.classList.add("in-view")
-  })
+  inView('.project-card .project-content', ({ target }) => {
+    target.classList.add('in-view');
+  });
 
-  inView(".project-card .project-content",  (info) => {
+  inView('.project-card .project-content', (info) => {
     const controls = animate(
-      info.target, 
-      { 
-      opacity: [0, 1], 
-      transform: ["translateY(2rem)", "translateY(0px)"] 
-      }, 
+      info.target,
+      {
+        opacity: [0, 1],
+        transform: ['translateY(2rem)', 'translateY(0px)'],
+      },
       {
         delay: 0.1,
         duration: 0.4,
         easing: [0.16, 1, 0.3, 1],
-      }
-    )
+      },
+    );
     // This will fire when the element leaves the viewport
     return (_leaveInfo) => {
-      controls.stop()
-      animate(info.target, { opacity: 0, transform: ["translateY(0px)", "translateY(20px)"] }, { duration: 0.6 })
-    }
-  })
+      controls.stop();
+      animate(
+        info.target,
+        { opacity: 0, transform: ['translateY(0px)', 'translateY(20px)'] },
+        { duration: 0.6 },
+      );
+    };
+  });
 </script>
