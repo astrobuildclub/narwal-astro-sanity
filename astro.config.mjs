@@ -32,31 +32,31 @@ export default defineConfig({
   ],
 
   // Vite configuratie voor Sanity dependencies
-  // vite: {
-  //   optimizeDeps: {
-  //     include: [
-  //       'react',
-  //       'react-dom',
-  //       '@sanity/astro',
-  //       'sanity',
-  //       '@sanity/client',
-  //     ],
-  //     exclude: [
-  //       '@sanity/astro/dist/studio',
-  //       '@sanity/visual-editing',
-  //       '@sanity/presentation-comlink',
-  //       '@sanity/preview-url-secret',
-  //     ],
-  //   },
-  //   ssr: {
-  //     noExternal: ['@sanity/astro'],
-  //   },
-  //   server: {
-  //     fs: {
-  //       allow: ['..'],
-  //     },
-  //   },
-  // },
+  vite: {
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        '@sanity/astro',
+        'sanity',
+        '@sanity/client',
+      ],
+      exclude: [
+        '@sanity/astro/dist/studio',
+        '@sanity/visual-editing',
+        '@sanity/presentation-comlink',
+        '@sanity/preview-url-secret',
+      ],
+    },
+    ssr: {
+      noExternal: ['@sanity/astro'],
+    },
+    server: {
+      fs: {
+        allow: ['..'],
+      },
+    },
+  },
 
   adapter: netlify(),
   image: {
