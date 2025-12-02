@@ -1,6 +1,7 @@
 ---
 // Import Components & Scripts
 import { PortableText } from 'astro-portabletext';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
@@ -10,7 +11,8 @@ interface Props {
 }
 
 // Define Vars
-const { title = '', content = '', size = 'content' } = Astro.props;
+const { title = '', content = '' } = Astro.props;
+const size = cleanSize(Astro.props.size) || 'content';
 
 // Custom components for Portable Text rendering
 const components = {

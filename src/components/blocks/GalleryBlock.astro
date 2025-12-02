@@ -3,6 +3,7 @@
 import { Image } from 'astro:assets';
 import { urlForImage } from '../../../sanity/lib/image';
 import type { SanityImage } from '../../sanity/types';
+import { cleanLayout } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
@@ -18,11 +19,11 @@ interface Props {
 const {
   title,
   gallery,
-  layout = 'grid',
   columns = 3,
   showCaptions = false,
   showTitle = false,
 } = Astro.props;
+const layout = cleanLayout(Astro.props.layout) || 'grid';
 
 // Calculate optimal image width based on columns
 // Page width is ~1400px, divide by columns and add some padding

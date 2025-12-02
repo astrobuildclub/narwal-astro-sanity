@@ -1,6 +1,7 @@
 ---
 import { urlForImage } from '../../../sanity/lib/image';
 import type { SanityVideoBlock } from '../../sanity/types';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types - following EmbedBlock structure
 interface Props {
@@ -36,7 +37,10 @@ const currentVideoType: 'upload' | 'youtube' | 'vimeo' | 'direct' = videoType ||
 const service = currentVideoType === 'youtube' ? 'youtube' : currentVideoType === 'vimeo' ? 'vimeo' : undefined;
 
 // Use size prop as fallback if video.size is not available
-const finalSize = videoSize || size || 'page';
+// Clean stega characters from size values
+const cleanedVideoSize = cleanSize(videoSize);
+const cleanedSize = cleanSize(size);
+const finalSize = cleanedVideoSize || cleanedSize || 'page';
 
 // Generate embed parameters from toggles for YouTube/Vimeo
 function generateEmbedParams(autoplay: boolean, muted: boolean, loop: boolean): string {

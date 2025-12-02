@@ -3,6 +3,7 @@
 import Image from 'astro/components/Image.astro';
 import { urlForImage } from '../../../sanity/lib/image';
 import type { SanityImage } from '../../sanity/types';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
@@ -16,10 +17,10 @@ interface Props {
 const {
   title,
   gallery,
-  size = 'feature',
   showCaptions = false,
   showTitle = false,
 } = Astro.props;
+const size = cleanSize(Astro.props.size) || 'feature';
 
 // Process gallery images into slides format
 const backgroundSlides =

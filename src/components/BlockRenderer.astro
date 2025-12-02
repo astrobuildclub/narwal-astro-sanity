@@ -14,6 +14,8 @@ import ServicesBlock from './blocks/ServicesBlock.astro';
 import ClientsBlock from './blocks/ClientsBlock.astro';
 import GalleryBlock from './blocks/GalleryBlock.astro';
 import CarouselBlock from './blocks/CarouselBlock.astro';
+// Import stega cleaning utilities
+import { cleanSize, cleanLayout } from '../lib/stega-clean';
 
 type Props = {
   prefix: string;
@@ -40,12 +42,12 @@ const { prefix, blocks } = Astro.props;
         switch (blockType) {
           // Sanity block types
           case 'textBlock':
-            return <TextBlock content={block.text} size={block.size} />;
+            return <TextBlock content={block.text} size={cleanSize(block.size)} />;
           case 'imageBlock':
             return (
               <ImageBlock
                 image={block.image}
-                size={block.size}
+                size={cleanSize(block.size)}
                 alt={block.alt}
                 title={block.title}
                 showCaption={block.showCaption}
@@ -53,9 +55,9 @@ const { prefix, blocks } = Astro.props;
               />
             );
           case 'videoBlock':
-            return <VideoBlock video={block} size={block.size} />;
+            return <VideoBlock video={block} size={cleanSize(block.size)} />;
           case 'colorBlock':
-            return <ColorBlock color={block.color} />;
+            return <ColorBlock color={block.color} size={cleanSize(block.size)} />;
           case 'testimonialBlock':
             return (
               <TestimonialBlock
@@ -63,14 +65,14 @@ const { prefix, blocks } = Astro.props;
                 name={block.name}
                 role={block.role}
                 photo={block.photo}
-                size={block.size}
+                size={cleanSize(block.size)}
               />
             );
           case 'columnsBlock':
             return (
               <ColumnsBlock
                 title={block.title}
-                size={block.size}
+                size={cleanSize(block.size)}
                 columns={block.columns}
               />
             );
@@ -89,7 +91,7 @@ const { prefix, blocks } = Astro.props;
               <ServicesBlock
                 title={block.title}
                 services={block.services}
-                layout={block.layout}
+                layout={cleanLayout(block.layout)}
                 showDescriptions={block.showDescriptions}
               />
             );
@@ -100,7 +102,7 @@ const { prefix, blocks } = Astro.props;
               <GalleryBlock
                 title={block.title}
                 gallery={block.gallery}
-                layout={block.layout || 'grid'}
+                layout={cleanLayout(block.layout) || 'grid'}
                 columns={block.columns}
                 showCaptions={block.showCaptions}
                 showTitle={block.showTitle}
@@ -111,13 +113,13 @@ const { prefix, blocks } = Astro.props;
               <CarouselBlock
                 title={block.title}
                 gallery={block.gallery}
-                size={block.size || 'feature'}
+                size={cleanSize(block.size) || 'feature'}
                 showCaptions={block.showCaptions}
                 showTitle={block.showTitle}
               />
             );
           case 'embedBlock':
-            return <EmbedBlock code={block.code} size={block.size} />;
+            return <EmbedBlock code={block.code} size={cleanSize(block.size)} />;
 
           default:
             if (import.meta.env.DEV) {

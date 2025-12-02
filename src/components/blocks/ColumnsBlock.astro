@@ -3,6 +3,7 @@
 import TextBlock from './TextBlock.astro';
 import ImageBlock from './ImageBlock.astro';
 import VideoBlock from './VideoBlock.astro';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
@@ -12,7 +13,8 @@ interface Props {
 }
 
 // Define Vars
-const { size = 'page', columns } = Astro.props;
+const { columns } = Astro.props;
+const size = cleanSize(Astro.props.size) || 'page';
 ---
 
 <!-- ColumnsBlock -->

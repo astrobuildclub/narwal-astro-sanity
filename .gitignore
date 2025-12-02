@@ -34,3 +34,6 @@ yarn-error.log*
 
 # package lock
 package-lock.json
+
+# project documentation (local guidelines)
+guidelines.md

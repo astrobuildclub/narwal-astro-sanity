@@ -1,4 +1,6 @@
 ---
+import { cleanSize } from '../../lib/stega-clean';
+
 // Define Types
 interface Props {
   color?: string;
@@ -6,7 +8,8 @@ interface Props {
 }
 
 // Define Vars
-const { color = '#000000', size } = Astro.props;
+const { color = '#000000' } = Astro.props;
+const size = cleanSize(Astro.props.size);
 ---
 
 <div class:list={['colorblock', size]} style={`background-color: ${color};`}>

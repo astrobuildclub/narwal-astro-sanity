@@ -1,6 +1,7 @@
 ---
 // Import Components & Scripts
 import { getAspectRatioFromEmbedString } from '../../lib/utils';
+import { cleanSize } from '../../lib/stega-clean';
 
 // Define Types
 interface Props {
@@ -9,7 +10,8 @@ interface Props {
 }
 
 // Define vars
-const { code, size } = Astro.props;
+const { code } = Astro.props;
+const size = cleanSize(Astro.props.size);
 
 // Code Start
 const aspectRatio = getAspectRatioFromEmbedString(code);

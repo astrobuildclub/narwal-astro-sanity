@@ -3,6 +3,7 @@
 import { Image } from 'astro:assets';
 import { urlForImage } from '../../../sanity/lib/image';
 import type { SanityImage } from '../../sanity/types';
+import { cleanImagePosition } from '../../lib/stega-clean';
 
 // Define Types
 interface textItem {
@@ -25,7 +26,7 @@ const { title, media, items } = Astro.props;
 // Generate image URL - Sanity data only
 let finalSourceUrl = '';
 let finalAltText = '';
-let imagePosition = media?.imgposition;
+const imagePosition = cleanImagePosition(media?.imgposition);
 
 if (media?.image?.asset) {
   try {
