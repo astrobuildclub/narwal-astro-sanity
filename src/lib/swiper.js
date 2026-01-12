@@ -42,7 +42,7 @@ document.addEventListener(
           fadeEffect: {
             crossFade: true,
           },
-          allowTouchMove: false,
+          allowTouchMove: true, // Touch events toestaan op background (master)
           navigation: {
             nextEl: elNextButton,
             prevEl: elPrevButton,
@@ -59,12 +59,72 @@ document.addEventListener(
           speed: 600,
           loop: true,
           slideToClickedSlide: true,
+          allowTouchMove: false, // Geen touch events - wordt doorgegeven aan background
           modules: [Navigation, Controller], // Geen Autoplay module
         });
 
-        // Koppel carousels - alleen background controleert foreground
+        // Koppel carousels - background controleert foreground (master-slave)
         backgroundSwiper.controller.control = foregroundSwiper;
-        // NIET andersom om feedback loop te voorkomen
+        
+        // Laat foreground carousel touch events doorgeven aan background
+        // Dit zorgt ervoor dat swipen op foreground de background triggert
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isSwiping = false;
+        let touchTarget = null;
+        let hasMoved = false;
+
+        elForegroundCarousel.addEventListener('touchstart', (e) => {
+          // Check of we op een klikbaar element zitten (link)
+          touchTarget = e.target.closest('a');
+          if (touchTarget) {
+            // Laat link clicks werken
+            return;
+          }
+          
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          isSwiping = false;
+          hasMoved = false;
+        }, { passive: true });
+
+        elForegroundCarousel.addEventListener('touchmove', (e) => {
+          if (touchTarget) return; // Laat links werken
+          if (!touchStartX || !touchStartY) return;
+          
+          const touchEndX = e.touches[0].clientX;
+          const touchEndY = e.touches[0].clientY;
+          const diffX = touchStartX - touchEndX;
+          const diffY = touchStartY - touchEndY;
+          
+          // Alleen horizontaal swipen, niet verticaal scrollen
+          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+            if (!hasMoved) {
+              hasMoved = true;
+              isSwiping = true;
+              // Trigger swipe op background carousel
+              if (diffX > 0) {
+                // Swipe naar links = volgende slide
+                backgroundSwiper.slideNext();
+              } else {
+                // Swipe naar rechts = vorige slide
+                backgroundSwiper.slidePrev();
+              }
+            }
+          }
+        }, { passive: true });
+
+        elForegroundCarousel.addEventListener('touchend', (e) => {
+          if (isSwiping && !touchTarget) {
+            // Voorkom default link click gedrag tijdens swipe
+            e.preventDefault();
+          }
+          touchStartX = 0;
+          touchStartY = 0;
+          isSwiping = false;
+          hasMoved = false;
+          touchTarget = null;
+        }, { passive: false });
 
         // Set initial indicator - gebruik realIndex voor loop compatibility
         const updateIndicators = () => {

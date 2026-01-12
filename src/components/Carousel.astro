@@ -333,12 +333,17 @@ if (import.meta.env.DEV) {
     justify-content: flex-end;
     align-items: stretch;
     color: white;
-    pointer-events: auto; /* Zorgt ervoor dat de slides klikbaar zijn */
+    pointer-events: none; /* Laat touch events door naar background carousel */
     min-height: 100%; /* Zorgt ervoor dat de slides 100% van de hoogte innemen */
     min-width: 100%; /* Zorgt ervoor dat de slides 100% van de breedte innemen */
     padding: 0;
     margin: 0;
     /* overflow: hidden; */
+  }
+  
+  /* Zorg dat klikbare elementen (links) wel pointer events hebben */
+  .carousel-foreground .swiper-slide a {
+    pointer-events: auto;
   }
   
   /* Control instellingen */
