@@ -47,11 +47,21 @@ const { class: customClass } = Astro.props;
   section div > div {
     max-width: 70ch;
   }
-  :global(.home .col p:first-child) {
+
+  :global(.home .col h3) {
     margin-bottom: 2rem;
-    font-size: var(--fs-3xl);
+    font-size: var(--fs-3);
     line-height: 95%;
     font-weight: 400;
-    color: var(--text);
+  }
+
+  :global(.home .col h4) {
+    font-size: var(--fs-2);
+    font-weight: 400;
+  }
+
+  :global(.home .col p) {
+    font-size: var(--fs-1);
+    line-height: 112.5%;
   }
 </style>
