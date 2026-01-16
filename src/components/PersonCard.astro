@@ -25,7 +25,8 @@ let finalTitleText = '';
 
 if (photo?.asset) {
   try {
-    finalPhotoUrl = urlForImage(photo)?.width(400).height(400).url() || '';
+    // 4:5 aspect ratio: width 400, height 500
+    finalPhotoUrl = urlForImage(photo)?.width(400).height(500).url() || '';
     finalAltText = photo.alt || '';
     finalTitleText = photo.caption || '';
   } catch (error) {

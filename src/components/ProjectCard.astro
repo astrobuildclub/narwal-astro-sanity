@@ -52,6 +52,16 @@ const projectSize = thumbnail?.size || size;
 const projectFitCards = fitCards ?? false;
 const projectAspectRatio = thumbnail?.aspectRatio || aspectRatio;
 
+// Calculate height based on aspect ratio
+function getHeightFromAspectRatio(width: number, aspectRatio: string): number {
+  const [w, h] = aspectRatio.split(':').map(Number);
+  if (w && h) {
+    return Math.round((width * h) / w);
+  }
+  // Default to 16:9 if invalid
+  return Math.round((width * 9) / 16);
+}
+
 // Generate image URL - prefer Sanity thumbnail (more flexible), fallback to pre-generated imgsrc
 // Only generate from Sanity if imgsrc wasn't already provided
 let imageSrc = imgsrc || '';
@@ -59,9 +69,13 @@ let imageAlt = imgalt || projectTitle || '';
 
 if (!imageSrc && thumbnail?.image?.asset) {
   try {
+    const width = 1920;
+    const aspectRatio = projectAspectRatio || '16:9';
+    const height = getHeightFromAspectRatio(width, aspectRatio);
+
     const sanityImageUrl = urlForImage(thumbnail.image)
-      ?.width(800)
-      .height(600)
+      ?.width(width)
+      .height(height)
       .url();
     if (sanityImageUrl) {
       imageSrc = sanityImageUrl;
@@ -78,14 +92,35 @@ if (thumbnail?.alt) {
   imageAlt = thumbnail.alt;
 }
 
-// Video source - Sanity takes precedence
-const videoSrc = thumbnail?.video || vidsrc;
+// Video source - check if useVideo is enabled
+// Only use video if useVideo is true AND video URL is provided
+const useVideo = thumbnail?.useVideo === true;
+const videoSrc =
+  useVideo && thumbnail?.video ? thumbnail.video : vidsrc || null;
 
 // Generate poster image for video if needed
+// Use thumbnail image as poster when useVideo is enabled
+const posterImageSrc =
+  useVideo && thumbnail?.image?.asset
+    ? (() => {
+        try {
+          const width = 1280;
+          const aspectRatio = projectAspectRatio || '16:9';
+          const height = getHeightFromAspectRatio(width, aspectRatio);
+          return (
+            urlForImage(thumbnail.image)?.width(width).height(height).url() ||
+            imageSrc
+          );
+        } catch (error) {
+          return imageSrc;
+        }
+      })()
+    : imageSrc;
+
 const posterImage =
-  videoSrc && imageSrc
+  videoSrc && posterImageSrc
     ? await getImage({
-        src: imageSrc,
+        src: posterImageSrc,
         inferSize: true,
         widths: [540, 960, 1440, 1920],
         sizes:

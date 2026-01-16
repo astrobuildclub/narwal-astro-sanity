@@ -72,7 +72,8 @@ const components = {
 <style>
   .project-footer {
     padding: var(--site-padding);
-    background: var(--clr-light);
+    background: var(--footer-bg);
+    color: var(--footer-text);
   }
 
   .project-footer-content {
@@ -130,6 +131,7 @@ const components = {
     font-weight: 600;
     line-height: 1;
     margin-block: 1rem;
+    color: var(--footer-text);
   }
 
   .project-footer-text {
@@ -137,6 +139,7 @@ const components = {
     line-height: 133%;
     letter-spacing: -0.0125rem;
     text-wrap: balance;
+    color: var(--footer-text);
   }
 
   :global(.project-footer-text p:first-child) {
@@ -154,6 +157,7 @@ const components = {
     margin: 0;
     font-size: var(--fs--2);
     line-height: 133%;
+    color: var(--footer-text);
   }
 
   .project-footer-services-list li {
@@ -173,6 +177,6 @@ const components = {
   .project-footer-credits :global(.project-footer-text ul li),
   .project-footer-credits :global(.project-footer-text ol li) {
     margin-bottom: 0.5em;
-    color: red;
+    color: var(--footer-text);
   }
 </style>

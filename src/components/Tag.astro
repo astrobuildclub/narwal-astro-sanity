@@ -2,16 +2,21 @@
 const { label } = Astro.props;
 ---
 
-<li class="tag rounded-full leading-none tracking-tighter">
+<li class="tracking-tighter leading-none rounded-full tag">
   {label}
 </li>
 
 <style>
+  :root {
+    --clr-tag-text: color-mix(in srgb, var(--black) 70%, transparent);
+    --clr-tag-bg: color-mix(in srgb, var(--black) 10%, transparent);
+  }
+
   .tag {
     padding: calc(var(--space-2xs) * 0.5) calc(var(--space-2xs) / 1.25);
     font-size: calc(var(--fs--3) - 0.0125em);
     letter-spacing: -0.025em;
-    background: var(--color-bg-focus);
+    background: var(--clr-tag-bg);
     leading-trim: both;
     text-edge: cap alphabetic;
     color: var(--clr-tag-text);

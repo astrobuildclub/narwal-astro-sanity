@@ -57,6 +57,7 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
       },
       size,
       alt,
+      useVideo,
       video,
       aspectRatio
     }
@@ -169,6 +170,7 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
       },
       size,
       alt,
+      useVideo,
       video,
       aspectRatio
     }
@@ -239,6 +241,8 @@ export const ALL_PROJECTS_QUERY = `*[_type == "work"] | order(_createdAt desc) {
       hotspot
     },
     size,
+    useVideo,
+    video,
     aspectRatio
   },
   "client": client-> {
@@ -279,6 +283,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
       hotspot
     },
     size,
+    alt,
+    useVideo,
+    video,
     aspectRatio
   },
   vimeoUrl,

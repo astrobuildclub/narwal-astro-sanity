@@ -9,6 +9,8 @@ import { linkField } from 'sanity-plugin-link-field';
 import seofields from 'sanity-plugin-seofields';
 
 export default defineConfig({
+  name: 'narwal-creative',
+  title: 'Narwal Creative',
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
   dataset: import.meta.env.PUBLIC_SANITY_DATASET,
   plugins: [

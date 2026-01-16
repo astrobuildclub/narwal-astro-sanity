@@ -98,6 +98,7 @@ export default defineType({
                     decorators: [
                       { title: 'Strong', value: 'strong' },
                       { title: 'Emphasis', value: 'em' },
+                      { title: 'Underline', value: 'underline' },
                     ],
                     annotations: [
                       {
@@ -179,7 +180,6 @@ export default defineType({
           },
         },
       ],
-      validation: (Rule) => Rule.max(6),
       group: 'homepage',
       options: {
         sortable: true,
