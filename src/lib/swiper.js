@@ -28,6 +28,9 @@ document.addEventListener(
         elNextButton &&
         elPrevButton
       ) {
+        // Tel het aantal originele slides voordat Swiper wordt geïnitialiseerd
+        const originalSlideCount = elBackgroundCarousel.querySelectorAll('.swiper-slide').length;
+        
         // Background carousel - master met autoplay
         const backgroundSwiper = new Swiper(elBackgroundCarousel, {
           autoplay: {
@@ -132,17 +135,12 @@ document.addEventListener(
             backgroundSwiper.realIndex !== undefined
               ? backgroundSwiper.realIndex
               : backgroundSwiper.activeIndex;
-          // Voor loop mode: aantal echte slides (zonder duplicates)
-          const slideCount = backgroundSwiper.params.loop
-            ? backgroundSwiper.slides.length -
-              (backgroundSwiper.loopedSlides || 0) * 2
-            : backgroundSwiper.slides.length;
 
           let numCurrentSlide = realIndex + 1;
           let currentSlide = numberWithZero(numCurrentSlide);
 
-          let numTotalSlides =
-            slideCount > 0 ? slideCount : backgroundSwiper.slides.length;
+          // Gebruik het originele aantal slides (geteld voordat Swiper werd geïnitialiseerd)
+          let numTotalSlides = originalSlideCount;
           let totalSlides = numberWithZero(numTotalSlides);
 
           if (elCurrentIndicator) elCurrentIndicator.textContent = currentSlide;
