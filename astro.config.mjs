@@ -14,6 +14,7 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 );
 
 export default defineConfig({
+  site: 'https://narwal.netlify.app',
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,

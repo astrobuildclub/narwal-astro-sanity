@@ -27,20 +27,58 @@ const ogTitle = seo?.openGraph?.title || seoTitle;
 const ogDescription = seo?.openGraph?.description || seoDescription;
 const ogType = seo?.openGraph?.type || 'website';
 const ogSiteName = seo?.openGraph?.siteName || '';
-const ogImage =
-  seo?.openGraph?.imageUrl || seo?.openGraph?.image?.asset
-    ? getImageUrl(seo?.openGraph?.image)
-    : fullImageUrl;
+
+// Fix: Check imageUrl eerst, dan image asset, dan metaImage, dan fallback
+let ogImage = '';
+if (seo?.openGraph?.imageUrl) {
+  // 1. Als imageUrl expliciet is ingesteld, gebruik die
+  ogImage = seo.openGraph.imageUrl;
+} else if (seo?.openGraph?.image?.asset) {
+  // 2. Als er een Sanity Open Graph image asset is, genereer URL
+  ogImage = getImageUrl(seo.openGraph.image);
+} else if (seo?.metaImage?.asset) {
+  // 3. Fallback naar metaImage als die beschikbaar is
+  ogImage = getImageUrl(seo.metaImage);
+} else {
+  // 4. Laatste fallback naar fullImageUrl
+  ogImage = fullImageUrl;
+}
+
+// Zorg dat ogImage altijd absoluut is voor Open Graph
+if (ogImage && !ogImage.startsWith('http')) {
+  // Als relatief, maak absoluut met Astro.site of request origin
+  const baseUrl = Astro.site || new URL(Astro.request.url).origin;
+  ogImage = `${baseUrl}${ogImage.startsWith('/') ? ogImage : `/${ogImage}`}`;
+}
 
 // Twitter
 const twitterCard = seo?.twitter?.card || 'summary_large_image';
 const twitterSite = seo?.twitter?.site || '';
 const twitterTitle = seo?.twitter?.title || seoTitle;
 const twitterDescription = seo?.twitter?.description || seoDescription;
-const twitterImage =
-  seo?.twitter?.imageUrl || seo?.twitter?.image?.asset
-    ? getImageUrl(seo?.twitter?.image)
-    : fullImageUrl;
+
+// Fix: Zelfde logica voor Twitter image
+let twitterImage = '';
+if (seo?.twitter?.imageUrl) {
+  // 1. Als imageUrl expliciet is ingesteld, gebruik die
+  twitterImage = seo.twitter.imageUrl;
+} else if (seo?.twitter?.image?.asset) {
+  // 2. Als er een Sanity Twitter image asset is, genereer URL
+  twitterImage = getImageUrl(seo.twitter.image);
+} else if (seo?.metaImage?.asset) {
+  // 3. Fallback naar metaImage als die beschikbaar is
+  twitterImage = getImageUrl(seo.metaImage);
+} else {
+  // 4. Laatste fallback naar fullImageUrl
+  twitterImage = fullImageUrl;
+}
+
+// Zorg dat twitterImage altijd absoluut is
+if (twitterImage && !twitterImage.startsWith('http')) {
+  // Als relatief, maak absoluut met Astro.site of request origin
+  const baseUrl = Astro.site || new URL(Astro.request.url).origin;
+  twitterImage = `${baseUrl}${twitterImage.startsWith('/') ? twitterImage : `/${twitterImage}`}`;
+}
 
 // Canonical URL
 const canonicalUrl = seo?.canonicalUrl || url;
