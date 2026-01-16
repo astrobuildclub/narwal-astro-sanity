@@ -54,7 +54,8 @@ function getWidthForSize(size?: string): number {
 if (image?.asset) {
   try {
     const imageWidth = getWidthForSize(size);
-    const imageBuilder = urlForImage(image);
+    // Use quality 90 for project content images (higher quality, less compression)
+    const imageBuilder = urlForImage(image, 90);
 
     if (size !== 'inherit') {
       // Voeg width constraint toe voor alle sizes behalve inherit

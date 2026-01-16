@@ -9,8 +9,9 @@
 @tailwind utilities;
 
 :root {
-  --bg: #111;
+  overscroll-behavior: none;
 
+  --bg: #111;
   --white: #fdfdfa;
   --black: rgb(12, 12, 12);
   --primary: #020303;
