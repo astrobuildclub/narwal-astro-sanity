@@ -127,8 +127,9 @@ const currentYear = new Date().getFullYear();
 
   footer {
     width: 100%;
-
     min-height: 100vh;
+    background: var(--footer-bg);
+    color: var(--footer-text);
   }
 
   .footer__top {
@@ -148,6 +149,7 @@ const currentYear = new Date().getFullYear();
   ul li a {
     opacity: 0.9;
     text-decoration: none;
+    color: var(--footer-link);
   }
 
   footer .legal {
@@ -156,5 +158,11 @@ const currentYear = new Date().getFullYear();
 
   .button-cookieconsent {
     border: none;
+    background: var(--footer-button-bg);
+    color: var(--footer-button-text);
+  }
+
+  footer .legal a {
+    color: var(--footer-link);
   }
 </style>

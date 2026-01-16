@@ -49,6 +49,12 @@
   --easing-easeInOutCubic: cubic-bezier(0.455, 0.03, 0.515, 0.955);
   --easing-easeInQuart: cubic-bezier(0.55, 0.085, 0.68, 0.53);
   --easing-easeOutQuart: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  --footer-bg: var(--black);
+  --footer-text: var(--white);
+  --footer-link: var(--white);
+  --footer-button-bg: var(--black);
+  --footer-button-text: var(--white);
 }
 
 :root[data-theme='dark'] {

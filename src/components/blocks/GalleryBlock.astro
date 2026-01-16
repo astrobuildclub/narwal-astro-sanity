@@ -76,6 +76,9 @@ const processedImages =
             <Image
               src={img.url}
               inferSize
+              widths={[540, 960, 1440, 1920]}
+              sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
+              format="avif"
               alt={img.alt || ''}
               class="galleryblock-image"
             />

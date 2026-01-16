@@ -86,9 +86,9 @@
     width: 100%;
     padding: 0.5rem 1rem;
     margin-bottom: 1rem;
-    border: 2px solid var(--color-border);
-    background-color: var(--color-base);
-    color: var(--color-bg);
+    border: 2px solid var(--footer-text);
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
     transition: all 1s cubic-bezier(0.215, 0.61, 0.355, 1);
     border-radius: 100vw;
   }
@@ -98,10 +98,10 @@
   }
 
   .field-input:focus {
-    border-color: var(--color-bg-focus);
+    border-color: var(--footer-text);
     outline: none;
-    /* background-color: var(--color-bg-focus); */
-    background-color: #f4f4f4;
+    background-color: var(--footer-bg);
+    opacity: 0.8;
   }
 
   .field-submit {
@@ -110,11 +110,12 @@
     border: none;
     /* border-radius: 4px; */
 
-    color: var(--color-bg);
+    color: var(--footer-text);
+    background: transparent;
     font-weight: bold;
     text-decoration: underline;
     text-decoration-line: underline;
-    text-decoration-style: solid 2px black;
+    text-decoration-style: solid 2px;
     text-underline-offset: 20%;
     cursor: pointer;
   }
