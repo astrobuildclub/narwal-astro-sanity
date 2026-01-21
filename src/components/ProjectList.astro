@@ -59,13 +59,18 @@ if (import.meta.env.DEV) {
     },
   ]}
 >
-  <div class="project-list start grid gap-12 gap-y-8 md:gap-y-12 lg:gap-y-24">
+  <div class="grid gap-y-8 gap-12 project-list start md:gap-y-12 lg:gap-y-24">
     {
       projectCards &&
-        projectCards.map((item: any) => {
-          return <ProjectCard {...item} {fitCards} />;
+        projectCards.map((item: any, index: number) => {
+          return <ProjectCard {...item} {fitCards} data-index={index} />;
         })
     }
+  </div>
+  <div class="load-more-wrapper">
+    <button class="load-more-btn" data-total={projectCards.length}>
+      Laad meer projecten
+    </button>
   </div>
 </section>
 
@@ -173,6 +178,46 @@ if (import.meta.env.DEV) {
       grid-template-columns: repeat(6, minmax(0, 1fr));
     }
   }
+
+  /* Load More Styling */
+  .project-card.hidden-by-loadmore {
+    display: none !important;
+  }
+
+  .load-more-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: var(--space-4xl);
+    padding-top: var(--space-2xl);
+  }
+
+  .load-more-btn {
+    padding: var(--space-m) var(--space-xl);
+    font-size: var(--fs-0);
+    font-weight: 500;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 0;
+    cursor: pointer;
+    transition: all 0.3s var(--easing-easeOutExpo);
+    text-decoration: none;
+  }
+
+  .load-more-btn:hover {
+    background: var(--text);
+    color: var(--background);
+    transform: translateY(-2px);
+  }
+
+  .load-more-btn:active {
+    transform: translateY(0);
+  }
+
+  .load-more-btn.hidden {
+    display: none;
+  }
 </style>
 
 <script>
@@ -233,4 +278,112 @@ if (import.meta.env.DEV) {
       );
     };
   });
+</script>
+
+<script>
+  // Load More functionaliteit
+  const ITEMS_PER_PAGE = 6;
+  
+  function initializeLoadMore() {
+    const loadMoreBtn = document.querySelector('.load-more-btn') as HTMLButtonElement;
+    if (!loadMoreBtn) return;
+
+    const totalProjects = parseInt(loadMoreBtn.getAttribute('data-total') || '0');
+    
+    // State management
+    let visibleCount = ITEMS_PER_PAGE;
+    let currentFilter = 'all';
+
+    // Haal alle projecten op die matchen met huidige filter
+    function getFilteredProjects(): HTMLElement[] {
+      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      return allCards.filter((card) => {
+        // Verwijder tijdelijk de hidden-by-loadmore class om te checken of de filter de card verbergt
+        const hadLoadmoreClass = card.classList.contains('hidden-by-loadmore');
+        card.classList.remove('hidden-by-loadmore');
+        
+        const computedStyle = window.getComputedStyle(card);
+        const isVisibleByFilter = computedStyle.display !== 'none';
+        
+        // Herstel de class
+        if (hadLoadmoreClass) {
+          card.classList.add('hidden-by-loadmore');
+        }
+        
+        return isVisibleByFilter;
+      });
+    }
+
+    // Update visibility van project cards
+    function updateCardVisibility() {
+      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      const filteredCards = getFilteredProjects();
+      
+      // Eerst: verberg alle cards
+      allCards.forEach((card) => {
+        card.classList.add('hidden-by-loadmore');
+      });
+
+      // Dan: toon de eerste X gefilterde cards
+      filteredCards.slice(0, visibleCount).forEach((card) => {
+        card.classList.remove('hidden-by-loadmore');
+      });
+
+      // Update button
+      updateLoadMoreButton(filteredCards.length);
+    }
+
+    // Update de load more button tekst en visibility
+    function updateLoadMoreButton(filteredTotal: number) {
+      const remaining = filteredTotal - visibleCount;
+      
+      if (remaining <= 0 || filteredTotal <= ITEMS_PER_PAGE) {
+        loadMoreBtn.classList.add('hidden');
+      } else {
+        loadMoreBtn.classList.remove('hidden');
+        const toLoad = Math.min(ITEMS_PER_PAGE, remaining);
+        loadMoreBtn.textContent = `Laad ${toLoad} meer projecten (${remaining} resterend)`;
+      }
+    }
+
+    // Load more handler
+    function loadMore() {
+      const filteredCards = getFilteredProjects();
+      visibleCount += ITEMS_PER_PAGE;
+      updateCardVisibility();
+    }
+
+    // Handle filter change
+    function onFilterChange(service: string) {
+      currentFilter = service;
+      visibleCount = ITEMS_PER_PAGE;
+      
+      // Wacht kort zodat de filter eerst z'n werk kan doen
+      setTimeout(() => {
+        updateCardVisibility();
+      }, 50);
+    }
+
+    // Event listeners
+    loadMoreBtn.addEventListener('click', loadMore);
+
+    // Luister naar filter events
+    window.addEventListener('projectfilter:change', ((e: CustomEvent) => {
+      onFilterChange(e.detail.service);
+    }) as EventListener);
+
+    // Initialize
+    updateCardVisibility();
+  }
+
+  // Initialize immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLoadMore);
+  } else {
+    // DOM is already loaded
+    initializeLoadMore();
+  }
+  
+  // Also initialize on Astro page transitions
+  document.addEventListener('astro:page-load', initializeLoadMore);
 </script>
