@@ -276,6 +276,86 @@ if (import.meta.env.DEV) {
       );
     };
   });
+
+  // Animate project cards when filtering
+  let previousVisibleCards: Set<HTMLElement> = new Set();
+  
+  function animateFilteredProjects() {
+    // Wacht even zodat de DOM updates compleet zijn
+    setTimeout(() => {
+      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      const currentVisibleCards = allCards.filter((card) => {
+        const computedStyle = window.getComputedStyle(card);
+        return computedStyle.display !== 'none' && !card.classList.contains('hidden-by-loadmore');
+      });
+
+      // Bepaal welke cards nieuw zichtbaar zijn geworden
+      const newlyVisibleCards = currentVisibleCards.filter(
+        (card) => !previousVisibleCards.has(card)
+      );
+
+      // Animeer alleen de nieuw zichtbare cards
+      newlyVisibleCards.forEach((card, index) => {
+        const media = card.querySelector('.project-media') as HTMLElement;
+        const content = card.querySelector('.project-content') as HTMLElement;
+
+        if (media) {
+          // Zet direct op beginstate zonder animatie (instant)
+          media.style.opacity = '0';
+          media.style.transform = 'translateY(3rem)';
+          
+          // Animate in
+          requestAnimationFrame(() => {
+            animate(
+              media,
+              {
+                opacity: [0, 1],
+                transform: ['translateY(3rem)', 'translateY(0px)'],
+              },
+              {
+                delay: 0.2 + index * 0.05,
+                duration: 0.9,
+                easing: [0.16, 1, 0.3, 1],
+              },
+            );
+          });
+        }
+
+        if (content) {
+          // Zet direct op beginstate zonder animatie (instant)
+          content.style.opacity = '0';
+          content.style.transform = 'translateY(2rem)';
+          
+          // Animate in
+          requestAnimationFrame(() => {
+            animate(
+              content,
+              {
+                opacity: [0, 1],
+                transform: ['translateY(2rem)', 'translateY(0px)'],
+              },
+              {
+                delay: 0.1 + index * 0.05,
+                duration: 0.4,
+                easing: [0.16, 1, 0.3, 1],
+              },
+            );
+          });
+        }
+      });
+
+      // Update de set van zichtbare cards
+      previousVisibleCards = new Set(currentVisibleCards);
+    }, 50);
+  }
+
+  // Luister naar filter events
+  window.addEventListener('projectfilter:change', animateFilteredProjects);
+  
+  // Reset de set bij page load
+  document.addEventListener('astro:page-load', () => {
+    previousVisibleCards = new Set();
+  });
 </script>
 
 <script>
