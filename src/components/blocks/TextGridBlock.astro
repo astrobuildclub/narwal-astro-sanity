@@ -44,7 +44,7 @@ if (media?.image?.asset) {
 ---
 
 <!--TextGridBlock-->
-<div class="textgridblock page grid grid-cols-1">
+<div class="grid grid-cols-1 textgridblock page">
   <h2 class="textgridblock-title">{title}</h2>
 
   <!-- Outer grid: 2 kolommen als er een afbeelding is, anders 1 kolom -->
@@ -75,7 +75,7 @@ if (media?.image?.asset) {
       {
         items &&
           items.map((item: textItem) => (
-            <div class="content-item flex flex-col gap-2 md:gap-2">
+            <div class="flex flex-col gap-2 content-item md:gap-2">
               {item.title && (
                 <h3 class="content-item-title" set:html={item.title} />
               )}
@@ -91,7 +91,7 @@ if (media?.image?.asset) {
 
 <style>
   .textgridblock-title {
-    font-size: var(--fs-6);
+    font-size: var(--fs-5);
     line-height: 112.5%;
     margin-bottom: var(--space-xl);
     font-weight: 500;
