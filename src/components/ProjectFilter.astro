@@ -60,6 +60,11 @@ const { services } = Astro.props;
           button.classList.add('active');
 
           filterProjects(activeService);
+          
+          // Dispatch event voor load more synchronisatie
+          window.dispatchEvent(new CustomEvent('projectfilter:change', {
+            detail: { service: activeService }
+          }));
         });
       });
 
@@ -71,6 +76,11 @@ const { services } = Astro.props;
 
         // Verwijder de actieve klasse van alle knoppen
         serviceButtons.forEach((btn) => btn.classList.remove('active'));
+        
+        // Dispatch event voor load more synchronisatie
+        window.dispatchEvent(new CustomEvent('projectfilter:change', {
+          detail: { service: 'all' }
+        }));
       });
       tagReset.append(showAllButton);
 
@@ -115,7 +125,16 @@ const { services } = Astro.props;
 
   .tag-button.active {
     color: var(--text);
+    text-decoration: underline !important;
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+  }
 
-    text-decoration: underline;
+  .tag-reset a {
+    cursor: default;
+  }
+
+  .tag-reset a:hover {
+    cursor: default;
   }
 </style>

@@ -121,7 +121,8 @@ const posterImage =
   videoSrc && posterImageSrc
     ? await getImage({
         src: posterImageSrc,
-        inferSize: true,
+        width: 1280,
+        height: getHeightFromAspectRatio(1280, projectAspectRatio),
         widths: [540, 960, 1440, 1920],
         sizes:
           '(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px',
@@ -181,7 +182,8 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
           <div class="project-image">
             <Image
               src={imageSrc}
-              inferSize
+              width={1920}
+              height={getHeightFromAspectRatio(1920, projectAspectRatio)}
               widths={[540, 960, 1440, 1920]}
               sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
               format="avif"

@@ -59,13 +59,18 @@ if (import.meta.env.DEV) {
     },
   ]}
 >
-  <div class="project-list start grid gap-12 gap-y-8 md:gap-y-12 lg:gap-y-24">
+  <div class="grid gap-y-8 gap-12 project-list start md:gap-y-12 lg:gap-y-24">
     {
       projectCards &&
-        projectCards.map((item: any) => {
-          return <ProjectCard {...item} {fitCards} />;
+        projectCards.map((item: any, index: number) => {
+          return <ProjectCard {...item} {fitCards} data-index={index} />;
         })
     }
+  </div>
+  <div class="load-more-wrapper">
+    <button class="load-more-btn" data-total={projectCards.length}>
+      Load more
+    </button>
   </div>
 </section>
 
@@ -155,23 +160,61 @@ if (import.meta.env.DEV) {
   .project-card {
     transition: all 0.4s var(--easing-easeOutExpo);
   }
-  .project-card:hover {
-    opacity: 1;
-  }
-  .project-card:hover ~ .project-card {
-    opacity: 0.75;
-  }
-  .project-list:hover .project-card:not(:hover) {
-    opacity: 0.1;
-  }
-  .project-list:hover .project-card:not(:hover) {
-    opacity: 0.75;
+  
+  @media (hover: hover) {
+    .project-card:hover {
+      opacity: 1;
+    }
+    .project-card:hover ~ .project-card {
+      opacity: 0.65;
+    }
+    .project-list:hover .project-card:not(:hover) {
+      opacity: 0.55;
+    }
   }
 
   @media (min-width: 1024px) {
     .layout-list .project-list {
       grid-template-columns: repeat(6, minmax(0, 1fr));
     }
+  }
+
+  /* Load More Styling */
+  .project-card.hidden-by-loadmore {
+    display: none !important;
+  }
+
+  .load-more-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: var(--space-4xl);
+    padding-top: var(--space-2xl);
+  }
+
+  .load-more-btn {
+    opacity: 0.75;
+    padding: var(--space-m) var(--space-xl);
+    font-size: var(--fs-0);
+    font-weight: 500;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.3s var(--easing-easeOutExpo);
+    text-decoration: none;
+  }
+
+  .load-more-btn:hover {
+    
+    
+    opacity: 1;
+  }
+
+ 
+  .load-more-btn.hidden {
+    display: none;
   }
 </style>
 
@@ -186,7 +229,7 @@ if (import.meta.env.DEV) {
     const controls = animate(
       info.target,
       {
-        opacity: [0, 0.75],
+        opacity: [0, 1],
         transform: ['translateY(3rem)', 'translateY(0px)'],
       },
       {
@@ -232,5 +275,202 @@ if (import.meta.env.DEV) {
         { duration: 0.6 },
       );
     };
+  });
+
+  // Animate project cards when filtering
+  let previousVisibleCards: Set<HTMLElement> = new Set();
+  
+  function animateFilteredProjects() {
+    // Wacht even zodat de DOM updates compleet zijn
+    setTimeout(() => {
+      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      const currentVisibleCards = allCards.filter((card) => {
+        const computedStyle = window.getComputedStyle(card);
+        return computedStyle.display !== 'none' && !card.classList.contains('hidden-by-loadmore');
+      });
+
+      // Bepaal welke cards nieuw zichtbaar zijn geworden
+      const newlyVisibleCards = currentVisibleCards.filter(
+        (card) => !previousVisibleCards.has(card)
+      );
+
+      // Animeer alleen de nieuw zichtbare cards
+      newlyVisibleCards.forEach((card, index) => {
+        const media = card.querySelector('.project-media') as HTMLElement;
+        const content = card.querySelector('.project-content') as HTMLElement;
+
+        if (media) {
+          // Zet direct op beginstate zonder animatie (instant)
+          media.style.opacity = '0';
+          media.style.transform = 'translateY(3rem)';
+          
+          // Animate in
+          requestAnimationFrame(() => {
+            animate(
+              media,
+              {
+                opacity: [0, 1],
+                transform: ['translateY(3rem)', 'translateY(0px)'],
+              },
+              {
+                delay: 0.2 + index * 0.05,
+                duration: 0.9,
+                easing: [0.16, 1, 0.3, 1],
+              },
+            );
+          });
+        }
+
+        if (content) {
+          // Zet direct op beginstate zonder animatie (instant)
+          content.style.opacity = '0';
+          content.style.transform = 'translateY(2rem)';
+          
+          // Animate in
+          requestAnimationFrame(() => {
+            animate(
+              content,
+              {
+                opacity: [0, 1],
+                transform: ['translateY(2rem)', 'translateY(0px)'],
+              },
+              {
+                delay: 0.1 + index * 0.05,
+                duration: 0.4,
+                easing: [0.16, 1, 0.3, 1],
+              },
+            );
+          });
+        }
+      });
+
+      // Update de set van zichtbare cards
+      previousVisibleCards = new Set(currentVisibleCards);
+    }, 50);
+  }
+
+  // Luister naar filter events
+  window.addEventListener('projectfilter:change', animateFilteredProjects);
+  
+  // Reset de set bij page load
+  document.addEventListener('astro:page-load', () => {
+    previousVisibleCards = new Set();
+  });
+</script>
+
+<script>
+  // Load More functionaliteit
+  const ITEMS_PER_PAGE = 6;
+  let isLoadMoreInitialized = false;
+  
+  function initializeLoadMore() {
+    // Voorkom dubbele initialisatie (fix voor stack overflow)
+    if (isLoadMoreInitialized) return;
+    
+    const loadMoreBtn = document.querySelector('.load-more-btn') as HTMLButtonElement;
+    if (!loadMoreBtn) return;
+    
+    isLoadMoreInitialized = true;
+
+    const totalProjects = parseInt(loadMoreBtn.getAttribute('data-total') || '0');
+    
+    // State management
+    let visibleCount = ITEMS_PER_PAGE;
+    let currentFilter = 'all';
+
+    // Haal alle projecten op die matchen met huidige filter
+    function getFilteredProjects(): HTMLElement[] {
+      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      return allCards.filter((card) => {
+        // Verwijder tijdelijk de hidden-by-loadmore class om te checken of de filter de card verbergt
+        const hadLoadmoreClass = card.classList.contains('hidden-by-loadmore');
+        card.classList.remove('hidden-by-loadmore');
+        
+        const computedStyle = window.getComputedStyle(card);
+        const isVisibleByFilter = computedStyle.display !== 'none';
+        
+        // Herstel de class
+        if (hadLoadmoreClass) {
+          card.classList.add('hidden-by-loadmore');
+        }
+        
+        return isVisibleByFilter;
+      });
+    }
+
+    // Update visibility van project cards
+    function updateCardVisibility() {
+      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      const filteredCards = getFilteredProjects();
+      
+      // Eerst: verberg alle cards
+      allCards.forEach((card) => {
+        card.classList.add('hidden-by-loadmore');
+      });
+
+      // Dan: toon de eerste X gefilterde cards
+      filteredCards.slice(0, visibleCount).forEach((card) => {
+        card.classList.remove('hidden-by-loadmore');
+      });
+
+      // Update button
+      updateLoadMoreButton(filteredCards.length);
+    }
+
+    // Update de load more button tekst en visibility
+    function updateLoadMoreButton(filteredTotal: number) {
+      const remaining = filteredTotal - visibleCount;
+      
+      if (remaining <= 0 || filteredTotal <= ITEMS_PER_PAGE) {
+        loadMoreBtn.classList.add('hidden');
+      } else {
+        loadMoreBtn.classList.remove('hidden');
+        loadMoreBtn.textContent = 'Load more';
+      }
+    }
+
+    // Load more handler
+    function loadMore() {
+      const filteredCards = getFilteredProjects();
+      visibleCount += ITEMS_PER_PAGE;
+      updateCardVisibility();
+    }
+
+    // Handle filter change
+    function onFilterChange(service: string) {
+      currentFilter = service;
+      visibleCount = ITEMS_PER_PAGE;
+      
+      // Wacht kort zodat de filter eerst z'n werk kan doen
+      setTimeout(() => {
+        updateCardVisibility();
+      }, 50);
+    }
+
+    // Event listeners
+    loadMoreBtn.addEventListener('click', loadMore);
+
+    // Luister naar filter events
+    window.addEventListener('projectfilter:change', ((e: CustomEvent) => {
+      onFilterChange(e.detail.service);
+    }) as EventListener);
+
+    // Initialize
+    updateCardVisibility();
+  }
+
+  // Initialize immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLoadMore);
+  } else {
+    // DOM is already loaded
+    initializeLoadMore();
+  }
+  
+  // Also initialize on Astro page transitions
+  document.addEventListener('astro:page-load', () => {
+    // Reset de flag voor nieuwe pagina's
+    isLoadMoreInitialized = false;
+    initializeLoadMore();
   });
 </script>
