@@ -4,6 +4,7 @@ import { structureTool } from 'sanity/structure';
 import { schemaTypes } from './src/sanity/schemaTypes';
 import { presentationTool } from 'sanity/presentation';
 import { resolve } from './src/sanity/lib/resolve';
+import { structure } from './src/sanity/deskStructure';
 // plug-ins
 import { linkField } from 'sanity-plugin-link-field';
 import seofields from 'sanity-plugin-seofields';
@@ -14,7 +15,7 @@ export default defineConfig({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
   dataset: import.meta.env.PUBLIC_SANITY_DATASET,
   plugins: [
-    structureTool(),
+    structureTool({ structure }),
     presentationTool({
       resolve,
       previewUrl: location.origin,

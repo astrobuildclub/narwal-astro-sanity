@@ -1,11 +1,13 @@
 import { defineType, defineField } from 'sanity';
 import { ProjectsIcon } from '@sanity/icons';
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list';
 
 export default defineType({
   name: 'work',
   title: 'Projects',
   type: 'document',
   icon: ProjectsIcon,
+  orderings: [orderRankOrdering],
   groups: [
     {
       name: 'all',
@@ -34,6 +36,9 @@ export default defineType({
     },
   ],
   fields: [
+    // Order rank field for manual sorting
+    orderRankField({ type: 'work' }),
+    
     // General group
     defineField({
       name: 'title',

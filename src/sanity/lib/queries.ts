@@ -226,8 +226,8 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
   }
 }`;
 
-// All projects query
-export const ALL_PROJECTS_QUERY = `*[_type == "work"] | order(_createdAt desc) {
+// All projects query - sorted by manual order (orderRank)
+export const ALL_PROJECTS_QUERY = `*[_type == "work"] | order(orderRank) {
   _id,
   _type,
   title,
