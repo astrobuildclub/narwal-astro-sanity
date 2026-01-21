@@ -57,6 +57,18 @@ export default defineConfig({
         allow: ['..'],
       },
     },
+    plugins: [{
+      name: 'sanity-studio-loader',
+      resolveId(id) {
+        return null;
+      },
+      load(id) {
+        return null;
+      },
+      transform(code, id) {
+        return null;
+      }
+    }]
   },
 
   adapter: netlify(),
