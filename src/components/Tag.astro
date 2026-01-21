@@ -8,12 +8,12 @@ const { label } = Astro.props;
 
 <style>
   :root {
-    --clr-tag-text: color-mix(in srgb, var(--black) 70%, transparent);
-    --clr-tag-bg: color-mix(in srgb, var(--black) 10%, transparent);
+    --clr-tag-text: color-mix(in srgb, var(--black) 50%, transparent);
+    --clr-tag-bg: color-mix(in srgb, var(--black) 5%, transparent);
   }
 
   .tag {
-    padding: calc(var(--space-2xs) * 0.5) calc(var(--space-2xs) / 1.25);
+    padding: calc(var(--space-2xs) * 0.675) var(--space-2xs);
     font-size: calc(var(--fs--3) - 0.0125em);
     letter-spacing: -0.025em;
     background: var(--clr-tag-bg);
