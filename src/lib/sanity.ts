@@ -52,16 +52,6 @@ export async function getAllUris() {
       );
     }
 
-    if (import.meta.env.DEV) {
-      console.log('🔗 Generated Sanity static paths:', {
-        total: uris.length,
-        homepage: !!data.homepage,
-        pages: data.pages?.length || 0,
-        projects: data.projects?.length || 0,
-        uris: uris.map((u) => u.params.uri),
-      });
-    }
-
     return uris;
   } catch (error) {
     console.error('❌ Failed to load Sanity slugs:', error);
@@ -83,16 +73,6 @@ export async function getHomeData(
 
     if (!data) {
       throw new Error('No homepage data found');
-    }
-
-    if (import.meta.env.DEV) {
-      console.log('🏠 Homepage data loaded:', {
-        title: data.title,
-        pageType: data.pageType,
-        slidesCount: data.slides?.length || 0,
-        introColsCount: data.introCols?.length || 0,
-        featuredProjectsCount: data.featuredProjects?.length || 0,
-      });
     }
 
     return data;
@@ -118,15 +98,6 @@ export async function getPageData(
 
     if (!data) {
       throw new Error(`Page with slug "${slug}" not found`);
-    }
-
-    if (import.meta.env.DEV) {
-      console.log('📄 Page data loaded:', {
-        title: data.title,
-        slug: data.slug,
-        pageType: data.pageType,
-        contentBlocks: data.content?.length || 0,
-      });
     }
 
     // Speciale logica per pagina type
@@ -200,16 +171,6 @@ export async function getProjectData(
 
     if (!data) {
       throw new Error(`Project with slug "${slug}" not found`);
-    }
-
-    if (import.meta.env.DEV) {
-      console.log('🎨 Project data loaded:', {
-        title: data.title,
-        slug: data.slug,
-        hasHero: !!data.hero,
-        contentBlocks: data.content?.length || 0,
-        relatedProjects: data.relatedProjects?.length || 0,
-      });
     }
 
     return data;

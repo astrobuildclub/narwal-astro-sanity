@@ -1,0 +1,133 @@
+---
+import { resolveHref } from '../lib/resolveHref';
+import { buildHref } from '../lib/buildHref';
+
+interface Props {
+  value?: any;
+  children?: any;
+  node?: any;
+  renderDefault?: any;
+}
+
+const { value, children, node } = Astro.props;
+
+// Debug logging
+if (import.meta.env.DEV) {
+  console.log('🔗 SanityLink received:', {
+    hasValue: !!value,
+    hasNode: !!node,
+    valueKeys: value ? Object.keys(value) : [],
+    nodeKeys: node ? Object.keys(node) : [],
+    valueType: value?._type,
+    valueLink: value?.link,
+    valueLinkType: value?.link?.type || value?.link?.linkType,
+    fullValue: JSON.stringify(value, null, 2),
+  });
+}
+
+// Normalize props: astro-portabletext can pass value or node
+const markDef = value || node;
+
+// Extract linkObj and videoUrl from markDef
+// markDef structure: {_type: "introLink", link: {...}, videoUrl?: string}
+// Or direct link object: {type: "...", ...}
+let linkObj = markDef?.link;
+let videoUrl = markDef?.videoUrl;
+
+// If markDef doesn't have a nested link, it might be a direct link object
+if (!linkObj && markDef && (markDef.type || markDef.linkType || markDef.url || markDef.internalLink)) {
+  linkObj = markDef;
+  videoUrl = markDef.videoUrl;
+}
+
+// Fallback: if value is direct link object (has linkType/type or url/internalLink)
+if (!linkObj && value && (value.linkType || value.type || value.url || value.internalLink)) {
+  linkObj = value;
+  videoUrl = value.videoUrl;
+}
+
+// Normalize phone number (strip spaces)
+function normalizeTel(phone: string): string {
+  return phone.replace(/\s/g, '');
+}
+
+// Compute baseHref by link type
+let baseHref: string | null = null;
+const linkType = linkObj?.type || linkObj?.linkType;
+
+if (linkObj) {
+  switch (linkType) {
+    case 'internal':
+      if (linkObj.internalLink) {
+        baseHref = resolveHref(linkObj.internalLink);
+      }
+      break;
+    case 'external':
+      baseHref = linkObj.value || linkObj.url || null;
+      break;
+    case 'email':
+      baseHref = linkObj.email ? `mailto:${linkObj.email}` : null;
+      break;
+    case 'phone':
+      baseHref = linkObj.phone ? `tel:${normalizeTel(linkObj.phone)}` : null;
+      break;
+    default:
+      // Custom link types or fallback
+      baseHref = linkObj.value || linkObj.url || null;
+  }
+}
+
+// Compute finalHref with params and anchor (skip for email/phone)
+let finalHref = baseHref || '#';
+
+if (baseHref && linkType !== 'email' && linkType !== 'phone') {
+  // Support both params (object) and parameters (string) - convert string only if needed
+  const params = linkObj?.params || (typeof linkObj?.parameters === 'string' ? undefined : linkObj?.parameters);
+  
+  // If parameters is a string, append it directly (legacy behavior)
+  if (typeof linkObj?.parameters === 'string' && linkObj.parameters) {
+    finalHref = buildHref(baseHref, { anchor: linkObj.anchor });
+    finalHref += (finalHref.includes('?') ? '&' : '?') + linkObj.parameters;
+  } else {
+    finalHref = buildHref(baseHref, {
+      params,
+      anchor: linkObj?.anchor,
+    });
+  }
+}
+
+// Set target and rel attributes
+const target = linkObj?.blank ? '_blank' : undefined;
+const rel = linkObj?.blank ? 'noopener noreferrer' : undefined;
+
+// Video hover support
+const linkClass = videoUrl ? 'link-with-video' : undefined;
+
+// Debug logging
+if (import.meta.env.DEV) {
+  console.log('🔗 SanityLink processing:', {
+    hasLinkObj: !!linkObj,
+    linkType,
+    baseHref,
+    finalHref,
+    hasVideoUrl: !!videoUrl,
+    linkObjKeys: linkObj ? Object.keys(linkObj) : [],
+    internalLink: linkObj?.internalLink,
+  });
+}
+
+// Warn in dev if no valid link found
+if (import.meta.env.DEV && !linkObj) {
+  console.warn('⚠️ SanityLink: No link object found. Value structure:', value);
+}
+---
+
+<a
+  href={finalHref}
+  {...(target ? { target } : {})}
+  {...(rel ? { rel } : {})}
+  {...(videoUrl ? { 'data-video-url': videoUrl } : {})}
+  {...(linkClass ? { class: linkClass } : {})}
+>
+  <slot />
+</a>

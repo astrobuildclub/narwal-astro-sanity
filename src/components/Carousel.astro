@@ -134,12 +134,6 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     link: slide.link,
   };
 });
-
-// DEBUG: Log final processed data
-if (import.meta.env.DEV) {
-  console.log('🎠 Final backgroundSlides:', backgroundSlides);
-  console.log('🎠 Final foregroundSlides:', foregroundSlides);
-}
 ---
 <section class="carousel-gallery full">
   <div class="carousels">

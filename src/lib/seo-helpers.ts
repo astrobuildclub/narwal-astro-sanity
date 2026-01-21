@@ -26,7 +26,7 @@ export function getSeoData(
   const seo = pageSeo || siteSettings?.defaultSeo || {};
 
   // Build final SEO object with fallbacks
-  const finalSeo = {
+  return {
     title: seo.title || fallbackTitle || siteSettings?.title || 'Page',
     description:
       seo.description || fallbackDescription || siteSettings?.description || '',
@@ -91,27 +91,6 @@ export function getSeoData(
       noFollow: seo.robots?.noFollow || false,
     },
   };
-
-  // Compact debug logging (alleen belangrijkste info)
-  if (import.meta.env.DEV) {
-    console.log('✅ SEO:', {
-      title:
-        finalSeo.title?.substring(0, 40) +
-        (finalSeo.title?.length > 40 ? '...' : ''),
-      desc:
-        finalSeo.description?.substring(0, 40) +
-        (finalSeo.description?.length > 40 ? '...' : ''),
-      og: !!finalSeo.openGraph.title,
-      twitter: !!finalSeo.twitter.title,
-      robots: finalSeo.robots.noIndex
-        ? 'noindex'
-        : finalSeo.robots.noFollow
-          ? 'nofollow'
-          : 'index,follow',
-    });
-  }
-
-  return finalSeo;
 }
 
 /**

@@ -11,7 +11,33 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
   introCols[] {
     _key,
     _type,
-    content
+    content[] {
+      ...,
+      markDefs[] {
+        ...,
+        (_type == "introLink" || _type == "link") => {
+          ...,
+          link {
+            ...,
+            linkType,
+            url,
+            blank,
+            email,
+            phone,
+            parameters,
+            anchor,
+            type,
+            value,
+            internalLink-> {
+              _type,
+              "slug": slug.current,
+              title
+            }
+          },
+          videoUrl
+        }
+      }
+    }
   },
   slides[] {
     _key,
@@ -124,7 +150,33 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
   introCols[] {
     _key,
     _type,
-    content
+    content[] {
+      ...,
+      markDefs[] {
+        ...,
+        (_type == "introLink" || _type == "link") => {
+          ...,
+          link {
+            ...,
+            linkType,
+            url,
+            blank,
+            email,
+            phone,
+            parameters,
+            anchor,
+            type,
+            value,
+            internalLink-> {
+              _type,
+              "slug": slug.current,
+              title
+            }
+          },
+          videoUrl
+        }
+      }
+    }
   },
   slides[] {
     _key,
@@ -475,7 +527,33 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
   },
   introCols[] {
     _key,
-    content
+    content[] {
+      ...,
+      markDefs[] {
+        ...,
+        (_type == "introLink" || _type == "link") => {
+          ...,
+          link {
+            ...,
+            linkType,
+            url,
+            blank,
+            email,
+            phone,
+            parameters,
+            anchor,
+            type,
+            value,
+            internalLink-> {
+              _type,
+              "slug": slug.current,
+              title
+            }
+          },
+          videoUrl
+        }
+      }
+    }
   },
   content[] {
     _type,

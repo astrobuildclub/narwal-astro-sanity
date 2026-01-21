@@ -16,21 +16,6 @@ const menuItems = siteSettings?.navigation?.menuItems || [];
 const sortedMenuItems = menuItems.sort(
   (a, b) => (a.order || 0) - (b.order || 0),
 );
-
-// DEBUG: Log processed menu items
-if (import.meta.env.DEV) {
-  console.log('🧭 Processed menu items:', sortedMenuItems);
-  console.log(
-    '🧭 Menu items with links:',
-    sortedMenuItems.map((item) => ({
-      label: item.label,
-      linkType: item.link?.linkType,
-      url: item.link?.url,
-      internalSlug: item.link?.internalLink?.slug,
-      pageType: item.link?.internalLink?.pageType,
-    })),
-  );
-}
 ---
 
 <nav class="fixed z-10 w-full h-16 page-layout">
@@ -78,13 +63,6 @@ if (import.meta.env.DEV) {
                   href = `/${slug}`;
                 }
               }
-            }
-
-            // DEBUG: Log de href voor elke menu item
-            if (import.meta.env.DEV) {
-              console.log(
-                `🧭 Menu item "${menuItem.label}" -> href: "${href}"`,
-              );
             }
 
             return (
