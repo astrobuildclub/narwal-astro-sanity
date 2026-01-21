@@ -182,11 +182,11 @@ if (import.meta.env.DEV) {
               {slide.link ?
                 <a class="slide-text" href={slide.link.url} target={slide.link.target} aria-label={`${slide.link.title || slide.title}`}>
                   <h3 class="opacity-80">{slide.subtitle}</h3>
-                  <h1 class="md:text-9xl text-balance">{slide.title}</h1>
+                  <h1 class="md:text-9xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
                 </a>
               :
                 <h3 class="opacity-80">{slide.subtitle}</h3>
-                <h1 class="md:text-9xl text-balance">{slide.title}</h1>
+                <h1 class="md:text-9xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
               }
             </div>
           ))
@@ -450,7 +450,7 @@ if (import.meta.env.DEV) {
 
   }
   h1 {
-    max-width: 16ch;
+    
     
     font-size: var(--fs-8);
     font-weight:500;

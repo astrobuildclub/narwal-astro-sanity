@@ -12,7 +12,7 @@ const {title, clients} = Astro.props;
 ---
 
 <!-- ClientsBlock -->
-<div class:list={['clientsblock','full']}>
+<div class:list={['clientsblock','page']}>
   <h2 class="clientsblock-title">{title}</h2>
 
   <div class="flex gap-2 client-list">
@@ -30,7 +30,7 @@ const {title, clients} = Astro.props;
 
 <style>
 .clientsblock-title {
-  font-size: var(--fs-6);
+  font-size: var(--fs-5);
     line-height: 112.5%;
     margin-bottom: var(--space-xl);
     font-weight: 500;
