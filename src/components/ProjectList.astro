@@ -3,25 +3,8 @@ import ProjectCard from '../components/ProjectCard.astro';
 
 const { projects, layout, fitCards } = Astro.props;
 
-// DEBUG: Log projects data
-if (import.meta.env.DEV) {
-  console.log(
-    '📁 ProjectList received projects:',
-    JSON.stringify(projects, null, 2),
-  );
-  console.log('📁 Projects count:', projects?.length || 0);
-}
-
 // Process Sanity projects
 const projectCards = projects.map((project: any) => {
-  if (import.meta.env.DEV) {
-    console.log(`📁 Processing project "${project.title}":`, {
-      _type: project._type,
-      hasKey: !!project._key,
-      hasThumbnail: !!project.thumbnail,
-      hasImage: !!project.thumbnail?.image,
-    });
-  }
 
   // Sanity data structure
   // Pass through raw data - let ProjectCard handle URL generation to avoid duplication
@@ -44,10 +27,6 @@ const projectCards = projects.map((project: any) => {
     client: project.client,
   };
 });
-
-if (import.meta.env.DEV) {
-  console.log('📁 Processed project cards:', projectCards);
-}
 ---
 
 <section

@@ -18,7 +18,7 @@ const { class: customClass } = Astro.props;
     font-size: var(--fs-3);
     line-height: 112.5%;
     color: var(--text);
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
   .col-2 {
@@ -26,7 +26,7 @@ const { class: customClass } = Astro.props;
     line-height: 112.5%;
     font-weight: 600;
     letter-spacing: -0.0125em;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
   .page .col-1 {
@@ -64,4 +64,179 @@ const { class: customClass } = Astro.props;
     font-size: var(--fs-1);
     line-height: 112.5%;
   }
+
+  /* Link styling in PageIntro */
+  :global(.page-intro a) {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+    color: inherit;
+    transition: opacity 0.2s ease;
+  }
+
+  :global(.page-intro a:hover) {
+    opacity: 0.7;
+  }
+
+  /* Video hover link styling */
+  :global(.link-with-video) {
+    cursor: pointer;
+  }
+
+  /* Video preview container */
+  :global(.video-hover-preview) {
+    position: fixed;
+    width: 300px;
+    height: 200px;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  :global(.video-hover-preview.visible) {
+    opacity: 1;
+  }
+
+  :global(.video-hover-preview video) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 </style>
+
+<script>
+  function initVideoHover() {
+    const linksWithVideo = document.querySelectorAll('a[data-video-url]');
+    let videoElement: HTMLVideoElement | null = null;
+    let videoContainer: HTMLDivElement | null = null;
+    let currentLink: HTMLElement | null = null;
+
+    function createVideoElement(videoUrl: string) {
+      // Verwijder bestaande video als die er is
+      if (videoContainer) {
+        videoContainer.remove();
+      }
+
+      // Maak nieuwe video container
+      videoContainer = document.createElement('div');
+      videoContainer.className = 'video-hover-preview';
+      document.body.appendChild(videoContainer);
+
+      // Maak video element
+      videoElement = document.createElement('video');
+      videoElement.src = videoUrl;
+      videoElement.muted = true;
+      videoElement.loop = true;
+      videoElement.autoplay = true;
+      videoElement.playsInline = true;
+      videoElement.setAttribute('playsinline', '');
+      
+      videoContainer.appendChild(videoElement);
+
+      // Start video afspelen
+      videoElement.play().catch(() => {
+        // Video kan niet afspelen, verberg container
+        if (videoContainer) {
+          videoContainer.remove();
+          videoContainer = null;
+          videoElement = null;
+        }
+      });
+    }
+
+    function updateVideoPosition(e: MouseEvent) {
+      if (!videoContainer) return;
+
+      const offsetX = 20;
+      const offsetY = 20;
+      const videoWidth = 300;
+      const videoHeight = 200;
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      let left = e.clientX + offsetX;
+      let top = e.clientY + offsetY;
+
+      // Zorg dat video niet buiten scherm valt
+      if (left + videoWidth > windowWidth) {
+        left = e.clientX - videoWidth - offsetX;
+      }
+      if (top + videoHeight > windowHeight) {
+        top = e.clientY - videoHeight - offsetY;
+      }
+
+      videoContainer.style.left = `${left}px`;
+      videoContainer.style.top = `${top}px`;
+    }
+
+    function showVideo(link: Element | HTMLElement, videoUrl: string) {
+      currentLink = link as HTMLElement;
+      createVideoElement(videoUrl);
+      
+      if (videoContainer) {
+        // Voeg visible class toe na korte delay voor smooth fade-in
+        setTimeout(() => {
+          if (videoContainer) {
+            videoContainer.classList.add('visible');
+          }
+        }, 10);
+      }
+
+      // Update positie bij muisbeweging
+      document.addEventListener('mousemove', updateVideoPosition);
+    }
+
+    function hideVideo() {
+      currentLink = null;
+      
+      if (videoContainer) {
+        videoContainer.classList.remove('visible');
+        // Verwijder na fade-out
+        setTimeout(() => {
+          if (videoContainer) {
+            videoContainer.remove();
+            videoContainer = null;
+          }
+          if (videoElement) {
+            videoElement.pause();
+            videoElement = null;
+          }
+        }, 200);
+      }
+
+      // Verwijder mousemove listener
+      document.removeEventListener('mousemove', updateVideoPosition);
+    }
+
+    // Voeg event listeners toe aan alle links met video
+    linksWithVideo.forEach((link) => {
+      const videoUrl = link.getAttribute('data-video-url');
+      if (!videoUrl) return;
+
+      const htmlLink = link as HTMLElement;
+      htmlLink.addEventListener('mouseenter', () => {
+        showVideo(htmlLink, videoUrl);
+      });
+
+      htmlLink.addEventListener('mouseleave', () => {
+        hideVideo();
+      });
+    });
+  }
+
+  // Initialiseer bij page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVideoHover);
+  } else {
+    initVideoHover();
+  }
+
+  // Herinitialiseer bij Astro page navigation
+  document.addEventListener('astro:page-load', initVideoHover);
+  document.addEventListener('astro:after-swap', initVideoHover);
+</script>

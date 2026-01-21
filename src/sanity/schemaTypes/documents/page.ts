@@ -103,22 +103,8 @@ export default defineType({
                     annotations: [
                       {
                         name: 'link',
-                        type: 'object',
+                        type: 'introLink',
                         title: 'Link',
-                        fields: [
-                          {
-                            name: 'href',
-                            type: 'url',
-                            title: 'URL',
-                            validation: (Rule) => Rule.required(),
-                          },
-                          {
-                            name: 'blank',
-                            type: 'boolean',
-                            title: 'Open in new tab',
-                            initialValue: false,
-                          },
-                        ],
                       },
                     ],
                   },

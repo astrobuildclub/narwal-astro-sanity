@@ -23,15 +23,6 @@ export async function loadQuery<QueryResponse>({
   // - URL parameter preview=true is aanwezig
   const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
-  // Debug logging (verwijder dit later)
-  console.log('loadQuery Debug:', {
-    envVisualEditingEnabled,
-    urlPreviewEnabled,
-    visualEditingEnabled,
-    hasToken: !!token,
-    searchParams: searchParams ? Object.fromEntries(searchParams) : null,
-  });
-
   if (visualEditingEnabled && !token) {
     throw new Error(
       'The `SANITY_API_READ_TOKEN` environment variable is required during Visual Editing.',
