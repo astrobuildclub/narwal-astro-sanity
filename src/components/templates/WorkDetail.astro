@@ -74,10 +74,12 @@ const heroData = {
         <h2>Related Projects</h2>
         <div class="related-projects-grid">
           {relatedProjects.map((project: any) => {
+            const thumbnailWidth = 400;
+            const thumbnailHeight = 300;
             const thumbnailUrl = project.thumbnail?.image?.asset
               ? urlForImage(project.thumbnail.image)
-                  ?.width(400)
-                  .height(300)
+                  ?.width(thumbnailWidth)
+                  .height(thumbnailHeight)
                   .url() || ''
               : '';
 
@@ -91,7 +93,8 @@ const heroData = {
                   <Image
                     src={thumbnailUrl}
                     alt={project.title || ''}
-                    inferSize
+                    width={thumbnailWidth}
+                    height={thumbnailHeight}
                     class="related-project-img"
                   />
                 )}

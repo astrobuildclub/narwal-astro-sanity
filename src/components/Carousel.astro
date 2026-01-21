@@ -88,12 +88,16 @@ const processedSlides = slides.map((slide: any) => {
   };
 });
 
+// Image dimensions for carousel
+const imageWidth = 1920;
+const imageHeight = Math.round((imageWidth * 9) / 16); // 16:9 aspect ratio
+
 const backgroundSlides = processedSlides.map((slide: any) => {
   // Sanity image handling
   let imageUrl = "";
   if (slide.image?.asset) {
     try {
-      imageUrl = urlForImage(slide.image)?.width(1920).url() || '';
+      imageUrl = urlForImage(slide.image)?.width(imageWidth).url() || '';
     } catch (error) {
       if (import.meta.env.DEV) {
         console.warn('⚠️ Failed to generate image URL:', error);
@@ -161,7 +165,8 @@ if (import.meta.env.DEV) {
               {slide.imgsrc && // image 
                 <Image 
                   src={slide.imgsrc}
-                  inferSize
+                  width={imageWidth}
+                  height={imageHeight}
                   widths={[540, 960, 1440, 1920]}
                   sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
                   format='avif'

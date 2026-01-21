@@ -69,7 +69,7 @@ if (import.meta.env.DEV) {
   </div>
   <div class="load-more-wrapper">
     <button class="load-more-btn" data-total={projectCards.length}>
-      Laad meer projecten
+      Load more
     </button>
   </div>
 </section>
@@ -160,17 +160,17 @@ if (import.meta.env.DEV) {
   .project-card {
     transition: all 0.4s var(--easing-easeOutExpo);
   }
-  .project-card:hover {
-    opacity: 1;
-  }
-  .project-card:hover ~ .project-card {
-    opacity: 0.75;
-  }
-  .project-list:hover .project-card:not(:hover) {
-    opacity: 0.1;
-  }
-  .project-list:hover .project-card:not(:hover) {
-    opacity: 0.75;
+  
+  @media (hover: hover) {
+    .project-card:hover {
+      opacity: 1;
+    }
+    .project-card:hover ~ .project-card {
+      opacity: 0.65;
+    }
+    .project-list:hover .project-card:not(:hover) {
+      opacity: 0.55;
+    }
   }
 
   @media (min-width: 1024px) {
@@ -193,28 +193,26 @@ if (import.meta.env.DEV) {
   }
 
   .load-more-btn {
+    opacity: 0.75;
     padding: var(--space-m) var(--space-xl);
     font-size: var(--fs-0);
     font-weight: 500;
     color: var(--text);
     background: transparent;
     border: 1px solid currentColor;
-    border-radius: 0;
+    border-radius: 9999px;
     cursor: pointer;
     transition: all 0.3s var(--easing-easeOutExpo);
     text-decoration: none;
   }
 
   .load-more-btn:hover {
-    background: var(--text);
-    color: var(--background);
-    transform: translateY(-2px);
+    
+    
+    opacity: 1;
   }
 
-  .load-more-btn:active {
-    transform: translateY(0);
-  }
-
+ 
   .load-more-btn.hidden {
     display: none;
   }
@@ -231,7 +229,7 @@ if (import.meta.env.DEV) {
     const controls = animate(
       info.target,
       {
-        opacity: [0, 0.75],
+        opacity: [0, 1],
         transform: ['translateY(3rem)', 'translateY(0px)'],
       },
       {
@@ -283,10 +281,16 @@ if (import.meta.env.DEV) {
 <script>
   // Load More functionaliteit
   const ITEMS_PER_PAGE = 6;
+  let isLoadMoreInitialized = false;
   
   function initializeLoadMore() {
+    // Voorkom dubbele initialisatie (fix voor stack overflow)
+    if (isLoadMoreInitialized) return;
+    
     const loadMoreBtn = document.querySelector('.load-more-btn') as HTMLButtonElement;
     if (!loadMoreBtn) return;
+    
+    isLoadMoreInitialized = true;
 
     const totalProjects = parseInt(loadMoreBtn.getAttribute('data-total') || '0');
     
@@ -341,8 +345,7 @@ if (import.meta.env.DEV) {
         loadMoreBtn.classList.add('hidden');
       } else {
         loadMoreBtn.classList.remove('hidden');
-        const toLoad = Math.min(ITEMS_PER_PAGE, remaining);
-        loadMoreBtn.textContent = `Laad ${toLoad} meer projecten (${remaining} resterend)`;
+        loadMoreBtn.textContent = 'Load more';
       }
     }
 
@@ -385,5 +388,9 @@ if (import.meta.env.DEV) {
   }
   
   // Also initialize on Astro page transitions
-  document.addEventListener('astro:page-load', initializeLoadMore);
+  document.addEventListener('astro:page-load', () => {
+    // Reset de flag voor nieuwe pagina's
+    isLoadMoreInitialized = false;
+    initializeLoadMore();
+  });
 </script>

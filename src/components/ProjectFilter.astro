@@ -125,7 +125,16 @@ const { services } = Astro.props;
 
   .tag-button.active {
     color: var(--text);
+    text-decoration: underline !important;
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+  }
 
-    text-decoration: underline;
+  .tag-reset a {
+    cursor: default;
+  }
+
+  .tag-reset a:hover {
+    cursor: default;
   }
 </style>

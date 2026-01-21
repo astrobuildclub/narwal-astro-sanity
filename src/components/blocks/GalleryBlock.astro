@@ -32,7 +32,13 @@ function getImageWidth(cols: number): number {
   return Math.floor(pageWidth / cols);
 }
 
+// Calculate height based on width and standard aspect ratio (4:3 for gallery)
+function getHeightForWidth(width: number): number {
+  return Math.round((width * 3) / 4);
+}
+
 const imageWidth = getImageWidth(columns);
+const imageHeight = getHeightForWidth(imageWidth);
 
 // Process gallery images
 const processedImages =
@@ -75,7 +81,8 @@ const processedImages =
           <div class="galleryblock-item">
             <Image
               src={img.url}
-              inferSize
+              width={imageWidth}
+              height={imageHeight}
               widths={[540, 960, 1440, 1920]}
               sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
               format="avif"
@@ -101,7 +108,8 @@ const processedImages =
           <div class="galleryblock-item mb-[var(--gap-default)] break-inside-avoid">
             <Image
               src={img.url}
-              inferSize
+              width={imageWidth}
+              height={imageHeight}
               alt={img.alt || ''}
               class="galleryblock-image"
             />

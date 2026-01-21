@@ -22,6 +22,10 @@ const {
 } = Astro.props;
 const size = cleanSize(Astro.props.size) || 'feature';
 
+// Image dimensions for carousel
+const imageWidth = 1920;
+const imageHeight = Math.round((imageWidth * 9) / 16); // 16:9 aspect ratio
+
 // Process gallery images into slides format
 const backgroundSlides =
   gallery
@@ -32,7 +36,7 @@ const backgroundSlides =
 
       if (image?.asset) {
         try {
-          imageUrl = urlForImage(image)?.width(1920).url() || '';
+          imageUrl = urlForImage(image)?.width(imageWidth).url() || '';
           imageAlt = image.alt || '';
           imageCaption = image.caption || '';
         } catch (error) {
@@ -67,7 +71,8 @@ const backgroundSlides =
                   <div class="slide-image-wrapper">
                     <Image
                       src={slide.imgsrc}
-                      inferSize
+                      width={imageWidth}
+                      height={imageHeight}
                       widths={[400, 800, 1200, 1600, 1920]}
                       sizes="auto"
                       format="avif"
