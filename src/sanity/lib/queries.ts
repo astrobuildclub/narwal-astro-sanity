@@ -11,17 +11,7 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
   introCols[] {
     _key,
     _type,
-    content[] {
-      ...,
-      markDefs[] {
-        ...,
-        _type == "link" => {
-          ...,
-          href,
-          blank
-        }
-      }
-    }
+    content
   },
   slides[] {
     _key,
@@ -36,13 +26,8 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
     },
     videoUrl,
     link {
-      type,
-      value,
-      blank,
-      email,
-      phone,
-      params,
-      anchor,
+      linkType,
+      url,
       internalLink-> {
         _type,
         "slug": slug.current
@@ -139,17 +124,7 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
   introCols[] {
     _key,
     _type,
-    content[] {
-      ...,
-      markDefs[] {
-        ...,
-        _type == "link" => {
-          ...,
-          href,
-          blank
-        }
-      }
-    }
+    content
   },
   slides[] {
     _key,
@@ -164,13 +139,8 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
     },
     videoUrl,
     link {
-      type,
-      value,
-      blank,
-      email,
-      phone,
-      params,
-      anchor,
+      linkType,
+      url,
       internalLink-> {
         _type,
         "slug": slug.current
@@ -505,17 +475,7 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
   },
   introCols[] {
     _key,
-    content[] {
-      ...,
-      markDefs[] {
-        ...,
-        _type == "link" => {
-          ...,
-          href,
-          blank
-        }
-      }
-    }
+    content
   },
   content[] {
     _type,
@@ -675,13 +635,8 @@ export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0] {
     menuItems[] {
       label,
       link {
-        type,
-        value,
-        blank,
-        email,
-        phone,
-        params,
-        anchor,
+        linkType,
+        url,
         internalLink-> {
           _type,
           "slug": slug.current,

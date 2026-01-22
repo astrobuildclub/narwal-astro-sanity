@@ -1,155 +1,133 @@
 ---
-// SanityLink.astro
-import {resolveHref} from "../lib/resolveHref"
-import {buildHref} from "../lib/buildHref"
+import { resolveHref } from '../lib/resolveHref';
+import { buildHref } from '../lib/buildHref';
 
-const props = Astro.props
-
-// Debug: log wat er binnenkomt
-if (typeof window === 'undefined') {
-  console.log('[SanityLink] ALL PROPS:', JSON.stringify(props, null, 2))
-  console.log('[SanityLink] Props keys:', Object.keys(props))
-  console.log('[SanityLink] props.node:', props.node)
-  console.log('[SanityLink] props.node?.markDef:', props.node?.markDef)
+interface Props {
+  value?: any;
+  children?: any;
+  node?: any;
+  renderDefault?: any;
 }
 
-// Support both usages:
-// 1) <SanityLink link={...}>text</SanityLink> - direct usage (props.link bevat de plugin link)
-// 2) PortableText mark: astro-portabletext geeft mark definitie via props.node.markDef
-//    Voor introLink wrapper: markDef heeft { _type: "link", link: {...pluginLink}, videoUrl: "..." }
-//    Voor direct plugin link: markDef heeft { _type: "link", type, value, ... }
+const { value, children, node } = Astro.props;
 
-// astro-portabletext geeft de mark definitie via props.node.markDef
-// Als node niet bestaat, dan is het direct gebruik (fallback naar oude logica)
-const markDef = props.node?.markDef ?? props.link ?? props
-
-// Check of dit een introLink wrapper is (heeft 'link' property met plugin link data)
-// introLink wrapper structuur: { _type: "link", link: { type, value, ... }, videoUrl: "..." }
-const isIntroLinkWrapper = markDef && 
-  'link' in markDef && 
-  typeof markDef.link === 'object' && 
-  markDef.link !== null && 
-  ('type' in markDef.link || 'linkType' in markDef.link || 'value' in markDef.link || 'url' in markDef.link)
-
-// Video URL komt van de wrapper
-const videoUrl = isIntroLinkWrapper ? markDef.videoUrl : undefined
-
-// Voor introLink wrapper: gebruik nested link object; anders gebruik markDef direct als plugin link
-const pluginLink = isIntroLinkWrapper ? markDef.link : (markDef.link ?? markDef)
-const className = props.class
-
-function normalizeTel(v: string | undefined | null): string {
-  return String(v).replace(/\s+/g, "")
+// Debug logging
+if (import.meta.env.DEV) {
+  console.log('🔗 SanityLink received:', {
+    hasValue: !!value,
+    hasNode: !!node,
+    valueKeys: value ? Object.keys(value) : [],
+    nodeKeys: node ? Object.keys(node) : [],
+    valueType: value?._type,
+    valueLink: value?.link,
+    valueLinkType: value?.link?.type || value?.link?.linkType,
+    fullValue: JSON.stringify(value, null, 2),
+  });
 }
 
-let baseHref = null
+// Normalize props: astro-portabletext can pass value or node
+const markDef = value || node;
 
-// Debug: log pluginLink voor switch
-if (typeof window === 'undefined') {
-  console.log('[SanityLink] pluginLink before switch:', JSON.stringify(pluginLink, null, 2))
-  console.log('[SanityLink] pluginLink.type:', pluginLink?.type)
-  console.log('[SanityLink] pluginLink.linkType:', pluginLink?.linkType)
+// Extract linkObj and videoUrl from markDef
+// markDef structure: {_type: "introLink", link: {...}, videoUrl?: string}
+// Or direct link object: {type: "...", ...}
+let linkObj = markDef?.link;
+let videoUrl = markDef?.videoUrl;
+
+// If markDef doesn't have a nested link, it might be a direct link object
+if (!linkObj && markDef && (markDef.type || markDef.linkType || markDef.url || markDef.internalLink)) {
+  linkObj = markDef;
+  videoUrl = markDef.videoUrl;
 }
 
-switch (pluginLink?.type ?? pluginLink?.linkType) {
-  case "internal": {
-    const base = resolveHref(pluginLink.internalLink)
-    baseHref = base ?? null
-    if (typeof window === 'undefined') {
-      console.log('[SanityLink] Internal link - internalLink:', pluginLink.internalLink, 'baseHref:', baseHref)
-    }
-    break
-  }
-  case "external": {
-    // Check both value (new) and url (legacy) for external links
-    baseHref = pluginLink.value ?? pluginLink.url ?? null
-    if (typeof window === 'undefined') {
-      console.log('[SanityLink] External link - value:', pluginLink.value, 'url:', pluginLink.url, 'baseHref:', baseHref)
-    }
-    break
-  }
-  case "email": {
-    baseHref = pluginLink.email ? `mailto:${pluginLink.email}` : null
-    break
-  }
-  case "phone": {
-    baseHref = pluginLink.phone ? `tel:${normalizeTel(pluginLink.phone)}` : null
-    break
-  }
-  default: {
-    // customLinkTypes fall back
-    baseHref = pluginLink.value ?? pluginLink.url ?? null
-    if (typeof window === 'undefined') {
-      console.log('[SanityLink] Default case - value:', pluginLink.value, 'url:', pluginLink.url, 'baseHref:', baseHref)
-    }
+// Fallback: if value is direct link object (has linkType/type or url/internalLink)
+if (!linkObj && value && (value.linkType || value.type || value.url || value.internalLink)) {
+  linkObj = value;
+  videoUrl = value.videoUrl;
+}
+
+// Normalize phone number (strip spaces)
+function normalizeTel(phone: string): string {
+  return phone.replace(/\s/g, '');
+}
+
+// Compute baseHref by link type
+let baseHref: string | null = null;
+const linkType = linkObj?.type || linkObj?.linkType;
+
+if (linkObj) {
+  switch (linkType) {
+    case 'internal':
+      if (linkObj.internalLink) {
+        baseHref = resolveHref(linkObj.internalLink);
+      }
+      break;
+    case 'external':
+      baseHref = linkObj.value || linkObj.url || null;
+      break;
+    case 'email':
+      baseHref = linkObj.email ? `mailto:${linkObj.email}` : null;
+      break;
+    case 'phone':
+      baseHref = linkObj.phone ? `tel:${normalizeTel(linkObj.phone)}` : null;
+      break;
+    default:
+      // Custom link types or fallback
+      baseHref = linkObj.value || linkObj.url || null;
   }
 }
 
-// Only apply params/anchor to internal, external, or custom links (not email/tel)
-const linkType = pluginLink?.type ?? pluginLink?.linkType
-const shouldApplyParams = linkType === "internal" || linkType === "external" || (linkType !== "email" && linkType !== "phone" && pluginLink?.value)
+// Compute finalHref with params and anchor (skip for email/phone)
+let finalHref = baseHref || '#';
 
-// Build href: always use baseHref if it exists, but only apply params/anchor if shouldApplyParams is true
-const href = baseHref
-  ? (shouldApplyParams
-      ? buildHref(baseHref, {params: pluginLink.params ?? pluginLink.parameters, anchor: pluginLink.anchor})
-      : baseHref)
-  : null
+if (baseHref && linkType !== 'email' && linkType !== 'phone') {
+  // Support both params (object) and parameters (string) - convert string only if needed
+  const params = linkObj?.params || (typeof linkObj?.parameters === 'string' ? undefined : linkObj?.parameters);
+  
+  // If parameters is a string, append it directly (legacy behavior)
+  if (typeof linkObj?.parameters === 'string' && linkObj.parameters) {
+    finalHref = buildHref(baseHref, { anchor: linkObj.anchor });
+    finalHref += (finalHref.includes('?') ? '&' : '?') + linkObj.parameters;
+  } else {
+    finalHref = buildHref(baseHref, {
+      params,
+      anchor: linkObj?.anchor,
+    });
+  }
+}
 
-if (typeof window === 'undefined') {
-  console.log('[SanityLink] Final href calculation:', {
-    baseHref,
-    shouldApplyParams,
+// Set target and rel attributes
+const target = linkObj?.blank ? '_blank' : undefined;
+const rel = linkObj?.blank ? 'noopener noreferrer' : undefined;
+
+// Video hover support
+const linkClass = videoUrl ? 'link-with-video' : undefined;
+
+// Debug logging
+if (import.meta.env.DEV) {
+  console.log('🔗 SanityLink processing:', {
+    hasLinkObj: !!linkObj,
     linkType,
-    href,
-    hrefType: typeof href
-  })
+    baseHref,
+    finalHref,
+    hasVideoUrl: !!videoUrl,
+    linkObjKeys: linkObj ? Object.keys(linkObj) : [],
+    internalLink: linkObj?.internalLink,
+  });
 }
 
-const target = pluginLink?.blank ? "_blank" : undefined
-const rel = pluginLink?.blank ? "noopener noreferrer" : undefined
-
+// Warn in dev if no valid link found
+if (import.meta.env.DEV && !linkObj) {
+  console.warn('⚠️ SanityLink: No link object found. Value structure:', value);
+}
 ---
-{/* Debug output - ALWAYS VISIBLE */}
-<div style="display: block; background: #fff3cd; padding: 15px; margin: 10px 0; font-size: 12px; font-family: monospace; border: 2px solid #ffc107;">
-  <strong style="color: #856404;">🔍 SanityLink Debug:</strong><br/>
-  <br/>
-  <strong>props.node exists:</strong> {props.node ? '✅ YES' : '❌ NO'}<br/>
-  <strong>props.node?.markDef exists:</strong> {props.node?.markDef ? '✅ YES' : '❌ NO'}<br/>
-  <strong>props.link exists:</strong> {props.link ? '✅ YES' : '❌ NO'}<br/>
-  <strong>markDef._type:</strong> {markDef?._type ?? 'undefined'}<br/>
-  <strong>isIntroLinkWrapper:</strong> {isIntroLinkWrapper ? '✅ YES' : '❌ NO'}<br/>
-  <strong>pluginLink.type:</strong> {pluginLink?.type ?? pluginLink?.linkType ?? 'undefined'}<br/>
-  <strong>pluginLink.value:</strong> {pluginLink?.value ?? 'null'}<br/>
-  <strong>pluginLink.url:</strong> {pluginLink?.url ?? 'null'}<br/>
-  <strong>pluginLink.internalLink:</strong> {pluginLink?.internalLink ? 'YES' : 'NO'}<br/>
-  <strong>baseHref:</strong> {baseHref ?? 'null'}<br/>
-  <strong>href:</strong> {href ?? 'null'}<br/>
-  <strong>href valid:</strong> {href && typeof href === 'string' && href.trim().length > 0 ? '✅ YES' : '❌ NO'}<br/>
-  <br/>
-  <details style="margin-top: 10px;">
-    <summary style="cursor: pointer; font-weight: bold;">📦 Full props object</summary>
-    <pre style="background: #f8f9fa; padding: 10px; overflow-x: auto; margin-top: 5px;">{JSON.stringify(props, null, 2)}</pre>
-  </details>
-  <details style="margin-top: 10px;">
-    <summary style="cursor: pointer; font-weight: bold;">🔗 Full markDef object</summary>
-    <pre style="background: #f8f9fa; padding: 10px; overflow-x: auto; margin-top: 5px;">{JSON.stringify(markDef, null, 2)}</pre>
-  </details>
-  <details style="margin-top: 10px;">
-    <summary style="cursor: pointer; font-weight: bold;">⚙️ Full pluginLink object</summary>
-    <pre style="background: #f8f9fa; padding: 10px; overflow-x: auto; margin-top: 5px;">{JSON.stringify(pluginLink, null, 2)}</pre>
-  </details>
-</div>
 
-{/* Only render if we have a valid href (non-empty string) */}
-{href && typeof href === 'string' && href.trim().length > 0 && (
-  <a
-    href={href}
-    class={className}
-    target={target}
-    rel={rel}
-    data-video-url={videoUrl}
-  >
-    <slot>{pluginLink?.text}</slot>
-  </a>
-)}
+<a
+  href={finalHref}
+  {...(target ? { target } : {})}
+  {...(rel ? { rel } : {})}
+  {...(videoUrl ? { 'data-video-url': videoUrl } : {})}
+  {...(linkClass ? { class: linkClass } : {})}
+>
+  <slot />
+</a>

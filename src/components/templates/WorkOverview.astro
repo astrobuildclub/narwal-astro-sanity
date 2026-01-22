@@ -19,6 +19,15 @@ const allServices = projectData
   .filter(Boolean);
 
 const uniqueServices = [...new Set(allServices)];
+
+// PortableText components
+const components = {
+  types: {},
+  marks: {},
+  block: {},
+  list: {},
+  listItem: {},
+};
 ---
 
 <PageTitle title={pageTitle} />
@@ -26,7 +35,7 @@ const uniqueServices = [...new Set(allServices)];
   {
     pageIntroduction && Array.isArray(pageIntroduction) ? (
       <Fragment slot="column-one">
-        <PortableText value={pageIntroduction} />
+        <PortableText value={pageIntroduction} components={components} />
       </Fragment>
     ) : null
   }

@@ -19,6 +19,15 @@ const pageHeroColTwo = pageHero?.col2;
 const pageIntroduction = data?.introCols?.[0]?.content;
 const pageIntroductionColTwo = data?.introCols?.[1]?.content;
 const pageContent = data?.content;
+
+// PortableText components
+const components = {
+  types: {},
+  marks: {},
+  block: {},
+  list: {},
+  listItem: {},
+};
 ---
 
 
@@ -37,12 +46,12 @@ const pageContent = data?.content;
   <PageIntro>
     {pageIntroduction && (
       <Fragment slot="column-one">
-        <PortableText value={pageIntroduction} />
+        <PortableText value={pageIntroduction} components={components} />
       </Fragment>
     )}
     {pageIntroductionColTwo && (
       <Fragment slot="column-two">
-        <PortableText value={pageIntroductionColTwo} />
+        <PortableText value={pageIntroductionColTwo} components={components} />
       </Fragment>
     )}
   </PageIntro>

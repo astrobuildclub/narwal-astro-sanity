@@ -101,26 +101,26 @@ export default defineType({
                       { title: 'Underline', value: 'underline' },
                     ],
                     annotations: [
-              {
-                name: 'link',
-                type: 'object',
-                title: 'Link',
-                fields: [
-                  {
-                    name: 'href',
-                    type: 'url',
-                    title: 'URL',
-                    validation: (Rule) => Rule.required(),
-                  },
-                  {
-                    name: 'blank',
-                    type: 'boolean',
-                    title: 'Open in new tab',
-                    initialValue: false,
-                  },
-                ],
-              },
-            ],
+                      {
+                        name: 'link',
+                        type: 'object',
+                        title: 'Link',
+                        fields: [
+                          {
+                            name: 'href',
+                            type: 'url',
+                            title: 'URL',
+                            validation: (Rule) => Rule.required(),
+                          },
+                          {
+                            name: 'blank',
+                            type: 'boolean',
+                            title: 'Open in new tab',
+                            initialValue: false,
+                          },
+                        ],
+                      },
+                    ],
                   },
                 },
               ],
