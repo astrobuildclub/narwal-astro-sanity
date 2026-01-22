@@ -68,8 +68,7 @@ const { class: customClass } = Astro.props;
   /* Link styling in PageIntro */
   :global(.page-intro a) {
     text-decoration: underline;
-    text-underline-offset: 0.25em;
-    text-decoration-thickness: 1px;
+   
     color: inherit;
     transition: opacity 0.2s ease;
   }
@@ -95,11 +94,13 @@ const { class: customClass } = Astro.props;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
+    transform: scale(1.05);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
   }
 
   :global(.video-hover-preview.visible) {
     opacity: 1;
+    transform: scale(1);
   }
 
   :global(.video-hover-preview video) {
@@ -112,107 +113,133 @@ const { class: customClass } = Astro.props;
 
 <script>
   function initVideoHover() {
-    const linksWithVideo = document.querySelectorAll('a[data-video-url]');
-    let videoElement: HTMLVideoElement | null = null;
-    let videoContainer: HTMLDivElement | null = null;
-    let currentLink: HTMLElement | null = null;
+    const win = window as unknown as {
+      __videoHoverState?: {
+        videoElement: HTMLVideoElement | null;
+        videoContainer: HTMLDivElement | null;
+        currentLink: HTMLElement | null;
+        hideTimeout: number | null;
+        tracking: boolean;
+      };
+    };
+    const state =
+      win.__videoHoverState ||
+      (win.__videoHoverState = {
+        videoElement: null,
+        videoContainer: null,
+        currentLink: null,
+        hideTimeout: null,
+        tracking: false,
+      });
 
-    function createVideoElement(videoUrl: string) {
-      // Verwijder bestaande video als die er is
-      if (videoContainer) {
-        videoContainer.remove();
+    const linksWithVideo = document.querySelectorAll(
+      'a[data-video-url]:not([data-video-hover-bound])',
+    );
+
+    function ensureVideoElements() {
+      if (!state.videoContainer) {
+        state.videoContainer = document.createElement('div');
+        state.videoContainer.className = 'video-hover-preview';
+        document.body.appendChild(state.videoContainer);
       }
 
-      // Maak nieuwe video container
-      videoContainer = document.createElement('div');
-      videoContainer.className = 'video-hover-preview';
-      document.body.appendChild(videoContainer);
+      if (!state.videoElement) {
+        state.videoElement = document.createElement('video');
+        state.videoElement.muted = true;
+        state.videoElement.loop = true;
+        state.videoElement.autoplay = true;
+        state.videoElement.playsInline = true;
+        state.videoElement.setAttribute('playsinline', '');
+        state.videoContainer.appendChild(state.videoElement);
+      }
+    }
 
-      // Maak video element
-      videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      videoElement.muted = true;
-      videoElement.loop = true;
-      videoElement.autoplay = true;
-      videoElement.playsInline = true;
-      videoElement.setAttribute('playsinline', '');
-      
-      videoContainer.appendChild(videoElement);
+    function setVideoSource(videoUrl: string) {
+      ensureVideoElements();
+      if (!state.videoElement || !state.videoContainer) return;
 
-      // Start video afspelen
-      videoElement.play().catch(() => {
-        // Video kan niet afspelen, verberg container
-        if (videoContainer) {
-          videoContainer.remove();
-          videoContainer = null;
-          videoElement = null;
-        }
+      if (state.videoElement.src !== videoUrl) {
+        state.videoElement.src = videoUrl;
+      }
+
+      state.videoElement.play().catch(() => {
+        // Keep container visible even if autoplay fails (e.g. remote restrictions).
       });
     }
 
     function updateVideoPosition(e: MouseEvent) {
-      if (!videoContainer) return;
+      if (!state.videoContainer) return;
 
       const offsetX = 20;
       const offsetY = 20;
-      const rect = videoContainer.getBoundingClientRect();
+      const rect = state.videoContainer.getBoundingClientRect();
       const videoWidth = rect.width || 200;
       const videoHeight = rect.height || 112;
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
 
       let left = e.clientX + offsetX;
-      let top = e.clientY + offsetY;
+      let top = e.clientY - videoHeight - offsetY;
 
       // Zorg dat video niet buiten scherm valt
       if (left + videoWidth > windowWidth) {
         left = e.clientX - videoWidth - offsetX;
       }
-      if (top + videoHeight > windowHeight) {
-        top = e.clientY - videoHeight - offsetY;
+      if (top < 0) {
+        top = e.clientY + offsetY;
       }
 
-      videoContainer.style.left = `${left}px`;
-      videoContainer.style.top = `${top}px`;
+      state.videoContainer.style.left = `${left}px`;
+      state.videoContainer.style.top = `${top}px`;
     }
 
     function showVideo(link: Element | HTMLElement, videoUrl: string) {
-      currentLink = link as HTMLElement;
-      createVideoElement(videoUrl);
-      
-      if (videoContainer) {
-        // Voeg visible class toe na korte delay voor smooth fade-in
-        setTimeout(() => {
-          if (videoContainer) {
-            videoContainer.classList.add('visible');
-          }
-        }, 10);
+      state.currentLink = link as HTMLElement;
+      if (state.hideTimeout) {
+        clearTimeout(state.hideTimeout);
+        state.hideTimeout = null;
       }
 
-      // Update positie bij muisbeweging
-      document.addEventListener('mousemove', updateVideoPosition);
+      setVideoSource(videoUrl);
+
+      if (state.videoContainer) {
+        requestAnimationFrame(() => {
+          state.videoContainer?.classList.add('visible');
+        });
+      }
+
+      if (!state.tracking) {
+        document.addEventListener('mousemove', updateVideoPosition);
+        state.tracking = true;
+      }
     }
 
     function hideVideo() {
-      currentLink = null;
-      
-      if (videoContainer) {
-        videoContainer.classList.remove('visible');
-        // Verwijder na fade-out
-        setTimeout(() => {
-          if (videoContainer) {
-            videoContainer.remove();
-            videoContainer = null;
-          }
-          if (videoElement) {
-            videoElement.pause();
-            videoElement = null;
-          }
-        }, 200);
+      state.currentLink = null;
+
+      if (state.videoContainer) {
+        state.videoContainer.classList.remove('visible');
       }
 
-      // Verwijder mousemove listener
-      document.removeEventListener('mousemove', updateVideoPosition);
+      if (state.hideTimeout) {
+        clearTimeout(state.hideTimeout);
+      }
+
+      state.hideTimeout = window.setTimeout(() => {
+        if (state.videoElement) {
+          state.videoElement.pause();
+          state.videoElement = null;
+        }
+        if (state.videoContainer) {
+          state.videoContainer.remove();
+          state.videoContainer = null;
+        }
+      }, 200);
+
+      if (state.tracking) {
+        document.removeEventListener('mousemove', updateVideoPosition);
+        state.tracking = false;
+      }
     }
 
     // Voeg event listeners toe aan alle links met video
@@ -221,6 +248,7 @@ const { class: customClass } = Astro.props;
       if (!videoUrl) return;
 
       const htmlLink = link as HTMLElement;
+      htmlLink.dataset.videoHoverBound = 'true';
       htmlLink.addEventListener('mouseenter', () => {
         showVideo(htmlLink, videoUrl);
       });

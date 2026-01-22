@@ -11,7 +11,20 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
   introCols[] {
     _key,
     _type,
-    content
+    content[]{
+      ...,
+      markDefs[]{
+        ...,
+        link{
+          ...,
+          internalLink->{
+            _type,
+            pageType,
+            "slug": slug.current
+          }
+        }
+      }
+    }
   },
   slides[] {
     _key,
@@ -124,7 +137,20 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
   introCols[] {
     _key,
     _type,
-    content
+    content[]{
+      ...,
+      markDefs[]{
+        ...,
+        link{
+          ...,
+          internalLink->{
+            _type,
+            pageType,
+            "slug": slug.current
+          }
+        }
+      }
+    }
   },
   slides[] {
     _key,
@@ -475,7 +501,20 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
   },
   introCols[] {
     _key,
-    content
+    content[]{
+      ...,
+      markDefs[]{
+        ...,
+        link{
+          ...,
+          internalLink->{
+            _type,
+            pageType,
+            "slug": slug.current
+          }
+        }
+      }
+    }
   },
   content[] {
     _type,

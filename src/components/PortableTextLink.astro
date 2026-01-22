@@ -1,10 +1,48 @@
 ---
+import { resolveHref } from '../lib/resolveHref';
+
 const { node, class: className, ...attrs } = Astro.props;
 const markDef = node?.markDef || {};
+const linkValue = markDef.link ?? markDef;
+const linkType = linkValue?.type ?? linkValue?.linkType;
+const resolvedInternal = linkValue?.internalLink
+  ? resolveHref(linkValue.internalLink)
+  : null;
+const internalHref =
+  resolvedInternal &&
+  `${resolvedInternal}${linkValue?.parameters || ''}${linkValue?.anchor || ''}`;
+const slotContent = await Astro.slots.render('default');
+const trimmedContent = slotContent.trim();
 
-const href = markDef.href || '#';
-const isBlank = Boolean(markDef.blank);
-const videoUrl = markDef.videoUrl;
+const href =
+  linkType === 'internal'
+    ? internalHref ||
+      (linkValue?.internalLink ? resolveHref(linkValue.internalLink) : null) ||
+      '#'
+    : linkType === 'external'
+      ? `${linkValue?.url || '#'}${linkValue?.parameters || ''}${
+          linkValue?.anchor || ''
+        }`
+      : linkType === 'email'
+        ? linkValue?.email
+          ? `mailto:${linkValue.email}`
+          : '#'
+        : linkType === 'phone'
+          ? linkValue?.phone
+            ? `tel:${String(linkValue.phone).replace(/\s+/g, '')}`
+            : '#'
+          : linkType
+            ? `${linkValue?.value || '#'}${linkValue?.parameters || ''}${
+                linkValue?.anchor || ''
+              }`
+            : internalHref ||
+              linkValue?.url ||
+              linkValue?.href ||
+              linkValue?.value ||
+              '#';
+
+const isBlank = Boolean(linkValue?.blank);
+const videoUrl = markDef.videoUrl ?? linkValue?.videoUrl;
 ---
 
 <a
@@ -14,6 +52,5 @@ const videoUrl = markDef.videoUrl;
   target={isBlank ? '_blank' : undefined}
   rel={isBlank ? 'noopener noreferrer' : undefined}
   {...attrs}
->
-  <slot />
-</a>
+  set:html={trimmedContent}
+/>
