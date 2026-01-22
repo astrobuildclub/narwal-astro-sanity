@@ -1,6 +1,5 @@
 // Objects
 import slide from './objects/slide';
-import introLink from './objects/introLink';
 
 // Blocks
 import textBlock from './blocks/textBlock';
@@ -29,7 +28,6 @@ import siteSettings from './documents/siteSettings';
 export const schemaTypes = [
   // Objects
   slide,
-  introLink,
 
   // Blocks
   textBlock,

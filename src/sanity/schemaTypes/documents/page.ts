@@ -103,8 +103,21 @@ export default defineType({
                     annotations: [
                       {
                         name: 'link',
-                        type: 'introLink',
+                        type: 'object',
                         title: 'Link',
+                        fields: [
+                          {
+                            name: 'link',
+                            type: 'link',
+                            title: 'Link',
+                          },
+                          {
+                            name: 'videoUrl',
+                            type: 'url',
+                            title: 'Video URL',
+                            description: 'Optional MP4 URL for hover preview.',
+                          },
+                        ],
                       },
                     ],
                   },

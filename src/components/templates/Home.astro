@@ -3,7 +3,7 @@ import { PortableText } from 'astro-portabletext';
 import Carousel from '../Carousel.astro';
 import PageIntro from '../PageIntro.astro';
 import ProjectList from '../ProjectList.astro';
-import SanityLink from '../SanityLink.astro';
+import PortableTextLink from '../PortableTextLink.astro';
 
 const { data } = Astro.props;
 
@@ -16,11 +16,10 @@ const introCols = data?.introCols || [];
 const intro = introCols[0]?.content || [];
 const statement = introCols[1]?.content || [];
 
-// PortableText components - gebruik SanityLink voor links in introCols
 const components = {
   types: {},
-  marks: {
-    link: SanityLink,
+  mark: {
+    link: PortableTextLink,
   },
   block: {},
   list: {},
