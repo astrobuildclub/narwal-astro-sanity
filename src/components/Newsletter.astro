@@ -6,9 +6,11 @@
   <form
     id="newsletter-form"
     name="newsletter-form"
-    method="get"
+    method="post"
+    action="/api/newsletter"
     class="form-fields"
     aria-label="Newsletter Form"
+    novalidate
   >
     <label for="name" class="sr-only field-label">Name</label>
     <input
@@ -18,6 +20,7 @@
       placeholder="name"
       type="text"
       id="name"
+      aria-describedby="name-error"
     />
     <label for="email" class="sr-only field-label">Email Address</label>
     <input
@@ -28,20 +31,30 @@
       type="email"
       id="email"
       required=""
+      aria-describedby="email-error form-messages"
     />
     <input
       type="submit"
       data-wait="Please wait..."
       class="field-submit"
       value="Submit"
+      id="submit-btn"
+      aria-describedby="form-messages"
     />
   </form>
-  <div class="messages">
+  <div
+    class="messages"
+    id="form-messages"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
     <div
       class="form-success"
       tabindex="-1"
       role="region"
       aria-label="Newsletter Form success"
+      id="success-message"
     >
       <p>Thank you! Your submission has been received!</p>
     </div>
@@ -50,11 +63,125 @@
       tabindex="-1"
       role="region"
       aria-label="Newsletter Form failure"
+      id="error-message"
     >
       <p>Oops! Something went wrong while submitting the form.</p>
     </div>
   </div>
 </div>
+
+<script>
+  const form = document.getElementById('newsletter-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLInputElement;
+  const successMessage = document.getElementById('success-message') as HTMLElement;
+  const errorMessage = document.getElementById('error-message') as HTMLElement;
+  const messagesContainer = document.getElementById('form-messages') as HTMLElement;
+  const emailInput = document.getElementById('email') as HTMLInputElement;
+  const nameInput = document.getElementById('name') as HTMLInputElement;
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Reset previous states
+      hideMessages();
+      submitBtn.disabled = true;
+      const originalValue = submitBtn.value;
+      submitBtn.value = submitBtn.getAttribute('data-wait') || 'Please wait...';
+
+      // Get form data
+      const formData = {
+        email: emailInput.value.trim(),
+        name: nameInput.value.trim() || undefined,
+      };
+
+      // Basic client-side validation
+      if (!formData.email) {
+        showError('Gelieve een email adres in te voeren.');
+        submitBtn.disabled = false;
+        submitBtn.value = originalValue;
+        return;
+      }
+
+      if (!isValidEmail(formData.email)) {
+        showError('Gelieve een geldig email adres in te voeren.');
+        submitBtn.disabled = false;
+        submitBtn.value = originalValue;
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          // If response is not JSON, show generic error
+          showError('Er is een fout opgetreden. Probeer het later opnieuw.');
+          submitBtn.disabled = false;
+          submitBtn.value = originalValue;
+          return;
+        }
+
+        if (data.success) {
+          showSuccess(data.message || 'Bedankt! Je bent succesvol aangemeld voor onze nieuwsbrief.');
+          form.reset();
+        } else {
+          showError(data.message || 'Er is een fout opgetreden. Probeer het later opnieuw.');
+        }
+      } catch (error) {
+        console.error('Newsletter submission error:', error);
+        showError('Er is een fout opgetreden bij het verbinden met de server. Probeer het later opnieuw.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.value = originalValue;
+      }
+    });
+  }
+
+  function isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  function showSuccess(message: string) {
+    if (successMessage && messagesContainer) {
+      const messageText = successMessage.querySelector('p');
+      if (messageText) {
+        messageText.textContent = message;
+      }
+      hideMessages();
+      successMessage.style.display = 'block';
+      messagesContainer.style.display = 'block';
+      successMessage.focus();
+    }
+  }
+
+  function showError(message: string) {
+    if (errorMessage && messagesContainer) {
+      const messageText = errorMessage.querySelector('p');
+      if (messageText) {
+        messageText.textContent = message;
+      }
+      hideMessages();
+      errorMessage.style.display = 'block';
+      messagesContainer.style.display = 'block';
+      errorMessage.focus();
+    }
+  }
+
+  function hideMessages() {
+    if (successMessage) successMessage.style.display = 'none';
+    if (errorMessage) errorMessage.style.display = 'none';
+  }
+</script>
 
 <style>
   :root {
@@ -126,5 +253,36 @@
 
   .messages {
     display: none;
+    margin-top: 1rem;
+  }
+
+  .form-success,
+  .form-error {
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-success {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: rgb(22, 163, 74);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .form-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: rgb(220, 38, 38);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .form-success:focus,
+  .form-error:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .field-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 </style>

@@ -11,6 +11,11 @@ export const prerender = false;
 const { uri } = Astro.params;
 const slug = uri ? `/${uri}/` : '/';
 
+// Exclude API routes - these are handled by API route handlers or Netlify functions
+if (slug.startsWith('/api/')) {
+  return new Response('Not Found', { status: 404 });
+}
+
 // Haal searchParams op voor Visual Editing (preview mode)
 const requestUrl = new URL(Astro.request.url);
 const searchParams = requestUrl.searchParams;

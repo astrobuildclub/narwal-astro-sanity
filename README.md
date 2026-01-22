@@ -89,13 +89,17 @@ npm install
    - `PUBLIC_SANITY_API_VERSION`: API versie (standaard: `"2025-01-28"`)
    - `SANITY_API_READ_TOKEN`: Alleen nodig voor Visual Editing (optioneel)
 
-4. **Voor Sanity Studio**, kopieer `studio/.env.example` naar `studio/.env.local`:
+4. **Vul je Mailchimp credentials in** in `.env`:
+   - `MAILCHIMP_API_KEY`: Je Mailchimp API key (vind je in Account → Extras → API keys)
+   - `MAILCHIMP_LIST_ID`: Je Mailchimp Audience/List ID (vind je in Audience → Settings → Audience name and defaults → Audience ID)
+
+5. **Voor Sanity Studio**, kopieer `studio/.env.example` naar `studio/.env.local`:
    ```bash
    cp studio/.env.example studio/.env.local
    ```
    Vul `SANITY_STUDIO_PROJECT_ID` en `SANITY_STUDIO_DATASET` in (moeten overeenkomen met root `.env`)
 
-### 4. Start de development server
+### 6. Start de development server
 
 ```bash
 npm run dev
@@ -103,7 +107,7 @@ npm run dev
 
 De website draait nu op `http://localhost:4321`
 
-### 5. Start Sanity Studio (optioneel)
+### 7. Start Sanity Studio (optioneel)
 
 In een aparte terminal:
 
@@ -204,6 +208,8 @@ Het project is geconfigureerd voor Netlify deployment:
    - `PUBLIC_SANITY_PROJECT_ID`
    - `PUBLIC_SANITY_DATASET`
    - `PUBLIC_SANITY_API_VERSION`
+   - `MAILCHIMP_API_KEY` (markeer als "Secret" voor beveiliging)
+   - `MAILCHIMP_LIST_ID`
 
 2. **Build settings**:
    - Build command: `npm run build`

@@ -155,6 +155,22 @@ document.addEventListener(
         // Update bij slide change - gebruik realIndex
         backgroundSwiper.on('slideChange', function (e) {
           updateIndicators();
+          
+          // Herstart video's in de nieuwe actieve slide
+          const activeSlide = e.slides[e.activeIndex];
+          if (activeSlide) {
+            const videos = activeSlide.querySelectorAll('video');
+            videos.forEach((video) => {
+              // Reset en start video opnieuw
+              video.currentTime = 0;
+              video.play().catch((error) => {
+                // Negeer autoplay errors (browser policy)
+                if (import.meta.env.DEV) {
+                  console.warn('Video autoplay error:', error);
+                }
+              });
+            });
+          }
         });
       }
     });
