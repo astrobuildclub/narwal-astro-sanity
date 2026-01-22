@@ -28,25 +28,12 @@ if (import.meta.env.DEV) {
   if (introCols.length === 0) {
     console.error('❌ introCols is leeg in Sanity data');
   }
-  if (projects.length === 0) {
-    console.error('❌ featuredProjects is leeg in Sanity data');
+  if (intro.length === 0) {
+    console.warn('⚠️ intro (eerste kolom) is leeg');
   }
-}
-
-if (import.meta.env.DEV) {
-  console.log('📊 Home data breakdown:', {
-    slidesCount: slides.length,
-    projectsCount: projects.length,
-    introColsCount: introCols.length,
-    introContent: intro,
-    statementContent: statement,
-    slides: (slides as Array<any>).map((slide: any) => ({
-      title: slide.title,
-      subtitle: slide.subtitle,
-      hasImage: !!slide.image,
-      // imageAsset: slide.image?.asset?._ref
-    })),
-  });
+  if (statement.length === 0) {
+    console.warn('⚠️ statement (tweede kolom) is leeg');
+  }
 }
 ---
 
