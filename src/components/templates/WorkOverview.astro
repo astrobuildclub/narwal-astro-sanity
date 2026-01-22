@@ -4,7 +4,6 @@ import PageIntro from '../PageIntro.astro';
 import ProjectList from '../ProjectList.astro';
 import ProjectFilter from '../ProjectFilter.astro';
 import { PortableText } from 'astro-portabletext';
-import SanityLink from '../SanityLink.astro';
 
 const { data } = Astro.props;
 const pageTitle = data.title || '';
@@ -20,17 +19,6 @@ const allServices = projectData
   .filter(Boolean);
 
 const uniqueServices = [...new Set(allServices)];
-
-// PortableText components - gebruik SanityLink voor links in introCols
-const components = {
-  types: {},
-  marks: {
-    link: SanityLink,
-  },
-  block: {},
-  list: {},
-  listItem: {},
-};
 ---
 
 <PageTitle title={pageTitle} />
@@ -38,7 +26,7 @@ const components = {
   {
     pageIntroduction && Array.isArray(pageIntroduction) ? (
       <Fragment slot="column-one">
-        <PortableText value={pageIntroduction} components={components} />
+        <PortableText value={pageIntroduction} />
       </Fragment>
     ) : null
   }

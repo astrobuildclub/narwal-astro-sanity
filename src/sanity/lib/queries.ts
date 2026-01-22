@@ -15,26 +15,10 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
       ...,
       markDefs[] {
         ...,
-        (_type == "introLink" || _type == "link") => {
+        _type == "link" => {
           ...,
-          link {
-            ...,
-            linkType,
-            url,
-            blank,
-            email,
-            phone,
-            parameters,
-            anchor,
-            type,
-            value,
-            internalLink-> {
-              _type,
-              "slug": slug.current,
-              title
-            }
-          },
-          videoUrl
+          href,
+          blank
         }
       }
     }
@@ -52,8 +36,13 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
     },
     videoUrl,
     link {
-      linkType,
-      url,
+      type,
+      value,
+      blank,
+      email,
+      phone,
+      params,
+      anchor,
       internalLink-> {
         _type,
         "slug": slug.current
@@ -154,26 +143,10 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
       ...,
       markDefs[] {
         ...,
-        (_type == "introLink" || _type == "link") => {
+        _type == "link" => {
           ...,
-          link {
-            ...,
-            linkType,
-            url,
-            blank,
-            email,
-            phone,
-            parameters,
-            anchor,
-            type,
-            value,
-            internalLink-> {
-              _type,
-              "slug": slug.current,
-              title
-            }
-          },
-          videoUrl
+          href,
+          blank
         }
       }
     }
@@ -191,8 +164,13 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
     },
     videoUrl,
     link {
-      linkType,
-      url,
+      type,
+      value,
+      blank,
+      email,
+      phone,
+      params,
+      anchor,
       internalLink-> {
         _type,
         "slug": slug.current
@@ -531,26 +509,10 @@ export const PAGE_BY_SLUG_QUERY = `*[_type == "page" && slug.current == $slug][0
       ...,
       markDefs[] {
         ...,
-        (_type == "introLink" || _type == "link") => {
+        _type == "link" => {
           ...,
-          link {
-            ...,
-            linkType,
-            url,
-            blank,
-            email,
-            phone,
-            parameters,
-            anchor,
-            type,
-            value,
-            internalLink-> {
-              _type,
-              "slug": slug.current,
-              title
-            }
-          },
-          videoUrl
+          href,
+          blank
         }
       }
     }
@@ -713,8 +675,13 @@ export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0] {
     menuItems[] {
       label,
       link {
-        linkType,
-        url,
+        type,
+        value,
+        blank,
+        email,
+        phone,
+        params,
+        anchor,
         internalLink-> {
           _type,
           "slug": slug.current,

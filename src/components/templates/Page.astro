@@ -3,7 +3,6 @@ import BlockRenderer from '../BlockRenderer.astro';
 import PageIntro from '../PageIntro.astro'
 import PageTitle from '../PageTitle.astro';
 import { PortableText } from 'astro-portabletext';
-import SanityLink from '../SanityLink.astro';
 
 const { data } = Astro.props;
 
@@ -20,17 +19,6 @@ const pageHeroColTwo = pageHero?.col2;
 const pageIntroduction = data?.introCols?.[0]?.content;
 const pageIntroductionColTwo = data?.introCols?.[1]?.content;
 const pageContent = data?.content;
-
-// PortableText components
-const components = {
-  types: {},
-  marks: {
-    link: SanityLink,
-  },
-  block: {},
-  list: {},
-  listItem: {},
-};
 ---
 
 
@@ -49,12 +37,12 @@ const components = {
   <PageIntro>
     {pageIntroduction && (
       <Fragment slot="column-one">
-        <PortableText value={pageIntroduction} components={components} />
+        <PortableText value={pageIntroduction} />
       </Fragment>
     )}
     {pageIntroductionColTwo && (
       <Fragment slot="column-two">
-        <PortableText value={pageIntroductionColTwo} components={components} />
+        <PortableText value={pageIntroductionColTwo} />
       </Fragment>
     )}
   </PageIntro>

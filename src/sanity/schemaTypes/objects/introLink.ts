@@ -26,21 +26,21 @@ export default defineType({
   ],
   preview: {
     select: {
-      linkType: 'link.linkType',
-      url: 'link.url',
+      type: 'link.type',
+      value: 'link.value',
       internalTitle: 'link.internalLink.title',
       email: 'link.email',
       phone: 'link.phone',
     },
-    prepare({ linkType, url, internalTitle, email, phone }) {
+    prepare({ type, value, internalTitle, email, phone }) {
       let title = 'Link';
-      if (linkType === 'internal' && internalTitle) {
+      if (type === 'internal' && internalTitle) {
         title = internalTitle;
-      } else if (linkType === 'external' && url) {
-        title = url;
-      } else if (linkType === 'email' && email) {
+      } else if (type === 'external' && value) {
+        title = value;
+      } else if (type === 'email' && email) {
         title = `mailto:${email}`;
-      } else if (linkType === 'phone' && phone) {
+      } else if (type === 'phone' && phone) {
         title = `tel:${phone}`;
       }
       return {
