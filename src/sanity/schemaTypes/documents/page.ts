@@ -107,16 +107,9 @@ export default defineType({
                         title: 'Link',
                         fields: [
                           {
-                            name: 'href',
-                            type: 'url',
-                            title: 'URL',
-                            validation: (Rule) => Rule.required(),
-                          },
-                          {
-                            name: 'blank',
-                            type: 'boolean',
-                            title: 'Open in new tab',
-                            initialValue: false,
+                            name: 'link',
+                            type: 'link',
+                            title: 'Link',
                           },
                           {
                             name: 'videoUrl',
