@@ -118,6 +118,12 @@ export default defineType({
                             title: 'Open in new tab',
                             initialValue: false,
                           },
+                          {
+                            name: 'videoUrl',
+                            type: 'url',
+                            title: 'Video URL',
+                            description: 'Optional MP4 URL for hover preview.',
+                          },
                         ],
                       },
                     ],

@@ -2,6 +2,7 @@
 import BlockRenderer from '../BlockRenderer.astro';
 import PageIntro from '../PageIntro.astro'
 import PageTitle from '../PageTitle.astro';
+import PortableTextLink from '../PortableTextLink.astro';
 import { PortableText } from 'astro-portabletext';
 
 const { data } = Astro.props;
@@ -23,7 +24,9 @@ const pageContent = data?.content;
 // PortableText components
 const components = {
   types: {},
-  marks: {},
+  mark: {
+    link: PortableTextLink,
+  },
   block: {},
   list: {},
   listItem: {},

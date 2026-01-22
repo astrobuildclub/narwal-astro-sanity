@@ -1,0 +1,19 @@
+---
+const { node, class: className, ...attrs } = Astro.props;
+const markDef = node?.markDef || {};
+
+const href = markDef.href || '#';
+const isBlank = Boolean(markDef.blank);
+const videoUrl = markDef.videoUrl;
+---
+
+<a
+  href={href}
+  class:list={[className, videoUrl && 'link-with-video']}
+  data-video-url={videoUrl || undefined}
+  target={isBlank ? '_blank' : undefined}
+  rel={isBlank ? 'noopener noreferrer' : undefined}
+  {...attrs}
+>
+  <slot />
+</a>
