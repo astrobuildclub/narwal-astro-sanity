@@ -7,7 +7,9 @@ import SiteNavigation from '../components/SiteNavigation.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CookieConsent from '../components/CookieConsent.astro';
 import DarkMode from '../components/DarkMode.astro';
+import Preloader from '../components/Preloader.astro';
 import { VisualEditing } from '@sanity/astro/visual-editing';
+import { ViewTransitions } from 'astro:transitions';
 
 import { getNavigation } from '../lib/sanity';
 
@@ -83,6 +85,59 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         } catch (e) {}
       })();
     </script>
+    <script is:inline>
+      (function () {
+        try {
+          if (sessionStorage.getItem('preloader-shown') === 'true') return;
+          const navEntry =
+            typeof performance !== 'undefined' &&
+            performance.getEntriesByType &&
+            performance.getEntriesByType('navigation')[0];
+          const navType = navEntry?.type;
+          const legacyNavType =
+            typeof performance !== 'undefined' &&
+            performance.navigation &&
+            performance.navigation.type;
+          if (navType && navType !== 'navigate') return;
+          if (legacyNavType && legacyNavType !== 0) return;
+          document.documentElement.classList.add('preloader-active');
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      :root.preloader-active body > :not(#preloader) {
+        visibility: hidden;
+      }
+      :root.preloader-active #preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: var(--white, #ffffff);
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      }
+      :root[data-theme='dark'].preloader-active #preloader {
+        background: var(--black, rgb(12, 12, 12));
+      }
+      :root.preloader-active #preloader.is-bar-only {
+        background: transparent;
+      }
+      :root.preloader-active #preloader .preloader__percent {
+        display: block !important;
+      }
+      :root.preloader-active #preloader .preloader__bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0%;
+        background: var(--black, #000000);
+        z-index: 10000;
+      }
+      :root[data-theme='dark'].preloader-active #preloader .preloader__bar {
+        background: var(--white, #fdfdfa);
+      }
+    </style>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
     <!-- Font imports -->
@@ -93,6 +148,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     <!-- CookieConsent CSS -->
     <link rel="stylesheet" href="/css/iframemanager.css" />
     <link rel="stylesheet" href="/css/cookieconsent.css" />
+    <link rel="stylesheet" href="/css/preloader.css" />
 
     <link
       rel="stylesheet"
@@ -109,9 +165,11 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       author={author}
       seo={seo}
     />
+    <ViewTransitions />
   </head>
 
   <body>
+    <Preloader />
     <SiteNavigation menu={primaryMenu} generalSettings={generalSettings} />
     <main class="page-layout md:mb-[100vh]">
       <slot />
