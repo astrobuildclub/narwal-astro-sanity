@@ -37,7 +37,7 @@ async function addToMailchimp(
   email: string,
   name: string | undefined,
   apiKey: string,
-  listId: string
+  listId: string,
 ): Promise<{ success: boolean; message: string }> {
   const datacenter = extractDatacenter(apiKey);
   const url = `https://${datacenter}.api.mailchimp.com/3.0/lists/${listId}/members`;
@@ -75,12 +75,12 @@ async function addToMailchimp(
     if (!response.ok) {
       // Handle Mailchimp specific errors
       const error = data as MailchimpError;
-      
+
       // Duplicate email (already subscribed)
       if (response.status === 400 && error.title === 'Member Exists') {
         return {
           success: false,
-          message: 'Dit email adres is al geregistreerd in onze nieuwsbrief.',
+          message: 'This email is already subscribed to our newsletter.',
         };
       }
 
@@ -88,61 +88,60 @@ async function addToMailchimp(
       if (response.status === 400 && error.title === 'Invalid Resource') {
         return {
           success: false,
-          message: 'Ongeldig email adres. Controleer je invoer en probeer het opnieuw.',
+          message: 'Invalid email address. Please check and try again.',
         };
       }
 
       // Generic error
       return {
         success: false,
-        message: 'Er is een fout opgetreden. Probeer het later opnieuw.',
+        message: 'Something went wrong. Please try again later.',
       };
     }
 
     return {
       success: true,
-      message: 'Bedankt! Je bent succesvol aangemeld voor onze nieuwsbrief.',
+      message: "You're in! Thanks for subscribing.",
     };
   } catch (error) {
     console.error('Mailchimp API error:', error);
     return {
       success: false,
-      message: 'Er is een fout opgetreden bij het verbinden met de server. Probeer het later opnieuw.',
+      message: 'Connection error. Please try again later.',
     };
   }
 }
 
 export const handler: Handler = async (
   event: HandlerEvent,
-  context: HandlerContext
+  context: HandlerContext,
 ) => {
+  // Common headers for all responses
+  const corsHeaders = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
+  // CORS preflight - must be checked first
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: '',
+    };
+  }
+
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         success: false,
         message: 'Method not allowed',
       }),
-    };
-  }
-
-  // CORS preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-      body: '',
     };
   }
 
@@ -155,13 +154,10 @@ export const handler: Handler = async (
       console.error('Missing Mailchimp environment variables');
       return {
         statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           success: false,
-          message: 'Server configuratie fout. Neem contact op met de beheerder.',
+          message: 'Server configuration error. Please contact support.',
         }),
       };
     }
@@ -173,13 +169,10 @@ export const handler: Handler = async (
     } catch (error) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           success: false,
-          message: 'Ongeldige aanvraag data.',
+          message: 'Invalid request data.',
         }),
       };
     }
@@ -188,13 +181,10 @@ export const handler: Handler = async (
     if (!body.email || !isValidEmail(body.email)) {
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           success: false,
-          message: 'Gelieve een geldig email adres in te voeren.',
+          message: 'Please enter a valid email address.',
         }),
       };
     }
@@ -204,28 +194,22 @@ export const handler: Handler = async (
       body.email.trim(),
       body.name,
       apiKey,
-      listId
+      listId,
     );
 
     return {
       statusCode: result.success ? 200 : 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: corsHeaders,
       body: JSON.stringify(result),
     };
   } catch (error) {
     console.error('Unexpected error:', error);
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         success: false,
-        message: 'Er is een onverwachte fout opgetreden. Probeer het later opnieuw.',
+        message: 'An unexpected error occurred. Please try again later.',
       }),
     };
   }

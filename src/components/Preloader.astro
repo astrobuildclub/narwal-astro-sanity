@@ -1,0 +1,26 @@
+---
+const MIN_DISPLAY_MS = 500;
+const TRANSITION_DELAY_MS = 0;
+const TRANSITION_MAX_MS = 2000;
+---
+
+<div
+  id="preloader"
+  class="preloader is-hidden is-bar-only"
+  data-min-display={MIN_DISPLAY_MS}
+  data-transition-delay={TRANSITION_DELAY_MS}
+  data-transition-max={TRANSITION_MAX_MS}
+  aria-hidden="true"
+>
+  <div 
+    class="preloader__bar" 
+    aria-hidden="true"
+    role="progressbar"
+    aria-valuenow="0"
+    aria-valuemin="0"
+    aria-valuemax="100"
+  ></div>
+  <div class="preloader__percent" aria-hidden="true">0%</div>
+</div>
+
+<script src="/js/preloader.js" is:inline></script>

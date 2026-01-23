@@ -1,0 +1,45 @@
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  color: var(--black);
+  transition: opacity 0.2s var(--easing-easeOutExpo);
+}
+
+.preloader__bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--black);
+  transition: width 0.3s var(--easing-easeOutExpo);
+  z-index: 10000;
+}
+
+.preloader__percent {
+  font-family: var(--font-family-default);
+  font-size: clamp(0.85rem, 1.5vw, 1.25rem);
+  letter-spacing: 0.08em;
+}
+
+.preloader.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preloader.is-bar-only {
+  background: transparent;
+}
+
+.preloader.is-bar-only .preloader__percent {
+  display: none;
+}
+
+:root[data-theme='dark'] .preloader__bar {
+  background: var(--white);
+}

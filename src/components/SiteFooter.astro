@@ -1,8 +1,12 @@
 ---
 import Widget from '../components/Widget.astro';
 import Newsletter from '../components/Newsletter.astro';
+import { getSiteSettings } from '../lib/sanity';
 
 const currentYear = new Date().getFullYear();
+const siteSettings = await getSiteSettings();
+const footer = siteSettings?.footer;
+const termsAndConditionsUrl = siteSettings?.footer?.termsAndConditions?.asset?.url;
 ---
 
 <footer
@@ -42,51 +46,64 @@ const currentYear = new Date().getFullYear();
       <Widget title="Address">
         <address>
           <ul role="list" class="list-none">
-            <li>Narwal Creative</li>
-            <li>Westerkade 4 — 5</li>
-            <li>3511 HA Utrecht</li>
-            <li>The Netherlands</li>
+            {footer?.address?.company && <li>{footer.address.company}</li>}
+            {footer?.address?.street && <li>{footer.address.street}</li>}
+            {footer?.address?.city && <li>{footer.address.city}</li>}
+            {footer?.address?.country && <li>{footer.address.country}</li>}
           </ul>
         </address>
       </Widget>
       <Widget title="Socialize">
         <ul role="list" class="list-none">
-          <li>
-            <a
-              href="https://www.instagram.com/narwalcreative/"
-              aria-label="Follow us on instagram"
-              target="_blank">Instagram</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://www.behance.net/jelmerscheffer"
-              aria-label="Follow us on behance"
-              target="_blank">Behance</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://www.linkedin.com/company/narwal-creative"
-              aria-label="Follow us on linkedin"
-              target="_blank">Linkedin</a
-            >
-          </li>
+          {footer?.social?.instagram && (
+            <li>
+              <a
+                href={footer.social.instagram}
+                aria-label="Follow us on instagram"
+                target="_blank"
+                rel="noopener noreferrer">Instagram</a
+              >
+            </li>
+          )}
+          {footer?.social?.behance && (
+            <li>
+              <a
+                href={footer.social.behance}
+                aria-label="Follow us on behance"
+                target="_blank"
+                rel="noopener noreferrer">Behance</a
+              >
+            </li>
+          )}
+          {footer?.social?.linkedin && (
+            <li>
+              <a
+                href={footer.social.linkedin}
+                aria-label="Follow us on linkedin"
+                target="_blank"
+                rel="noopener noreferrer">Linkedin</a
+              >
+            </li>
+          )}
         </ul>
       </Widget>
       <Widget title="Get in touch">
         <ul role="list" class="list-none">
-          <li>
-            <a href="tel:+31302270459" aria-label="Call us"
-              >+31 (0)30 227 04 59</a
-            >
-          </li>
-          <li>
-            <a
-              href="mailto:info@narwalcreative.com?subject=Hello!"
-              aria-label="E-mail us">info@narwalcreative.com</a
-            >
-          </li>
+          {footer?.contact?.phone && (
+            <li>
+              <a href={`tel:${footer.contact.phone.replace(/\s/g, '')}`} aria-label="Call us">
+                {footer.contact.phone}
+              </a>
+            </li>
+          )}
+          {footer?.contact?.email && (
+            <li>
+              <a
+                href={`mailto:${footer.contact.email}?subject=Hello!`}
+                aria-label="E-mail us">{footer.contact.email}</a
+              >
+            </li>
+          )}
         </ul>
       </Widget>
     </div>
@@ -96,16 +113,26 @@ const currentYear = new Date().getFullYear();
       <button
         data-cc="show-preferencesModal"
         type="button"
-        class="button-cookieconsent">Cookie voorkeuren</button
+        class="button-cookieconsent">Cookie Preferences</button
       >
       <p>
         &copy; {currentYear} - Narwal Creative
       </p>
       <div class="flex gap-4">
-        <a
-          href="https://astro.build/"
-          aria-label="Read our legal Terms & Conditions">Terms & Conditions</a
-        >
+        {termsAndConditionsUrl ? (
+          <a
+            href={termsAndConditionsUrl}
+            aria-label="Read our legal Terms & Conditions"
+            target="_blank"
+            rel="noopener noreferrer">Terms & Conditions</a
+          >
+        ) : (
+          <a
+            href="#"
+            aria-label="Terms & Conditions not available"
+            class="opacity-50 cursor-not-allowed">Terms & Conditions</a
+          >
+        )}
       </div>
     </div>
   </div>

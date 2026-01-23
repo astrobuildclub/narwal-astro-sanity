@@ -9,25 +9,25 @@
     method="post"
     action="/api/newsletter"
     class="form-fields"
-    aria-label="Newsletter Form"
+    aria-label="Newsletter subscription form"
     novalidate
   >
-    <label for="name" class="sr-only field-label">Name</label>
+    <label for="name" class="field-label sr-only">Name</label>
     <input
       class="field-input field_name"
       maxlength="256"
       name="name"
-      placeholder="name"
+      placeholder="Your name"
       type="text"
       id="name"
       aria-describedby="name-error"
     />
-    <label for="email" class="sr-only field-label">Email Address</label>
+    <label for="email" class="field-label sr-only">Email Address</label>
     <input
       class="field-input field_email"
       maxlength="256"
       name="email"
-      placeholder="mail@domain.com"
+      placeholder="your@email.com"
       type="email"
       id="email"
       required=""
@@ -35,9 +35,9 @@
     />
     <input
       type="submit"
-      data-wait="Please wait..."
+      data-wait="Subscribing..."
       class="field-submit"
-      value="Submit"
+      value="Subscribe"
       id="submit-btn"
       aria-describedby="form-messages"
     />
@@ -53,19 +53,19 @@
       class="form-success"
       tabindex="-1"
       role="region"
-      aria-label="Newsletter Form success"
+      aria-label="Newsletter subscription success message"
       id="success-message"
     >
-      <p>Thank you! Your submission has been received!</p>
+      <p>Thanks! We've received your subscription.</p>
     </div>
     <div
       class="form-error"
       tabindex="-1"
       role="region"
-      aria-label="Newsletter Form failure"
+      aria-label="Newsletter subscription error message"
       id="error-message"
     >
-      <p>Oops! Something went wrong while submitting the form.</p>
+      <p>Something went wrong. Please try again.</p>
     </div>
   </div>
 </div>
@@ -73,9 +73,13 @@
 <script>
   const form = document.getElementById('newsletter-form') as HTMLFormElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLInputElement;
-  const successMessage = document.getElementById('success-message') as HTMLElement;
+  const successMessage = document.getElementById(
+    'success-message',
+  ) as HTMLElement;
   const errorMessage = document.getElementById('error-message') as HTMLElement;
-  const messagesContainer = document.getElementById('form-messages') as HTMLElement;
+  const messagesContainer = document.getElementById(
+    'form-messages',
+  ) as HTMLElement;
   const emailInput = document.getElementById('email') as HTMLInputElement;
   const nameInput = document.getElementById('name') as HTMLInputElement;
 
@@ -87,7 +91,7 @@
       hideMessages();
       submitBtn.disabled = true;
       const originalValue = submitBtn.value;
-      submitBtn.value = submitBtn.getAttribute('data-wait') || 'Please wait...';
+      submitBtn.value = submitBtn.getAttribute('data-wait') || 'Subscribing...';
 
       // Get form data
       const formData = {
@@ -97,14 +101,14 @@
 
       // Basic client-side validation
       if (!formData.email) {
-        showError('Gelieve een email adres in te voeren.');
+        showError('Please enter your email address.');
         submitBtn.disabled = false;
         submitBtn.value = originalValue;
         return;
       }
 
       if (!isValidEmail(formData.email)) {
-        showError('Gelieve een geldig email adres in te voeren.');
+        showError('Please enter a valid email address.');
         submitBtn.disabled = false;
         submitBtn.value = originalValue;
         return;
@@ -124,21 +128,23 @@
           data = await response.json();
         } catch (parseError) {
           // If response is not JSON, show generic error
-          showError('Er is een fout opgetreden. Probeer het later opnieuw.');
+          showError('Something went wrong. Please try again later.');
           submitBtn.disabled = false;
           submitBtn.value = originalValue;
           return;
         }
 
         if (data.success) {
-          showSuccess(data.message || 'Bedankt! Je bent succesvol aangemeld voor onze nieuwsbrief.');
+          showSuccess(data.message || "You're in! Thanks for subscribing.");
           form.reset();
         } else {
-          showError(data.message || 'Er is een fout opgetreden. Probeer het later opnieuw.');
+          showError(
+            data.message || 'Something went wrong. Please try again later.',
+          );
         }
       } catch (error) {
         console.error('Newsletter submission error:', error);
-        showError('Er is een fout opgetreden bij het verbinden met de server. Probeer het later opnieuw.');
+        showError('Connection error. Please try again later.');
       } finally {
         submitBtn.disabled = false;
         submitBtn.value = originalValue;
