@@ -7,6 +7,20 @@
   # Sanity environment variables worden automatisch geladen vanuit Netlify UI
   # Deze worden hier niet expliciet gedefinieerd, maar zijn beschikbaar tijdens build
 
+# Netlify Functions configuratie
+# De newsletter function staat in netlify/functions/newsletter.ts
+# Deze wordt automatisch gedetecteerd door Netlify
+[functions]
+  # Netlify detecteert automatisch functions in netlify/functions/
+  # TypeScript functions worden automatisch gecompileerd
+  directory = "netlify/functions"
+
+# Redirect API routes to Netlify functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
 # Headers voor betere caching
 [[headers]]
   for = "/_astro/*"
