@@ -23,17 +23,5 @@ export const structure: StructureResolver = (S, context) =>
       S.documentTypeListItem('service').title('Services'),
       S.documentTypeListItem('teamMember').title('Team Members'),
       S.documentTypeListItem('career').title('Careers'),
-
-      // Divider
-      S.divider(),
-
-      // Site Settings (singleton)
-      S.listItem()
-        .title('Site Settings')
-        .child(
-          S.document()
-            .schemaType('siteSettings')
-            .documentId('siteSettings')
-            .title('Site Settings'),
-        ),
+      S.documentTypeListItem('siteSettings').title('Site Settings'),
     ]);

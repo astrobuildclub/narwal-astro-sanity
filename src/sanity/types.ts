@@ -316,6 +316,13 @@ export interface SanitySiteSettings {
       behance?: string;
       linkedin?: string;
     };
+    termsAndConditions?: {
+      asset?: {
+        _id: string;
+        url: string;
+        originalFilename?: string;
+      };
+    };
   };
   openGraphSiteName?: string;
   twitterSite?: string;

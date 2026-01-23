@@ -700,6 +700,13 @@ export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0] {
       instagram,
       behance,
       linkedin
+    },
+    termsAndConditions {
+      asset-> {
+        _id,
+        url,
+        originalFilename
+      }
     }
   },
   openGraphSiteName,
