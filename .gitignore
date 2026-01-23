@@ -37,3 +37,6 @@ package-lock.json
 
 # project documentation (local guidelines)
 guidelines.md
+
+# cursor plans
+.cursor/plans/
