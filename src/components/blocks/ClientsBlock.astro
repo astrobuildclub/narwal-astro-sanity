@@ -30,13 +30,21 @@ const {title, clients} = Astro.props;
 
 <style>
 .clientsblock-title {
-  font-size: var(--fs-5);
+  font-size: var(--fs-6);
     line-height: 112.5%;
     margin-bottom: var(--space-xl);
     font-weight: 500;
 }
 
 .client {
-  font-size: var(--fs-0);
+  font-size: var(--fs-1);
+}
+
+.client::after {
+  content: ", ";
+}
+
+.client:last-child::after {
+  content: "";
 }
 </style>

@@ -16,7 +16,8 @@
   left: 0;
   height: 3px;
   width: 0%;
-  background: var(--black);
+  background: var(--white);
+  mix-blend-mode: exclusion;
   transition: width 0.3s var(--easing-easeOutExpo);
   z-index: 10000;
 }
@@ -38,8 +39,4 @@
 
 .preloader.is-bar-only .preloader__percent {
   display: none;
-}
-
-:root[data-theme='dark'] .preloader__bar {
-  background: var(--white);
 }

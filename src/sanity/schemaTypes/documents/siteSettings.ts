@@ -184,6 +184,15 @@ export default defineType({
             }),
           ],
         }),
+        defineField({
+          name: 'termsAndConditions',
+          type: 'file',
+          title: 'Terms & Conditions',
+          description: 'Upload PDF bestand voor Terms & Conditions',
+          options: {
+            accept: '.pdf',
+          },
+        }),
       ],
     }),
     // Site-wide SEO settings (siteName, twitterSite)

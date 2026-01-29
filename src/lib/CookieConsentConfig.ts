@@ -78,7 +78,7 @@ export const cookieConsentConfig = {
   },
 
   language: {
-    default: 'nl',
+    default: 'en',
     translations: {
       nl: {
         consentModal: {
@@ -156,74 +156,74 @@ export const cookieConsentConfig = {
       },
       en: {
         consentModal: {
-          label: 'Cookie Consent',
-          title: "Hello traveller, it's cookie time!",
+          label: 'Cookie Preferences',
+          title: "Let's talk cookies",
           description:
-            'Our website uses essential cookies to ensure its proper operation and tracking cookies to understand how you interact with it. The latter will be set only after consent.',
+            'We use essential cookies to keep things running smoothly, and optional tracking cookies to understand how you use our site. The optional ones only get set with your consent.',
           acceptAllBtn: 'Accept all',
-          closeIconLabel: 'Reject all and close',
-          acceptNecessaryBtn: 'Reject all',
-          showPreferencesBtn: 'Manage preferences',
+          closeIconLabel: 'Close and reject all',
+          acceptNecessaryBtn: 'Necessary only',
+          showPreferencesBtn: 'Customize',
           footer:
-            '<a href="#privacy">Privacy Policy</a><a href="#terms">Terms and conditions</a>',
+            '<a href="#privacy">Privacy Policy</a><a href="#terms">Terms</a>',
         },
         preferencesModal: {
-          title: 'Consent preferences center',
+          title: 'Cookie Preferences',
           acceptAllBtn: 'Accept all',
-          acceptNecessaryBtn: 'Reject all',
+          acceptNecessaryBtn: 'Necessary only',
           savePreferencesBtn: 'Save preferences',
-          closeIconLabel: 'Close modal',
+          closeIconLabel: 'Close',
           serviceCounterLabel: 'Service|Services',
           sections: [
             {
-              title: 'Somebody said ... cookies?',
+              title: 'About these cookies',
               description:
-                'We use cookies to enhance your experience on our website and to understand how you use our website.',
+                'We use cookies to make our site work better and to understand how you use it. Simple as that.',
             },
             {
               title:
-                'Strictly necessary cookies <span class="pm__badge">Always enabled</span>',
+                'Essential cookies <span class="pm__badge">Always on</span>',
               description:
-                'These cookies are necessary for the website to function and cannot be switched off in our systems.',
+                "These cookies are essential for the site to function. We can't turn them off, and neither can you.",
               linkedCategory: 'necessary',
             },
             {
               title: 'Analytics cookies',
               description:
-                'These cookies help us understand how visitors use the website by collecting and reporting information anonymously.',
+                'These help us understand how visitors use our site by collecting anonymous information.',
               linkedCategory: 'analytics',
               cookieTable: {
                 headers: {
                   name: 'Cookie',
                   Service: 'Service',
-                  description: 'Description',
+                  description: 'What it does',
                 },
                 body: [
                   {
                     name: 'im_youtube',
                     description:
-                      'Used to remember if the user accepted the youtube service.',
+                      "Remembers if you've accepted YouTube embeds on this site.",
                     Service: 'Youtube Embed',
                   },
                   {
                     name: 'im_vimeo',
                     description:
-                      'Used to remember if the user accepted the vimeo service.',
+                      "Remembers if you've accepted Vimeo embeds on this site.",
                     Service: 'Vimeo Embed',
                   },
                 ],
               },
             },
             {
-              title: 'Advertisement cookies',
+              title: 'Advertising cookies',
               description:
-                'These cookies are used to show advertisements that are relevant to you and your interests.',
+                'These cookies help us show you ads that are relevant to your interests.',
               linkedCategory: 'ads',
             },
             {
-              title: 'More information',
+              title: 'Questions?',
               description:
-                'For any queries in relation to our policy on cookies and your choices, please <a class="cc__link" href="#contact">contact us</a>.',
+                'Got questions about our cookie policy? <a class="cc__link" href="#contact">Get in touch</a>.',
             },
           ],
         },
