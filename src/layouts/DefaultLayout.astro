@@ -131,11 +131,9 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         left: 0;
         height: 3px;
         width: 0%;
-        background: var(--black, #000000);
+        background: var(--white, #ffffff);
+        mix-blend-mode: exclusion;
         z-index: 10000;
-      }
-      :root[data-theme='dark'].preloader-active #preloader .preloader__bar {
-        background: var(--white, #fdfdfa);
       }
     </style>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
