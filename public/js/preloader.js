@@ -94,6 +94,7 @@
     setTimeout(() => {
       setTimeout(() => {
         document.documentElement.classList.remove('preloader-active');
+        allowTransitions = true;
         setHidden(true);
         setBarOnly(true);
         setTimeout(() => {
@@ -147,6 +148,7 @@
     trackImages();
   };
 
+  const transitionKey = 'preloader-transition-pending';
   const shouldShowInitial = (() => {
     try {
       if (sessionStorage.getItem('preloader-shown') === 'true') return false;
@@ -167,6 +169,11 @@
 
     return true;
   })();
+  let allowTransitions = !shouldShowInitial;
+  let pendingTransition = false;
+  try {
+    pendingTransition = sessionStorage.getItem(transitionKey) === 'true';
+  } catch (e) {}
 
   if (shouldShowInitial) {
     showOverlay();
@@ -187,36 +194,64 @@
     setHidden(true);
     setBarOnly(true);
     resetProgress();
+    allowTransitions = true;
   }
 
-  const showTransitionBar = () => {
+  const showTransitionBar = (options = {}) => {
     if (transitionActive) return;
-    
+
     try {
+      const waitForLoad = options.waitForLoad === true;
+      const maxDuration = waitForLoad ? Math.max(transitionMax, 10000) : transitionMax;
+
       transitionActive = true;
+      
+      // DIRECT: Zet bar zichtbaar zonder delays
+      if (preloader) {
+        preloader.style.transition = 'none';
+      }
       setBarOnly(true);
       setHidden(false);
-      resetProgress();
+      if (bar) {
+        bar.style.transition = 'none'; // Geen transition voor snelle start
+        bar.style.backgroundColor = '';
+        bar.style.display = '';
+      }
       
+      // Set state direct naar 10% (geen reset naar 0)
+      current = 10;
+      target = 10;
+      update(); // Direct update - bar is nu zichtbaar
+      start(); // Start animatie loop direct
+      
+      // Herstel transition na eerste frame (zodat verdere animaties smooth zijn)
+      requestAnimationFrame(() => {
+        if (preloader) {
+          preloader.style.transition = '';
+        }
+        if (bar) {
+          bar.style.transition = '';
+        }
+      });
+
       const startTime = performance.now();
-      setTarget(10); // Start direct bij 10% voor snelle feedback
       
-      // Incrementele progress tijdens navigatie
+      // Snellere progress updates
       progressInterval = setInterval(() => {
         try {
           const elapsed = performance.now() - startTime;
-          const progress = Math.min(90, 10 + (elapsed / transitionMax) * 80);
+          const progress = Math.min(95, 10 + (elapsed / maxDuration) * 85);
           setTarget(progress);
         } catch (error) {
           console.error('Preloader progress interval error:', error);
           clearInterval(progressInterval);
         }
-      }, 50);
-      
+      }, 30); // Sneller: 30ms interval (was 50ms)
+
       transitionTimeout = setTimeout(() => {
         if (progressInterval) clearInterval(progressInterval);
         hideTransitionBar();
-      }, transitionMax);
+      }, maxDuration);
     } catch (error) {
       console.error('Preloader showTransitionBar error:', error);
       // Fallback: hide preloader
@@ -228,14 +263,14 @@
 
   const hideTransitionBar = () => {
     if (!transitionActive) return;
-    
+
     try {
       transitionActive = false;
       if (transitionTimeout) clearTimeout(transitionTimeout);
       transitionTimeout = null;
       if (progressInterval) clearInterval(progressInterval);
       progressInterval = null;
-      
+
       setTarget(100);
       current = 100;
       update();
@@ -258,7 +293,10 @@
 
   document.addEventListener('astro:before-swap', () => {
     try {
-      if (shouldShowInitial) return;
+      if (!allowTransitions) return;
+      try {
+        sessionStorage.removeItem(transitionKey);
+      } catch (e) {}
       transitionTimer = setTimeout(showTransitionBar, transitionDelay);
     } catch (error) {
       console.error('Preloader before-swap error:', error);
@@ -267,7 +305,7 @@
 
   const onSwapDone = () => {
     try {
-      if (shouldShowInitial) return;
+      if (!allowTransitions) return;
       if (transitionTimer) clearTimeout(transitionTimer);
       transitionTimer = null;
       hideTransitionBar();
@@ -293,10 +331,11 @@
 
   document.addEventListener('click', (event) => {
     try {
-      if (shouldShowInitial) return;
+      if (!allowTransitions) return;
       if (event.defaultPrevented) return;
       if (event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+        return;
 
       const link = event.target.closest('a');
       if (!link) return;
@@ -314,13 +353,31 @@
       }
 
       if (url.origin !== window.location.origin) return;
-      if (url.pathname === window.location.pathname && url.search === window.location.search) {
+      if (
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search
+      ) {
         return;
       }
 
+      try {
+        sessionStorage.setItem(transitionKey, 'true');
+      } catch (e) {}
       showTransitionBar();
     } catch (error) {
       console.error('Preloader click handler error:', error);
     }
   });
+
+  if (!shouldShowInitial && pendingTransition) {
+    try {
+      sessionStorage.removeItem(transitionKey);
+    } catch (e) {}
+    showTransitionBar({ waitForLoad: true });
+    if (document.readyState === 'complete') {
+      hideTransitionBar();
+    } else {
+      window.addEventListener('load', hideTransitionBar, { once: true });
+    }
+  }
 })();

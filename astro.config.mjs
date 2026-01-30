@@ -15,6 +15,13 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 
 export default defineConfig({
   site: 'https://narwal.netlify.app',
+
+  // Prefetch: with ClientRouter, prefetch is on by default. Use viewport strategy
+  // so links are prefetched when visible (nav links = immediately), making clicks feel instant.
+  prefetch: {
+    defaultStrategy: 'viewport',
+  },
+
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,

@@ -23,7 +23,7 @@
 
 .preloader__percent {
   font-family: var(--font-family-default);
-  font-size: clamp(0.85rem, 1.5vw, 1.25rem);
+  font-size: var(--fs-2xl);
   letter-spacing: 0.08em;
 }
 
@@ -38,8 +38,4 @@
 
 .preloader.is-bar-only .preloader__percent {
   display: none;
-}
-
-:root[data-theme='dark'] .preloader__bar {
-  background: var(--white);
 }
