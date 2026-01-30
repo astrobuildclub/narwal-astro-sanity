@@ -193,34 +193,44 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     </script>
     <script is:inline>
       // Keep muted autoplay videos playing when other videos start
-      (function() {
+      (function () {
         function keepMutedVideosPlaying() {
           // Find all muted autoplay videos
-          const mutedAutoplayVideos = Array.from(document.querySelectorAll('video')).filter(video => {
+          const mutedAutoplayVideos = Array.from(
+            document.querySelectorAll('video'),
+          ).filter((video) => {
             return video.muted && video.autoplay && video.loop;
           });
 
           if (mutedAutoplayVideos.length === 0) return;
 
           // Listen for play events on all videos
-          document.addEventListener('play', function(e) {
-            const playingVideo = e.target;
-            
-            // If the playing video is not muted, resume all muted autoplay videos
-            if (playingVideo && playingVideo.tagName === 'VIDEO' && !playingVideo.muted) {
-              mutedAutoplayVideos.forEach(video => {
-                if (video !== playingVideo && video.paused) {
-                  video.play().catch(() => {
-                    // Ignore play errors (e.g., user interaction required)
-                  });
-                }
-              });
-            }
-          }, true);
+          document.addEventListener(
+            'play',
+            function (e) {
+              const playingVideo = e.target;
+
+              // If the playing video is not muted, resume all muted autoplay videos
+              if (
+                playingVideo &&
+                playingVideo.tagName === 'VIDEO' &&
+                !playingVideo.muted
+              ) {
+                mutedAutoplayVideos.forEach((video) => {
+                  if (video !== playingVideo && video.paused) {
+                    video.play().catch(() => {
+                      // Ignore play errors (e.g., user interaction required)
+                    });
+                  }
+                });
+              }
+            },
+            true,
+          );
 
           // Also handle pause events - if a muted video gets paused, try to resume it
-          mutedAutoplayVideos.forEach(video => {
-            video.addEventListener('pause', function() {
+          mutedAutoplayVideos.forEach((video) => {
+            video.addEventListener('pause', function () {
               // Only resume if it's still muted and should be autoplaying
               if (this.muted && this.autoplay && this.loop) {
                 // Small delay to avoid conflicts

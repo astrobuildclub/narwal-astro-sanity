@@ -10,7 +10,7 @@ const termsAndConditionsUrl = siteSettings?.footer?.termsAndConditions?.asset?.u
 ---
 
 <footer
-  class="page-layout relative -z-10 md:fixed md:bottom-0 md:grid md:min-h-screen md:grid-rows-[1fr_auto]"
+  class="footer--reveal page-layout relative -z-10 md:fixed md:bottom-0 md:grid md:min-h-screen md:grid-rows-[1fr_auto]"
 >
   <div
     class="footer__top page flex flex-col  justify-center gap-[var(--space-xl)]"
@@ -157,6 +157,21 @@ const termsAndConditionsUrl = siteSettings?.footer?.termsAndConditions?.asset?.u
     min-height: 100vh;
     background: var(--footer-bg);
     color: var(--footer-text);
+  }
+
+  /* Footer wordt pas later zichtbaar (fade-in na korte delay) */
+  .footer--reveal {
+    opacity: 0;
+    animation: footerReveal 0.6s var(--easing-easeOutExpo, ease-out) 0.5s forwards;
+  }
+
+  @keyframes footerReveal {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .footer__top {

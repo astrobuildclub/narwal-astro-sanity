@@ -30,3 +30,46 @@
 /* Footer styling is now handled by SCSS components */
 
 /* Typography is now handled by SCSS font module */
+
+/* View transitions: fade page content on navigation */
+main {
+  view-transition-name: page;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(page) {
+  animation: page-fade-out 220ms var(--easing-easeOutQuad, ease) both;
+}
+
+::view-transition-new(page) {
+  animation: page-fade-in 260ms var(--easing-easeOutExpo, ease) both;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes page-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(page),
+  ::view-transition-new(page) {
+    animation: none;
+  }
+}

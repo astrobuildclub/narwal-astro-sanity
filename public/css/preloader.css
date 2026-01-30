@@ -16,15 +16,14 @@
   left: 0;
   height: 3px;
   width: 0%;
-  background: var(--white);
-  mix-blend-mode: exclusion;
+  background: var(--black);
   transition: width 0.3s var(--easing-easeOutExpo);
   z-index: 10000;
 }
 
 .preloader__percent {
   font-family: var(--font-family-default);
-  font-size: clamp(0.85rem, 1.5vw, 1.25rem);
+  font-size: var(--fs-2xl);
   letter-spacing: 0.08em;
 }
 
