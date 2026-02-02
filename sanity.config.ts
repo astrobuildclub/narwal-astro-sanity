@@ -12,8 +12,9 @@ import seofields from 'sanity-plugin-seofields';
 export default defineConfig({
   name: 'narwal-creative',
   title: 'Narwal Creative',
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET,
+  // Vaste waarden zodat de gedeployde studio (sanity.studio) altijd werkt; .env wordt daar niet geladen
+  projectId: 'q178y836',
+  dataset: 'production',
   plugins: [
     structureTool({ structure }),
     presentationTool({

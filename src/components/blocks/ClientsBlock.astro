@@ -15,7 +15,7 @@ const {title, clients} = Astro.props;
 <div class:list={['clientsblock','page']}>
   <h2 class="clientsblock-title">{title}</h2>
 
-  <div class="flex gap-2 client-list">
+  <div class="client-list">
     {clients &&
       clients.map((client:any)=>( // service
 
@@ -36,12 +36,19 @@ const {title, clients} = Astro.props;
     font-weight: 500;
 }
 
+.client-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .client {
   font-size: var(--fs-1);
+  white-space: nowrap;
 }
 
 .client::after {
-  content: ", ";
+  content: ", \00a0";
 }
 
 .client:last-child::after {
