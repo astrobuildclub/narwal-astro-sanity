@@ -199,54 +199,43 @@
 
   const showTransitionBar = (options = {}) => {
     if (transitionActive) return;
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
 
     try {
       const waitForLoad = options.waitForLoad === true;
-      const maxDuration = waitForLoad ? Math.max(transitionMax, 10000) : transitionMax;
+      const maxDuration = waitForLoad
+        ? Math.max(transitionMax, 10000)
+        : transitionMax;
 
       transitionActive = true;
-      
-      // DIRECT: Zet bar zichtbaar zonder delays
-      if (preloader) {
-        preloader.style.transition = 'none';
-      }
+      resetProgress();
       setBarOnly(true);
       setHidden(false);
       if (bar) {
-        bar.style.transition = 'none'; // Geen transition voor snelle start
         bar.style.backgroundColor = '';
         bar.style.display = '';
       }
-      
-      // Set state direct naar 10% (geen reset naar 0)
-      current = 10;
-      target = 10;
-      update(); // Direct update - bar is nu zichtbaar
-      start(); // Start animatie loop direct
-      
-      // Herstel transition na eerste frame (zodat verdere animaties smooth zijn)
-      requestAnimationFrame(() => {
-        if (preloader) {
-          preloader.style.transition = '';
-        }
-        if (bar) {
-          bar.style.transition = '';
-        }
-      });
+      update();
+      start();
 
       const startTime = performance.now();
-      
-      // Snellere progress updates
+
       progressInterval = setInterval(() => {
         try {
           const elapsed = performance.now() - startTime;
-          const progress = Math.min(95, 10 + (elapsed / maxDuration) * 85);
+          const progress = Math.min(100, (elapsed / maxDuration) * 100);
           setTarget(progress);
         } catch (error) {
           console.error('Preloader progress interval error:', error);
           clearInterval(progressInterval);
         }
-      }, 30); // Sneller: 30ms interval (was 50ms)
+      }, 40);
 
       transitionTimeout = setTimeout(() => {
         if (progressInterval) clearInterval(progressInterval);
@@ -254,7 +243,6 @@
       }, maxDuration);
     } catch (error) {
       console.error('Preloader showTransitionBar error:', error);
-      // Fallback: hide preloader
       setHidden(true);
       setBarOnly(true);
       transitionActive = false;
@@ -265,25 +253,32 @@
     if (!transitionActive) return;
 
     try {
-      transitionActive = false;
       if (transitionTimeout) clearTimeout(transitionTimeout);
       transitionTimeout = null;
       if (progressInterval) clearInterval(progressInterval);
       progressInterval = null;
 
+      current = Math.max(current, 95);
       setTarget(100);
-      current = 100;
-      update();
-      setTimeout(() => {
-        setHidden(true);
-        setTimeout(() => {
-          resetProgress();
+      const checkComplete = () => {
+        if (current >= 99.5) {
           stop();
-        }, 220);
-      }, completeHold);
+          transitionActive = false;
+          setTimeout(() => {
+            setHidden(true);
+            setTimeout(() => {
+              resetProgress();
+              stop();
+            }, 220);
+          }, completeHold);
+          return;
+        }
+        requestAnimationFrame(checkComplete);
+      };
+      requestAnimationFrame(checkComplete);
     } catch (error) {
       console.error('Preloader hideTransitionBar error:', error);
-      // Fallback: force hide
+      transitionActive = false;
       setHidden(true);
       setBarOnly(true);
       resetProgress();
@@ -291,13 +286,27 @@
     }
   };
 
+  document.addEventListener('astro:before-preparation', () => {
+    try {
+      if (!allowTransitions) return;
+      document.body.setAttribute('data-navigating', '');
+      if (transitionActive) return;
+      sessionStorage.removeItem(transitionKey);
+      showTransitionBar();
+    } catch (error) {
+      console.error('Preloader before-preparation error:', error);
+    }
+  });
+
   document.addEventListener('astro:before-swap', () => {
     try {
       if (!allowTransitions) return;
-      try {
-        sessionStorage.removeItem(transitionKey);
-      } catch (e) {}
-      transitionTimer = setTimeout(showTransitionBar, transitionDelay);
+      if (!transitionActive) {
+        try {
+          sessionStorage.removeItem(transitionKey);
+        } catch (e) {}
+        showTransitionBar();
+      }
     } catch (error) {
       console.error('Preloader before-swap error:', error);
     }
@@ -363,6 +372,7 @@
       try {
         sessionStorage.setItem(transitionKey, 'true');
       } catch (e) {}
+      document.body.setAttribute('data-navigating', '');
       showTransitionBar();
     } catch (error) {
       console.error('Preloader click handler error:', error);

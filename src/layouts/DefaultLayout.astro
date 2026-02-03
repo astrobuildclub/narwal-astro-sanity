@@ -9,7 +9,6 @@ import CookieConsent from '../components/CookieConsent.astro';
 import DarkMode from '../components/DarkMode.astro';
 import Preloader from '../components/Preloader.astro';
 import { VisualEditing } from '@sanity/astro/visual-editing';
-import { ViewTransitions } from 'astro:transitions';
 
 import { getNavigation } from '../lib/sanity';
 
@@ -163,13 +162,12 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       author={author}
       seo={seo}
     />
-    <ViewTransitions />
   </head>
 
-  <body>
+  <body class="footer-hidden">
     <Preloader />
     <SiteNavigation menu={primaryMenu} generalSettings={generalSettings} />
-    <main class="page-layout md:mb-[100vh]">
+    <main class="page-layout">
       <slot />
     </main>
     <SiteFooter />
@@ -190,6 +188,15 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       };
       document.addEventListener('astro:page-load', __rescanEmbeds);
       document.addEventListener('astro:after-swap', __rescanEmbeds);
+
+      // Reveal footer after all view transition animations are done
+      document.addEventListener('astro:page-load', () => {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            document.body.classList.remove('footer-hidden');
+          }, 100);
+        });
+      });
     </script>
     <script is:inline>
       // Keep muted autoplay videos playing when other videos start
@@ -263,7 +270,6 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
 <style>
   main {
-    padding-bottom: 20vh;
     background-color: var(--white);
     position: relative;
     z-index: 1;

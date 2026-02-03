@@ -65,7 +65,7 @@ const backgroundSlides =
       <div role="list" class="swiper-wrapper">
         {
           backgroundSlides &&
-            backgroundSlides.map((slide: any) => (
+            backgroundSlides.map((slide: any, index: number) => (
               <div role="listitem" class="swiper-slide">
                 {slide.imgsrc && (
                   <div class="slide-image-wrapper">
@@ -77,6 +77,7 @@ const backgroundSlides =
                       sizes="auto"
                       format="avif"
                       alt={slide.imgalt || ''}
+                      loading={index === 0 ? 'eager' : 'lazy'}
                       class="carouselblock-image"
                     />
                     {showCaptions && slide.caption && (

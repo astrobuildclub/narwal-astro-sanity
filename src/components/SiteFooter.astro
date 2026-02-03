@@ -9,9 +9,7 @@ const footer = siteSettings?.footer;
 const termsAndConditionsUrl = siteSettings?.footer?.termsAndConditions?.asset?.url;
 ---
 
-<footer
-  class="footer--reveal page-layout relative -z-10 md:fixed md:bottom-0 md:grid md:min-h-screen md:grid-rows-[1fr_auto]"
->
+<footer class="footer--reveal page-layout relative -z-10">
   <div
     class="footer__top page flex flex-col  justify-center gap-[var(--space-xl)]"
   >
@@ -154,7 +152,7 @@ const termsAndConditionsUrl = siteSettings?.footer?.termsAndConditions?.asset?.u
 
   footer {
     width: 100%;
-    min-height: 100vh;
+    min-height: 100dvh;
     background: var(--footer-bg);
     color: var(--footer-text);
   }

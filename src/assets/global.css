@@ -36,17 +36,42 @@ main {
   view-transition-name: page;
 }
 
+/* Footer: hidden until astro:page-load, then reveal (so it appears after main animaties) */
+body.footer-hidden > footer {
+  opacity: 0;
+}
+
+/* Fade non-persisted content to 0 on click; footer reveal after view transition */
+@media (prefers-reduced-motion: no-preference) {
+  main {
+    transition: opacity 0.2s var(--easing-easeOutQuad, ease);
+  }
+
+  body[data-navigating] main {
+    opacity: 0;
+  }
+
+  body > footer {
+    transition: opacity 0.35s var(--easing-easeOutExpo, ease);
+  }
+
+  body[data-navigating] > footer {
+    opacity: 0;
+    transition-duration: 0s;
+  }
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
 }
 
 ::view-transition-old(page) {
-  animation: page-fade-out 220ms var(--easing-easeOutQuad, ease) both;
+  animation: page-fade-out 250ms var(--easing-easeOutQuad, ease) both;
 }
 
 ::view-transition-new(page) {
-  animation: page-fade-in 260ms var(--easing-easeOutExpo, ease) both;
+  animation: page-fade-in 300ms var(--easing-easeOutExpo, ease) both;
 }
 
 @keyframes page-fade-in {

@@ -9,6 +9,7 @@ import { cleanSize } from '../../lib/stega-clean';
 interface Props {
   size?: 'content' | 'popout' | 'feature' | 'page' | 'full' | 'inherit';
   showCaption?: boolean;
+  loading?: 'lazy' | 'eager';
   // Sanity props
   image?: SanityImage;
   alt?: string;
@@ -19,6 +20,7 @@ interface Props {
 // Define Vars
 const {
   showCaption,
+  loading = 'lazy',
   // Sanity props
   image,
   alt,
@@ -92,6 +94,7 @@ if (image?.asset) {
         height={imageHeight}
         alt={finalAltText || ''}
         title={finalTitleText || undefined}
+        loading={loading}
         class="imageblock-img"
       />
       {(showCaption || finalCaptionText) && (
