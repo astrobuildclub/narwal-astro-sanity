@@ -55,7 +55,12 @@ const heroData = {
 
 {
   content && content.length > 0 && (
-    <article class="project full">
+    <article
+      class="project full"
+      data-stagger-on-view
+      data-stagger-selector=".page-layout > *"
+      style="--stagger-step: 110ms; --stagger-duration: 560ms;"
+    >
       <BlockRenderer prefix="ProjectContent" blocks={content} />
     </article>
   )

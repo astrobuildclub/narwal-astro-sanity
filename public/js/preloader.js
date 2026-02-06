@@ -108,6 +108,9 @@
   const finalizeHiddenState = () => {
     setHidden(true);
     setBarOnly(true);
+    if (document.body) {
+      document.body.removeAttribute('data-navigating');
+    }
     unlockScroll();
     setTimeout(() => {
       resetProgress();
@@ -203,6 +206,9 @@
 
     if (!transitionActive) {
       setHidden(true);
+      if (document.body) {
+        document.body.removeAttribute('data-navigating');
+      }
       unlockScroll();
       return;
     }
@@ -216,7 +222,6 @@
         transitionActive = false;
         setTimeout(() => {
           finalizeHiddenState();
-          document.body.removeAttribute('data-navigating');
         }, completeHold);
         return;
       }
