@@ -5,7 +5,6 @@ const { projects, layout, fitCards } = Astro.props;
 
 // Process Sanity projects
 const projectCards = projects.map((project: any) => {
-
   // Sanity data structure
   // Pass through raw data - let ProjectCard handle URL generation to avoid duplication
   return {
@@ -38,7 +37,7 @@ const projectCards = projects.map((project: any) => {
     },
   ]}
 >
-  <div class="grid gap-y-8 gap-12 project-list start md:gap-y-12 lg:gap-y-24">
+  <div class="project-list start grid gap-12 gap-y-8 md:gap-y-12 lg:gap-y-24">
     {
       projectCards &&
         projectCards.map((item: any, index: number) => {
@@ -139,7 +138,7 @@ const projectCards = projects.map((project: any) => {
   .project-card {
     transition: all 0.4s var(--easing-easeOutExpo);
   }
-  
+
   @media (hover: hover) {
     .project-card:hover {
       opacity: 1;
@@ -186,12 +185,9 @@ const projectCards = projects.map((project: any) => {
   }
 
   .load-more-btn:hover {
-    
-    
     opacity: 1;
   }
 
- 
   .load-more-btn.hidden {
     display: none;
   }
@@ -258,19 +254,24 @@ const projectCards = projects.map((project: any) => {
 
   // Animate project cards when filtering
   let previousVisibleCards: Set<HTMLElement> = new Set();
-  
+
   function animateFilteredProjects() {
     // Wacht even zodat de DOM updates compleet zijn
     setTimeout(() => {
-      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      const allCards = Array.from(
+        document.querySelectorAll('.project-card'),
+      ) as HTMLElement[];
       const currentVisibleCards = allCards.filter((card) => {
         const computedStyle = window.getComputedStyle(card);
-        return computedStyle.display !== 'none' && !card.classList.contains('hidden-by-loadmore');
+        return (
+          computedStyle.display !== 'none' &&
+          !card.classList.contains('hidden-by-loadmore')
+        );
       });
 
       // Bepaal welke cards nieuw zichtbaar zijn geworden
       const newlyVisibleCards = currentVisibleCards.filter(
-        (card) => !previousVisibleCards.has(card)
+        (card) => !previousVisibleCards.has(card),
       );
 
       // Animeer alleen de nieuw zichtbare cards
@@ -282,7 +283,7 @@ const projectCards = projects.map((project: any) => {
           // Zet direct op beginstate zonder animatie (instant)
           media.style.opacity = '0';
           media.style.transform = 'translateY(3rem)';
-          
+
           // Animate in
           requestAnimationFrame(() => {
             animate(
@@ -304,7 +305,7 @@ const projectCards = projects.map((project: any) => {
           // Zet direct op beginstate zonder animatie (instant)
           content.style.opacity = '0';
           content.style.transform = 'translateY(2rem)';
-          
+
           // Animate in
           requestAnimationFrame(() => {
             animate(
@@ -330,7 +331,7 @@ const projectCards = projects.map((project: any) => {
 
   // Luister naar filter events
   window.addEventListener('projectfilter:change', animateFilteredProjects);
-  
+
   // Reset de set bij page load
   document.addEventListener('astro:page-load', () => {
     previousVisibleCards = new Set();
@@ -341,47 +342,55 @@ const projectCards = projects.map((project: any) => {
   // Load More functionaliteit
   const ITEMS_PER_PAGE = 6;
   let isLoadMoreInitialized = false;
-  
+
   function initializeLoadMore() {
     // Voorkom dubbele initialisatie (fix voor stack overflow)
     if (isLoadMoreInitialized) return;
-    
-    const loadMoreBtn = document.querySelector('.load-more-btn') as HTMLButtonElement;
+
+    const loadMoreBtn = document.querySelector(
+      '.load-more-btn',
+    ) as HTMLButtonElement;
     if (!loadMoreBtn) return;
-    
+
     isLoadMoreInitialized = true;
 
-    const totalProjects = parseInt(loadMoreBtn.getAttribute('data-total') || '0');
-    
+    const totalProjects = parseInt(
+      loadMoreBtn.getAttribute('data-total') || '0',
+    );
+
     // State management
     let visibleCount = ITEMS_PER_PAGE;
     let currentFilter = 'all';
 
     // Haal alle projecten op die matchen met huidige filter
     function getFilteredProjects(): HTMLElement[] {
-      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      const allCards = Array.from(
+        document.querySelectorAll('.project-card'),
+      ) as HTMLElement[];
       return allCards.filter((card) => {
         // Verwijder tijdelijk de hidden-by-loadmore class om te checken of de filter de card verbergt
         const hadLoadmoreClass = card.classList.contains('hidden-by-loadmore');
         card.classList.remove('hidden-by-loadmore');
-        
+
         const computedStyle = window.getComputedStyle(card);
         const isVisibleByFilter = computedStyle.display !== 'none';
-        
+
         // Herstel de class
         if (hadLoadmoreClass) {
           card.classList.add('hidden-by-loadmore');
         }
-        
+
         return isVisibleByFilter;
       });
     }
 
     // Update visibility van project cards
     function updateCardVisibility() {
-      const allCards = Array.from(document.querySelectorAll('.project-card')) as HTMLElement[];
+      const allCards = Array.from(
+        document.querySelectorAll('.project-card'),
+      ) as HTMLElement[];
       const filteredCards = getFilteredProjects();
-      
+
       // Eerst: verberg alle cards
       allCards.forEach((card) => {
         card.classList.add('hidden-by-loadmore');
@@ -399,7 +408,7 @@ const projectCards = projects.map((project: any) => {
     // Update de load more button tekst en visibility
     function updateLoadMoreButton(filteredTotal: number) {
       const remaining = filteredTotal - visibleCount;
-      
+
       if (remaining <= 0 || filteredTotal <= ITEMS_PER_PAGE) {
         loadMoreBtn.classList.add('hidden');
       } else {
@@ -411,15 +420,22 @@ const projectCards = projects.map((project: any) => {
     // Load more handler
     function loadMore() {
       const filteredCards = getFilteredProjects();
+      const firstNewIndex = visibleCount; // index van de eerste nieuw zichtbare card
       visibleCount += ITEMS_PER_PAGE;
       updateCardVisibility();
+
+      // Scroll naar het punt waar de nieuwe projecten zijn toegevoegd
+      const firstNewCard = filteredCards[firstNewIndex];
+      if (firstNewCard) {
+        firstNewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     // Handle filter change
     function onFilterChange(service: string) {
       currentFilter = service;
       visibleCount = ITEMS_PER_PAGE;
-      
+
       // Wacht kort zodat de filter eerst z'n werk kan doen
       setTimeout(() => {
         updateCardVisibility();
@@ -445,7 +461,7 @@ const projectCards = projects.map((project: any) => {
     // DOM is already loaded
     initializeLoadMore();
   }
-  
+
   // Also initialize on Astro page transitions
   document.addEventListener('astro:page-load', () => {
     // Reset de flag voor nieuwe pagina's

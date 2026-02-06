@@ -9,6 +9,7 @@ import CookieConsent from '../components/CookieConsent.astro';
 import DarkMode from '../components/DarkMode.astro';
 import Preloader from '../components/Preloader.astro';
 import { VisualEditing } from '@sanity/astro/visual-editing';
+import { ViewTransitions } from 'astro:transitions';
 
 import { getNavigation } from '../lib/sanity';
 
@@ -88,6 +89,12 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       (function () {
         try {
           if (sessionStorage.getItem('preloader-shown') === 'true') return;
+          if (
+            window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ) {
+            return;
+          }
           const navEntry =
             typeof performance !== 'undefined' &&
             performance.getEntriesByType &&
@@ -100,10 +107,17 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
           if (navType && navType !== 'navigate') return;
           if (legacyNavType && legacyNavType !== 0) return;
           document.documentElement.classList.add('preloader-active');
+          document.documentElement.classList.add('preloader-lock-scroll');
         } catch (e) {}
       })();
     </script>
     <style>
+      :root.preloader-lock-scroll,
+      :root.preloader-lock-scroll body {
+        overflow: hidden;
+        overscroll-behavior: none;
+        touch-action: none;
+      }
       :root.preloader-active body > :not(#preloader) {
         visibility: hidden;
       }
@@ -162,12 +176,13 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       author={author}
       seo={seo}
     />
+    <ViewTransitions />
   </head>
 
-  <body class="footer-hidden">
+  <body>
     <Preloader />
     <SiteNavigation menu={primaryMenu} generalSettings={generalSettings} />
-    <main class="page-layout">
+    <main class="page-layout pb-[var(--space-3xl)]">
       <slot />
     </main>
     <SiteFooter />
@@ -188,15 +203,6 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       };
       document.addEventListener('astro:page-load', __rescanEmbeds);
       document.addEventListener('astro:after-swap', __rescanEmbeds);
-
-      // Reveal footer after all view transition animations are done
-      document.addEventListener('astro:page-load', () => {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            document.body.classList.remove('footer-hidden');
-          }, 100);
-        });
-      });
     </script>
     <script is:inline>
       // Keep muted autoplay videos playing when other videos start
@@ -270,6 +276,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
 <style>
   main {
+    padding-bottom: 20vh;
     background-color: var(--white);
     position: relative;
     z-index: 1;
