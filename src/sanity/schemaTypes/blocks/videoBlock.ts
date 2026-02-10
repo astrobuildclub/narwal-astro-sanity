@@ -84,17 +84,23 @@ export default defineType({
       title: 'Aspect Ratio',
       options: {
         list: [
+          // Portrait (smal → breder)
+          { title: '9:20', value: '9:20' },
+          { title: '9:16', value: '9:16' },
+          { title: '3:4', value: '3:4' },
+          { title: '4:5', value: '4:5' },
+          // Vierkant
           { title: '1:1', value: '1:1' },
-          { title: '2:1', value: '2:1' },
-          { title: '3:2', value: '3:2' },
-          { title: '5:2', value: '5:2' },
+          // Landscape (breed → breder)
+          { title: '5:4', value: '5:4' },
           { title: '4:3', value: '4:3' },
-          { title: '16:9', value: '16:9' },
+          { title: '3:2', value: '3:2' },
           { title: '16:10', value: '16:10' },
+          { title: '16:9', value: '16:9' },
+          { title: '2:1', value: '2:1' },
           { title: '20:9', value: '20:9' },
           { title: '21:9', value: '21:9' },
-          { title: '9:16', value: '9:16' },
-          { title: '9:20', value: '9:20' },
+          { title: '5:2', value: '5:2' },
         ],
       },
       initialValue: '16:9',

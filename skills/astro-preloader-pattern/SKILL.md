@@ -1,6 +1,8 @@
 ---
+
 name: astro-preloader-pattern
 description: Analyseer, documenteer en ontwerp een herbruikbaar preloader-patroon voor Astro/React frontends met expliciete requirements, componenten en logica. Gebruik deze skill wanneer gebruikers vragen hoe een bestaande preloader werkt, een loader willen standaardiseren over meerdere projecten, of een Astro-geschikte aanpak nodig hebben met progress-smoothing, minimum zichtduur en reduced-motion gedrag.
+
 ---
 
 # Astro Preloader Pattern
@@ -12,10 +14,12 @@ Leg een bestaande preloader-implementatie uit en lever een herbruikbaar ontwerp 
 ## Workflow
 
 1. Lokaliseer de loader
+
 - Zoek naar loader-gerelateerde componenten, styles en progress-bron.
 - Identificeer waar progress wordt gemeten en waar de overlay wordt getoond/verwijderd.
 
 2. Traceer de dataflow
+
 - Breng keten in kaart: `progress source -> state -> loader UI`.
 - Noteer guards en randvoorwaarden:
   - reduced motion
@@ -24,6 +28,7 @@ Leg een bestaande preloader-implementatie uit en lever een herbruikbaar ontwerp 
   - smoothing en clamping
 
 3. Schrijf de output in vaste structuur
+
 - Gebruik drie hoofdsecties:
   - Requirements
   - Componenten
@@ -31,6 +36,7 @@ Leg een bestaande preloader-implementatie uit en lever een herbruikbaar ontwerp 
 - Voeg korte "Waarom werkt dit" observaties toe.
 
 4. Vertaal naar Astro-context
+
 - Benoem of de huidige aanpak React-island is of framework-onafhankelijk.
 - Geef Astro-advies op conceptniveau:
   - hydration-strategie (`client:load` of `client:only`)
@@ -38,6 +44,7 @@ Leg een bestaande preloader-implementatie uit en lever een herbruikbaar ontwerp 
   - geen regressie op toegankelijkheid of motion-instellingen
 
 5. Lever herbruikbare documentatie
+
 - Maak een `.md` die direct kopieerbaar is naar andere projecten.
 - Beperk je tot implementatie-neutrale principes tenzij de gebruiker expliciet code wil.
 

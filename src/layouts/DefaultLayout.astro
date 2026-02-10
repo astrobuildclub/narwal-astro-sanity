@@ -476,6 +476,96 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         document.addEventListener('astro:after-swap', initStaggerOnView);
       })();
     </script>
+    <script is:inline>
+      (function () {
+        const processed = 'data-reveal-ready';
+        const containerProcessed = 'data-reveal-container-ready';
+
+        function isInInitialView(el) {
+          const rect = el.getBoundingClientRect();
+          const vh = window.innerHeight || document.documentElement.clientHeight;
+          return rect.top < vh * 0.92 && rect.bottom > 0;
+        }
+
+        function initRevealOnView() {
+          const containers = document.querySelectorAll(
+            `[data-reveal-children]:not([${containerProcessed}])`,
+          );
+
+          containers.forEach((container) => {
+            const selector =
+              container.getAttribute('data-reveal-children') || ':scope > *';
+            const step = Number(container.getAttribute('data-reveal-step') || 0);
+            let items = [];
+
+            try {
+              items = Array.from(container.querySelectorAll(selector));
+            } catch (e) {
+              items = Array.from(container.children);
+            }
+
+            items.forEach((item, index) => {
+              item.classList.add('reveal-on-view');
+              item.setAttribute('data-reveal-on-view', '');
+              if (step > 0) {
+                item.style.setProperty('--reveal-delay', `${index * step}ms`);
+              }
+            });
+
+            container.setAttribute(containerProcessed, 'true');
+          });
+
+          const targets = document.querySelectorAll(
+            `[data-reveal-on-view]:not([${processed}])`,
+          );
+          if (!targets.length) return;
+
+          const reducedMotion =
+            window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+          if (reducedMotion || !('IntersectionObserver' in window)) {
+            targets.forEach((target) => {
+              target.classList.add('is-visible');
+              target.setAttribute(processed, 'true');
+            });
+            return;
+          }
+
+          const observer = new IntersectionObserver(
+            (entries, io) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              });
+            },
+            {
+              threshold: 0.12,
+              rootMargin: '0px 0px -8% 0px',
+            },
+          );
+
+          targets.forEach((target) => {
+            target.setAttribute(processed, 'true');
+            if (isInInitialView(target)) {
+              target.classList.add('is-visible');
+              return;
+            }
+            observer.observe(target);
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initRevealOnView);
+        } else {
+          initRevealOnView();
+        }
+
+        document.addEventListener('astro:page-load', initRevealOnView);
+        document.addEventListener('astro:after-swap', initRevealOnView);
+      })();
+    </script>
   </body>
 </html>
 

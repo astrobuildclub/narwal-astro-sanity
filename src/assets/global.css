@@ -114,8 +114,30 @@ img.fade-on-view.is-visible {
   transform: translate3d(0, 0, 0);
 }
 
+[data-reveal-on-view].reveal-on-view {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-distance, 20px), 0);
+  transition:
+    opacity var(--reveal-duration, 0.6s) var(--easing-easeOutExpo, ease),
+    transform var(--reveal-duration, 0.6s) var(--easing-easeOutExpo, ease);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-reveal-on-view].reveal-on-view.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-stagger-on-view] .stagger-on-view-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms;
+  }
+
+  [data-reveal-on-view].reveal-on-view {
     opacity: 1;
     transform: none;
     transition: none;

@@ -260,6 +260,7 @@
 
   const showTransitionBar = (options = {}) => {
     if (!allowTransitions || transitionActive || prefersReducedMotion()) return;
+    if (!document.body) return;
 
     document.body.setAttribute('data-navigating', '');
     lockScroll();
