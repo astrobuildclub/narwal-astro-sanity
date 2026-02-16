@@ -1,155 +1,131 @@
 (function () {
+  if (window.__preloaderControllerInitialized) return;
+  window.__preloaderControllerInitialized = true;
+
   const preloader = document.getElementById('preloader');
   if (!preloader) return;
+  const root = document.documentElement;
 
-  const bar = preloader.querySelector('.preloader__bar');
+  const primaryFill = preloader.querySelector('.preloader__initial-fill--primary');
+  const navBar = preloader.querySelector('.preloader__nav-bar');
   const percent = preloader.querySelector('.preloader__percent');
+
   const minDisplay = Number(preloader.dataset.minDisplay || 500);
-  const transitionDelay = Number(preloader.dataset.transitionDelay || 120);
-  const transitionMax = Number(preloader.dataset.transitionMax || 2000);
+  const navDelay = Number(preloader.dataset.navTransitionDelay || 120);
+  const navMax = Number(preloader.dataset.navTransitionMax || 2200);
   const completeHold = 140;
+
+  const prefersReducedMotion =
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let current = 0;
   let target = 0;
   let rafId = null;
-  let startTime = 0;
-  let animating = false;
-  let transitionTimer = null;
-  let transitionTimeout = null;
-  let transitionActive = false;
-  let progressInterval = null;
+  let initialStart = 0;
 
-  const update = () => {
-    try {
-      if (bar) {
-        bar.style.width = `${current}%`;
-        // Update accessibility attribute
-        bar.setAttribute('aria-valuenow', Math.round(current).toString());
-      }
-      if (percent) percent.textContent = `${Math.round(current)}%`;
-    } catch (error) {
-      console.error('Preloader update error:', error);
-    }
-  };
+  let navActive = false;
+  let navHasSwapped = false;
+  let navDelayTimer = null;
+  let navProgressTimer = null;
+  let navTimeout = null;
 
-  const start = () => {
-    if (animating) return;
-    animating = true;
-    rafId = requestAnimationFrame(tick);
-  };
-
-  const stop = () => {
-    animating = false;
-    if (rafId) cancelAnimationFrame(rafId);
+  const stopTick = () => {
+    if (!rafId) return;
+    cancelAnimationFrame(rafId);
     rafId = null;
   };
 
-  const tick = () => {
-    if (!animating) return;
-    current += (target - current) * 0.12;
-    if (Math.abs(target - current) < 0.1) current = target;
-    update();
-
-    if (current < target || current < 100) {
-      rafId = requestAnimationFrame(tick);
-    } else {
-      stop();
-    }
+  const startTick = () => {
+    if (rafId) return;
+    rafId = requestAnimationFrame(tick);
   };
 
-  const setTarget = (value) => {
-    target = Math.max(target, value);
-    start();
+  const setMode = (mode) => {
+    preloader.classList.remove('mode-initial', 'mode-nav');
+    preloader.classList.add(mode === 'nav' ? 'mode-nav' : 'mode-initial');
   };
 
   const setHidden = (hidden) => {
     preloader.classList.toggle('is-hidden', hidden);
   };
 
-  const setBarOnly = (barOnly) => {
-    preloader.classList.toggle('is-bar-only', barOnly);
+  const lockScroll = () => {
+    document.documentElement.classList.add('preloader-lock-scroll');
+    if (document.body) {
+      document.body.classList.add('preloader-lock-scroll');
+    }
+  };
+
+  const unlockScroll = () => {
+    document.documentElement.classList.remove('preloader-lock-scroll');
+    if (document.body) {
+      document.body.classList.remove('preloader-lock-scroll');
+    }
+  };
+
+  const updateInitialProgress = (value) => {
+    const clamped = Math.max(0, Math.min(100, value));
+
+    if (primaryFill) {
+      primaryFill.style.width = `${clamped}%`;
+    }
+
+    if (percent) {
+      percent.textContent = `${Math.round(clamped)}%`;
+    }
+  };
+
+  const updateNavProgress = (value) => {
+    if (!navBar) return;
+    const clamped = Math.max(0, Math.min(100, value));
+    navBar.style.width = `${clamped}%`;
+  };
+
+  const tick = () => {
+    current += (target - current) * 0.14;
+    if (Math.abs(target - current) < 0.2) {
+      current = target;
+    }
+
+    if (preloader.classList.contains('mode-nav')) {
+      updateNavProgress(current);
+    } else {
+      updateInitialProgress(current);
+    }
+
+    if (current < 99.95 || target < 99.95) {
+      rafId = requestAnimationFrame(tick);
+      return;
+    }
+
+    stopTick();
+  };
+
+  const setTarget = (value) => {
+    target = Math.max(target, Math.min(100, value));
+    startTick();
   };
 
   const resetProgress = () => {
     current = 0;
     target = 0;
-    update();
+    updateInitialProgress(0);
+    updateNavProgress(0);
   };
 
-  const showOverlay = () => {
-    setBarOnly(false);
-    setHidden(false);
-    resetProgress();
-    startTime = performance.now();
-    setTarget(5);
+  const clearNavTimers = () => {
+    if (navDelayTimer) clearTimeout(navDelayTimer);
+    if (navProgressTimer) clearInterval(navProgressTimer);
+    if (navTimeout) clearTimeout(navTimeout);
+    navDelayTimer = null;
+    navProgressTimer = null;
+    navTimeout = null;
   };
 
-  const hideOverlay = () => {
-    setTarget(100);
-    current = 100;
-    update();
-    const elapsed = performance.now() - startTime;
-    const remaining = Math.max(0, minDisplay - elapsed);
-
-    setTimeout(() => {
-      setTimeout(() => {
-        document.documentElement.classList.remove('preloader-active');
-        allowTransitions = true;
-        setHidden(true);
-        setBarOnly(true);
-        setTimeout(() => {
-          resetProgress();
-          stop();
-        }, 220);
-      }, completeHold);
-    }, remaining);
-
-    try {
-      sessionStorage.setItem('preloader-shown', 'true');
-    } catch (e) {}
-  };
-
-  const trackImages = () => {
-    const images = Array.from(document.images || []);
-    if (images.length === 0) {
-      setTarget(70);
-      return;
-    }
-
-    let loaded = 0;
-    const total = images.length;
-
-    const updateProgress = () => {
-      const ratio = loaded / total;
-      setTarget(30 + ratio * 40);
-    };
-
-    images.forEach((img) => {
-      if (img.complete) {
-        loaded += 1;
-        updateProgress();
-        return;
-      }
-
-      const onDone = () => {
-        loaded += 1;
-        updateProgress();
-        img.removeEventListener('load', onDone);
-        img.removeEventListener('error', onDone);
-      };
-
-      img.addEventListener('load', onDone);
-      img.addEventListener('error', onDone);
-    });
-  };
-
-  const onDomReady = () => {
-    setTarget(30);
-    trackImages();
-  };
-
-  const transitionKey = 'preloader-transition-pending';
   const shouldShowInitial = (() => {
+    if (prefersReducedMotion) return false;
+
     try {
       if (sessionStorage.getItem('preloader-shown') === 'true') return false;
     } catch (e) {}
@@ -169,14 +145,168 @@
 
     return true;
   })();
-  let allowTransitions = !shouldShowInitial;
-  let pendingTransition = false;
-  try {
-    pendingTransition = sessionStorage.getItem(transitionKey) === 'true';
-  } catch (e) {}
 
-  if (shouldShowInitial) {
-    showOverlay();
+  const hideInitial = () => {
+    setTarget(100);
+
+    const waitUntilDone = () => {
+      if (current >= 99.5) {
+        const elapsed = performance.now() - initialStart;
+        const waitTime = Math.max(0, minDisplay - elapsed);
+
+        setTimeout(() => {
+          document.documentElement.classList.remove('preloader-active');
+          setHidden(true);
+          unlockScroll();
+
+          try {
+            sessionStorage.setItem('preloader-shown', 'true');
+          } catch (e) {}
+
+          setTimeout(() => {
+            setMode('initial');
+            resetProgress();
+            stopTick();
+          }, completeHold);
+        }, waitTime);
+        return;
+      }
+
+      requestAnimationFrame(waitUntilDone);
+    };
+
+    requestAnimationFrame(waitUntilDone);
+  };
+
+  const trackImagesForInitial = () => {
+    const images = Array.from(document.images || []);
+    if (!images.length) {
+      setTarget(80);
+      return;
+    }
+
+    const total = images.length;
+    let loaded = 0;
+
+    const bump = () => {
+      const ratio = loaded / total;
+      setTarget(34 + ratio * 52);
+    };
+
+    images.forEach((img) => {
+      if (img.complete) {
+        loaded += 1;
+        bump();
+        return;
+      }
+
+      const done = () => {
+        loaded += 1;
+        bump();
+        img.removeEventListener('load', done);
+        img.removeEventListener('error', done);
+      };
+
+      img.addEventListener('load', done);
+      img.addEventListener('error', done);
+    });
+  };
+
+  const finalizeNav = () => {
+    if (!navActive) return;
+
+    clearNavTimers();
+    setTarget(100);
+
+    const waitUntilDone = () => {
+      if (current >= 99.5) {
+        navActive = false;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            root.classList.remove('nav-transition-active');
+            setHidden(true);
+            setTimeout(() => {
+              setMode('initial');
+              resetProgress();
+              stopTick();
+            }, 220);
+          });
+        });
+        return;
+      }
+
+      requestAnimationFrame(waitUntilDone);
+    };
+
+    requestAnimationFrame(waitUntilDone);
+  };
+
+  const startNav = () => {
+    if (prefersReducedMotion || !document.body) return;
+    if (navActive) return;
+
+    navActive = true;
+    navHasSwapped = false;
+    clearNavTimers();
+    root.classList.add('nav-transition-active');
+    setMode('nav');
+    setHidden(false);
+    resetProgress();
+
+    const startedAt = performance.now();
+
+    const begin = () => {
+      setTarget(10);
+
+      navProgressTimer = setInterval(() => {
+        const elapsed = performance.now() - startedAt;
+        const progress = Math.min(93, (elapsed / navMax) * 93);
+        setTarget(progress);
+      }, 50);
+
+      navTimeout = setTimeout(() => {
+        finalizeNav();
+      }, navMax + 250);
+    };
+
+    if (navDelay > 0) {
+      navDelayTimer = setTimeout(begin, navDelay);
+      return;
+    }
+
+    begin();
+  };
+
+  const onNavSwapDone = () => {
+    if (!navActive) return;
+    navHasSwapped = true;
+    setTarget(97);
+  };
+
+  const onNavPageLoad = () => {
+    if (!navHasSwapped) return;
+    finalizeNav();
+  };
+
+  if (!shouldShowInitial) {
+    document.documentElement.classList.remove('preloader-active');
+    setHidden(true);
+    setMode('initial');
+    root.classList.remove('nav-transition-active');
+    unlockScroll();
+    resetProgress();
+  } else {
+    setMode('initial');
+    setHidden(false);
+    resetProgress();
+    lockScroll();
+    initialStart = performance.now();
+    setTarget(10);
+
+    const onDomReady = () => {
+      setTarget(34);
+      trackImagesForInitial();
+    };
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', onDomReady, { once: true });
@@ -185,199 +315,20 @@
     }
 
     if (document.readyState === 'complete') {
-      hideOverlay();
+      hideInitial();
     } else {
-      window.addEventListener('load', hideOverlay, { once: true });
+      window.addEventListener('load', hideInitial, { once: true });
     }
-  } else {
-    document.documentElement.classList.remove('preloader-active');
-    setHidden(true);
-    setBarOnly(true);
-    resetProgress();
-    allowTransitions = true;
   }
 
-  const showTransitionBar = (options = {}) => {
-    if (transitionActive) return;
+  document.addEventListener('astro:before-preparation', startNav);
+  document.addEventListener('astro:before-swap', startNav);
+  document.addEventListener('astro:after-swap', onNavSwapDone);
+  document.addEventListener('astro:page-load', onNavPageLoad);
 
-    try {
-      const waitForLoad = options.waitForLoad === true;
-      const maxDuration = waitForLoad ? Math.max(transitionMax, 10000) : transitionMax;
-
-      transitionActive = true;
-      
-      // DIRECT: Zet bar zichtbaar zonder delays
-      if (preloader) {
-        preloader.style.transition = 'none';
-      }
-      setBarOnly(true);
-      setHidden(false);
-      if (bar) {
-        bar.style.transition = 'none'; // Geen transition voor snelle start
-        bar.style.backgroundColor = '';
-        bar.style.display = '';
-      }
-      
-      // Set state direct naar 10% (geen reset naar 0)
-      current = 10;
-      target = 10;
-      update(); // Direct update - bar is nu zichtbaar
-      start(); // Start animatie loop direct
-      
-      // Herstel transition na eerste frame (zodat verdere animaties smooth zijn)
-      requestAnimationFrame(() => {
-        if (preloader) {
-          preloader.style.transition = '';
-        }
-        if (bar) {
-          bar.style.transition = '';
-        }
-      });
-
-      const startTime = performance.now();
-      
-      // Snellere progress updates
-      progressInterval = setInterval(() => {
-        try {
-          const elapsed = performance.now() - startTime;
-          const progress = Math.min(95, 10 + (elapsed / maxDuration) * 85);
-          setTarget(progress);
-        } catch (error) {
-          console.error('Preloader progress interval error:', error);
-          clearInterval(progressInterval);
-        }
-      }, 30); // Sneller: 30ms interval (was 50ms)
-
-      transitionTimeout = setTimeout(() => {
-        if (progressInterval) clearInterval(progressInterval);
-        hideTransitionBar();
-      }, maxDuration);
-    } catch (error) {
-      console.error('Preloader showTransitionBar error:', error);
-      // Fallback: hide preloader
-      setHidden(true);
-      setBarOnly(true);
-      transitionActive = false;
-    }
-  };
-
-  const hideTransitionBar = () => {
-    if (!transitionActive) return;
-
-    try {
-      transitionActive = false;
-      if (transitionTimeout) clearTimeout(transitionTimeout);
-      transitionTimeout = null;
-      if (progressInterval) clearInterval(progressInterval);
-      progressInterval = null;
-
-      setTarget(100);
-      current = 100;
-      update();
-      setTimeout(() => {
-        setHidden(true);
-        setTimeout(() => {
-          resetProgress();
-          stop();
-        }, 220);
-      }, completeHold);
-    } catch (error) {
-      console.error('Preloader hideTransitionBar error:', error);
-      // Fallback: force hide
-      setHidden(true);
-      setBarOnly(true);
-      resetProgress();
-      stop();
-    }
-  };
-
-  document.addEventListener('astro:before-swap', () => {
-    try {
-      if (!allowTransitions) return;
-      try {
-        sessionStorage.removeItem(transitionKey);
-      } catch (e) {}
-      transitionTimer = setTimeout(showTransitionBar, transitionDelay);
-    } catch (error) {
-      console.error('Preloader before-swap error:', error);
-    }
-  });
-
-  const onSwapDone = () => {
-    try {
-      if (!allowTransitions) return;
-      if (transitionTimer) clearTimeout(transitionTimer);
-      transitionTimer = null;
-      hideTransitionBar();
-    } catch (error) {
-      console.error('Preloader swap done error:', error);
-    }
-  };
-
-  document.addEventListener('astro:after-swap', onSwapDone);
-  document.addEventListener('astro:page-load', onSwapDone);
-
-  // Cleanup bij page unload
   window.addEventListener('beforeunload', () => {
-    try {
-      if (transitionTimer) clearTimeout(transitionTimer);
-      if (transitionTimeout) clearTimeout(transitionTimeout);
-      if (progressInterval) clearInterval(progressInterval);
-      if (rafId) cancelAnimationFrame(rafId);
-    } catch (error) {
-      // Silent fail - page is unloading anyway
-    }
+    clearNavTimers();
+    stopTick();
+    root.classList.remove('nav-transition-active');
   });
-
-  document.addEventListener('click', (event) => {
-    try {
-      if (!allowTransitions) return;
-      if (event.defaultPrevented) return;
-      if (event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-        return;
-
-      const link = event.target.closest('a');
-      if (!link) return;
-      if (link.target && link.target !== '_self') return;
-      if (link.hasAttribute('download')) return;
-
-      const href = link.getAttribute('href');
-      if (!href || href.startsWith('#')) return;
-
-      let url;
-      try {
-        url = new URL(link.href, window.location.href);
-      } catch (e) {
-        return;
-      }
-
-      if (url.origin !== window.location.origin) return;
-      if (
-        url.pathname === window.location.pathname &&
-        url.search === window.location.search
-      ) {
-        return;
-      }
-
-      try {
-        sessionStorage.setItem(transitionKey, 'true');
-      } catch (e) {}
-      showTransitionBar();
-    } catch (error) {
-      console.error('Preloader click handler error:', error);
-    }
-  });
-
-  if (!shouldShowInitial && pendingTransition) {
-    try {
-      sessionStorage.removeItem(transitionKey);
-    } catch (e) {}
-    showTransitionBar({ waitForLoad: true });
-    if (document.readyState === 'complete') {
-      hideTransitionBar();
-    } else {
-      window.addEventListener('load', hideTransitionBar, { once: true });
-    }
-  }
 })();

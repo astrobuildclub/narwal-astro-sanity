@@ -190,14 +190,28 @@
 
 <script>
   // @ts-nocheck
+  const THEME_KEY = 'theme';
+
+  const readStoredTheme = () => {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (e) {
+      return null;
+    }
+  };
+
   const setDarkMode = (active = false) => {
     const root = document.documentElement;
     if (active) {
       root.setAttribute('data-theme', 'dark');
-      localStorage.setItem('theme', 'dark');
+      try {
+        localStorage.setItem(THEME_KEY, 'dark');
+      } catch (e) {}
     } else {
       root.setAttribute('data-theme', 'light');
-      localStorage.setItem('theme', 'light');
+      try {
+        localStorage.setItem(THEME_KEY, 'light');
+      } catch (e) {}
     }
   };
 
@@ -208,7 +222,7 @@
 
   const initDarkMode = () => {
     const query = window.matchMedia('(prefers-color-scheme: dark)');
-    const pref = localStorage.getItem('theme');
+    const pref = readStoredTheme();
     let active = pref ? pref === 'dark' : query.matches;
     setDarkMode(active);
     if (!pref && query.addEventListener) {
@@ -217,20 +231,22 @@
   };
 
   const bindToggle = () => {
-    if (document.documentElement.dataset.dmDelegated === 'true') return;
-    document.addEventListener('click', (e) => {
-      const t = e.target;
-      if (t && t.closest?.('.js__dark-mode-toggle')) {
-        toggleDarkMode();
-      }
+    const button = document.querySelector('.js__dark-mode-toggle');
+    if (!button) return;
+    if (button.dataset.dmBound === 'true') return;
+
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleDarkMode();
     });
-    document.documentElement.dataset.dmDelegated = 'true';
+    button.dataset.dmBound = 'true';
   };
 
   document.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
     bindToggle();
   });
+  document.addEventListener('astro:page-load', initDarkMode);
   document.addEventListener('astro:page-load', bindToggle);
   document.addEventListener('astro:after-swap', bindToggle);
 </script>

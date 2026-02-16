@@ -55,7 +55,12 @@ const heroData = {
 
 {
   content && content.length > 0 && (
-    <article class="project full">
+    <article
+      class="project full"
+      data-reveal-children=".page-layout > *"
+      data-reveal-step="38"
+      style="--reveal-duration: 560ms; --reveal-distance: 20px;"
+    >
       <BlockRenderer prefix="ProjectContent" blocks={content} />
     </article>
   )
@@ -87,7 +92,6 @@ const heroData = {
               <a
                 href={`/project/${project.slug}`}
                 class="related-project-card"
-                data-astro-reload
               >
                 {thumbnailUrl && (
                   <Image

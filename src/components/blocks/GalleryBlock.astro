@@ -77,7 +77,7 @@ const processedImages =
         class="galleryblock-grid grid grid-cols-1 gap-[var(--gap-default)] sm:grid-cols-2"
         style={`--grid-cols: ${columns};`}
       >
-        {processedImages.map((img) => (
+        {processedImages.map((img, index) => (
           <div class="galleryblock-item">
             <Image
               src={img.url}
@@ -87,6 +87,7 @@ const processedImages =
               sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
               format="avif"
               alt={img.alt || ''}
+              loading={index === 0 ? 'eager' : 'lazy'}
               class="galleryblock-image"
             />
             {showCaptions && img.caption && (
@@ -104,13 +105,14 @@ const processedImages =
         class="galleryblock-masonry columns-1 gap-[var(--gap-default)] sm:columns-2"
         style={`--columns: ${columns};`}
       >
-        {processedImages.map((img) => (
+        {processedImages.map((img, index) => (
           <div class="galleryblock-item mb-[var(--gap-default)] break-inside-avoid">
             <Image
               src={img.url}
               width={imageWidth}
               height={imageHeight}
               alt={img.alt || ''}
+              loading={index === 0 ? 'eager' : 'lazy'}
               class="galleryblock-image"
             />
             {showCaptions && img.caption && (

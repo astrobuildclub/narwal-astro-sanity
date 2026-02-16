@@ -1,25 +1,29 @@
 ---
 const MIN_DISPLAY_MS = 500;
-const TRANSITION_DELAY_MS = 0;
-const TRANSITION_MAX_MS = 2000;
+const NAV_TRANSITION_DELAY_MS = 120;
+const NAV_TRANSITION_MAX_MS = 2200;
 ---
 
 <div
   id="preloader"
-  class="preloader is-hidden is-bar-only"
+  class="preloader is-hidden mode-initial"
   data-min-display={MIN_DISPLAY_MS}
-  data-transition-delay={TRANSITION_DELAY_MS}
-  data-transition-max={TRANSITION_MAX_MS}
+  data-nav-transition-delay={NAV_TRANSITION_DELAY_MS}
+  data-nav-transition-max={NAV_TRANSITION_MAX_MS}
   aria-hidden="true"
+  transition:name="preloader"
+  transition:persist
 >
-  <div 
-    class="preloader__bar" 
-    aria-hidden="true"
-    role="progressbar"
-    aria-valuenow="0"
-    aria-valuemin="0"
-    aria-valuemax="100"
-  ></div>
+  <div class="preloader__initial" aria-hidden="true">
+    <div class="preloader__initial-track">
+      <div class="preloader__initial-line">
+        <span class="preloader__initial-fill preloader__initial-fill--primary"></span>
+      </div>
+    </div>
+  </div>
+  <div class="preloader__nav" aria-hidden="true">
+    <div class="preloader__nav-bar"></div>
+  </div>
   <div class="preloader__percent" aria-hidden="true">0%</div>
 </div>
 

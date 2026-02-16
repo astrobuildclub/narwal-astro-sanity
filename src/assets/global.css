@@ -32,20 +32,16 @@
 /* Typography is now handled by SCSS font module */
 
 /* View transitions: fade page content on navigation */
-main {
-  view-transition-name: page;
-}
-
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
 }
 
-::view-transition-old(page) {
+::view-transition-old(page-main) {
   animation: page-fade-out 220ms var(--easing-easeOutQuad, ease) both;
 }
 
-::view-transition-new(page) {
+::view-transition-new(page-main) {
   animation: page-fade-in 260ms var(--easing-easeOutExpo, ease) both;
 }
 
@@ -68,8 +64,79 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(page),
-  ::view-transition-new(page) {
+  ::view-transition-old(page-main),
+  ::view-transition-new(page-main) {
     animation: none;
+  }
+}
+
+img.fade-on-view {
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  transition:
+    opacity var(--fade-on-view-duration, 0.55s) var(--easing-easeOutExpo, ease),
+    transform var(--fade-on-view-duration, 0.55s)
+      var(--easing-easeOutExpo, ease);
+  will-change: opacity, transform;
+}
+
+img.fade-on-view.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  img.fade-on-view {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+[data-stagger-on-view] .stagger-on-view-item {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition:
+    opacity var(--stagger-duration, 0.55s) var(--easing-easeOutExpo, ease),
+    transform var(--stagger-duration, 0.55s) var(--easing-easeOutExpo, ease);
+  transition-delay: calc(
+    var(--stagger-index, 0) * var(--stagger-step, 80ms)
+  );
+  will-change: opacity, transform;
+}
+
+[data-stagger-on-view].is-visible .stagger-on-view-item {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+[data-reveal-on-view].reveal-on-view {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-distance, 20px), 0);
+  transition:
+    opacity var(--reveal-duration, 0.6s) var(--easing-easeOutExpo, ease),
+    transform var(--reveal-duration, 0.6s) var(--easing-easeOutExpo, ease);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-reveal-on-view].reveal-on-view.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-stagger-on-view] .stagger-on-view-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms;
+  }
+
+  [data-reveal-on-view].reveal-on-view {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms;
   }
 }

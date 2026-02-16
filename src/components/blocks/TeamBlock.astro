@@ -26,7 +26,11 @@ const { title, members } = Astro.props;
 <!-- TeamBlock -->
 <div class:list={['teamblock', 'page']}>
   <h2 class="teamblock-title">{title}</h2>
-  <div class="grid gap-[var(--space-xs)] md:grid-cols-3">
+  <div
+    class="grid gap-[var(--space-xs)] md:grid-cols-3"
+    data-stagger-on-view
+    style="--stagger-step: 90ms; --stagger-duration: 520ms;"
+  >
     {
       members &&
         members.map((member: member) => (
