@@ -40,6 +40,20 @@ export default defineConfig({
   ],
 
   vite: {
+    optimizeDeps: {
+      force: true,
+      include: [
+        'react',
+        'react-dom',
+        'sanity',
+        '@sanity/astro',
+        'sanity-plugin-link-field',
+        'styled-components',
+      ],
+    },
+    ssr: {
+      noExternal: ['sanity-plugin-link-field', 'styled-components'],
+    },
     server: {
       fs: {
         allow: ['..'],

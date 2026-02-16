@@ -21,7 +21,6 @@ export default defineConfig({
       resolve,
       previewUrl: location.origin,
     }),
-    // Zet deze plugins NA presentationTool
     linkField({
       linkableSchemaTypes: ['page', 'work'],
     }),

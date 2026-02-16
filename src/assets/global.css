@@ -32,20 +32,16 @@
 /* Typography is now handled by SCSS font module */
 
 /* View transitions: fade page content on navigation */
-main {
-  view-transition-name: page;
-}
-
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
 }
 
-::view-transition-old(page) {
+::view-transition-old(page-main) {
   animation: page-fade-out 220ms var(--easing-easeOutQuad, ease) both;
 }
 
-::view-transition-new(page) {
+::view-transition-new(page-main) {
   animation: page-fade-in 260ms var(--easing-easeOutExpo, ease) both;
 }
 
@@ -68,8 +64,8 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(page),
-  ::view-transition-new(page) {
+  ::view-transition-old(page-main),
+  ::view-transition-new(page-main) {
     animation: none;
   }
 }

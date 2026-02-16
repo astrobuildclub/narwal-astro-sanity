@@ -9,7 +9,6 @@ import CookieConsent from '../components/CookieConsent.astro';
 import DarkMode from '../components/DarkMode.astro';
 import Preloader from '../components/Preloader.astro';
 import { VisualEditing } from '@sanity/astro/visual-editing';
-import { ViewTransitions } from 'astro:transitions';
 
 import { getNavigation } from '../lib/sanity';
 
@@ -68,7 +67,15 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             localStorage.getItem('theme') ||
             document.documentElement.getAttribute('data-theme') ||
             'light';
+          const bg =
+            getComputedStyle(document.body).backgroundColor ||
+            getComputedStyle(document.documentElement).backgroundColor ||
+            (theme === 'dark' ? 'rgb(12, 12, 12)' : '#fdfdfa');
           event.newDocument.documentElement.setAttribute('data-theme', theme);
+          event.newDocument.documentElement.style.backgroundColor = bg;
+          if (event.newDocument.body) {
+            event.newDocument.body.style.backgroundColor = bg;
+          }
         } catch (e) {}
       });
     </script>
@@ -113,22 +120,44 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     </script>
     <style>
       :root {
-        --vt-snappy-duration: 190ms;
+        --surface-bg: var(--white, #fdfdfa);
+        --vt-old-duration: 170ms;
+        --vt-new-duration: 220ms;
+        --vt-new-delay: 30ms;
         --vt-snappy-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+        --nav-transition-blur: 0px;
+        --nav-transition-opacity: 1;
+        --nav-overlay-bg: var(--surface-bg);
+      }
+
+      :root[data-theme='dark'] {
+        --nav-transition-opacity: 1;
+      }
+
+      html,
+      body {
+        background: var(--surface-bg);
+      }
+
+      ::view-transition {
+        background: var(--surface-bg);
       }
 
       ::view-transition-old(page-main),
       ::view-transition-new(page-main) {
-        animation-duration: var(--vt-snappy-duration);
         animation-timing-function: var(--vt-snappy-ease);
+        animation-fill-mode: both;
       }
 
       ::view-transition-old(page-main) {
         animation-name: vt-snappy-out;
+        animation-duration: var(--vt-old-duration);
       }
 
       ::view-transition-new(page-main) {
         animation-name: vt-snappy-in;
+        animation-duration: var(--vt-new-duration);
+        animation-delay: var(--vt-new-delay);
       }
 
       @keyframes vt-snappy-out {
@@ -154,12 +183,15 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         ::view-transition-new(page-main) {
           animation: none !important;
         }
-      }
 
-      body[data-navigating] main {
-        opacity: 0.4;
-        transition: opacity 180ms var(--vt-snappy-ease);
-        will-change: opacity;
+        body > :not(#preloader) {
+          transition: none;
+        }
+
+        :root.nav-transition-active body > :not(#preloader) {
+          opacity: 1;
+          filter: none;
+        }
       }
 
       :root.preloader-lock-scroll,
@@ -168,6 +200,16 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         overscroll-behavior: none;
         touch-action: none;
       }
+      body > :not(#preloader) {
+        transition:
+          opacity 260ms var(--vt-snappy-ease),
+          filter 320ms var(--vt-snappy-ease);
+      }
+      :root.nav-transition-active body > :not(#preloader) {
+        opacity: var(--nav-transition-opacity);
+        filter: blur(var(--nav-transition-blur));
+        will-change: opacity, filter;
+      }
       :root.preloader-active body > :not(#preloader) {
         visibility: hidden;
       }
@@ -175,28 +217,12 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         position: fixed;
         inset: 0;
         z-index: 9999;
-        background: var(--white, #ffffff);
+        background: var(--surface-bg);
         opacity: 1 !important;
         pointer-events: auto !important;
       }
       :root[data-theme='dark'].preloader-active #preloader {
-        background: var(--black, rgb(12, 12, 12));
-      }
-      :root.preloader-active #preloader.is-bar-only {
-        background: transparent;
-      }
-      :root.preloader-active #preloader .preloader__percent {
-        display: block !important;
-      }
-      :root.preloader-active #preloader .preloader__bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 3px;
-        width: 0%;
-        background: var(--white, #ffffff);
-        mix-blend-mode: exclusion;
-        z-index: 10000;
+        background: var(--surface-bg);
       }
     </style>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -226,7 +252,6 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       author={author}
       seo={seo}
     />
-    <ViewTransitions />
   </head>
 
   <body>
@@ -245,6 +270,8 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     <!-- JavaScript bestanden -->
     <script src="/js/cookieconsent.umd.js" is:inline></script>
     <script src="/js/iframemanager.js" is:inline></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js"></script>
+    <script src="/js/lenis-init.js" is:inline></script>
     <script is:inline>
       // Re-scan embeds after Astro view transitions
       const __rescanEmbeds = () => {
@@ -575,10 +602,5 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     background-color: var(--white);
     position: relative;
     z-index: 1;
-  }
-
-  /* Dark mode support */
-  :root[data-theme='dark'] main {
-    background-color: var(----clr-black: rgba(12, 12, 12) ;);
   }
 </style>

@@ -18,8 +18,28 @@ const slug = uri ? `/${uri}/` : '/';
 const requestUrl = new URL(Astro.request.url);
 const searchParams = requestUrl.searchParams;
 
-let node = await getNodeData(slug, searchParams);
-const Template = getTemplateByRoute(node);
+function isNotFoundError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.message.includes('not found') ||
+      error.message.includes('Page with slug') ||
+      error.message.includes('Project with slug'))
+  );
+}
+
+let node: Awaited<ReturnType<typeof getNodeData>> | null = null;
+let Template: ReturnType<typeof getTemplateByRoute> | null = null;
+
+try {
+  node = await getNodeData(slug, searchParams);
+  Template = getTemplateByRoute(node);
+} catch (error) {
+  if (isNotFoundError(error)) {
+    Astro.response.status = 404;
+  } else {
+    throw error;
+  }
+}
 
 // Haal site settings op voor SEO fallbacks
 const siteSettings = await getSiteSettings();
@@ -30,13 +50,21 @@ const pageUrl = Astro.site
   : `https://accessible-astro.dev${slug === '/' ? '' : slug}`;
 
 // Get SEO data met fallbacks
-const seoData = getSeoData(
-  node.seo,
-  siteSettings,
-  node.title,
-  'Our amazing studio from Rotterdam',
-  pageUrl,
-);
+const seoData = node
+  ? getSeoData(
+      node.seo,
+      siteSettings,
+      node.title,
+      'Our amazing studio from Rotterdam',
+      pageUrl,
+    )
+  : getSeoData(
+      undefined,
+      siteSettings,
+      'Page not found',
+      'The page you are looking for could not be found.',
+      pageUrl,
+    );
 
 // Debug logging (uitgecomment - alleen nodig bij troubleshooting)
 // if (import.meta.env.DEV) {
@@ -50,5 +78,14 @@ const seoData = getSeoData(
   seo={seoData}
   url={pageUrl}
 >
-  <Template data={node} />
+  {
+    node && Template ? (
+      <Template data={node} />
+    ) : (
+      <main class="container">
+        <h1>Pagina niet gevonden</h1>
+        <p>De pagina die je zoekt bestaat niet of is verplaatst.</p>
+      </main>
+    )
+  }
 </DefaultLayout>
