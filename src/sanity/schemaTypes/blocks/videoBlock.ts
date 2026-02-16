@@ -84,7 +84,7 @@ export default defineType({
       title: 'Aspect Ratio',
       options: {
         list: [
-          // Portrait (smal → breder)
+          // Portrait (hoog → minder hoog)
           { title: '9:20', value: '9:20' },
           { title: '9:16', value: '9:16' },
           { title: '3:4', value: '3:4' },
@@ -98,9 +98,9 @@ export default defineType({
           { title: '16:10', value: '16:10' },
           { title: '16:9', value: '16:9' },
           { title: '2:1', value: '2:1' },
+          // Ultrawide
           { title: '20:9', value: '20:9' },
           { title: '21:9', value: '21:9' },
-          { title: '5:2', value: '5:2' },
         ],
       },
       initialValue: '16:9',
