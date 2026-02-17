@@ -99,6 +99,8 @@ npm install
    ```
    Vul `SANITY_STUDIO_PROJECT_ID` en `SANITY_STUDIO_DATASET` in (moeten overeenkomen met root `.env`)
 
+**Tip – Afbeeldingen:** Upload afbeeldingen bij voorkeur in hoge resolutie (bijv. 1920px breed of groter voor full-width). De site optimaliseert ze automatisch via Astro Image (responsive srcset, AVIF).
+
 ### 6. Start de development server
 
 ```bash

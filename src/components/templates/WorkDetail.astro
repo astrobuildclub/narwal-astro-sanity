@@ -81,10 +81,11 @@ const heroData = {
           {relatedProjects.map((project: any) => {
             const thumbnailWidth = 400;
             const thumbnailHeight = 300;
+            // Hoge-res bron (1200px) voor Astro Image srcset
             const thumbnailUrl = project.thumbnail?.image?.asset
               ? urlForImage(project.thumbnail.image)
-                  ?.width(thumbnailWidth)
-                  .height(thumbnailHeight)
+                  ?.width(1200)
+                  .height(900)
                   .url() || ''
               : '';
 
@@ -99,6 +100,9 @@ const heroData = {
                     alt={project.title || ''}
                     width={thumbnailWidth}
                     height={thumbnailHeight}
+                    widths={[400, 800, 1200]}
+                    sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
+                    format="avif"
                     class="related-project-img"
                   />
                 )}

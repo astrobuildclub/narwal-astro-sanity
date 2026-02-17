@@ -23,20 +23,19 @@ interface Props {
 // Define vars
 const { title, media, items } = Astro.props;
 
-// Generate image URL - Sanity data only
+// Generate image URL - Sanity data only (hoge-res bron voor Astro Image srcset)
 let finalSourceUrl = '';
 let finalAltText = '';
 const imagePosition = cleanImagePosition(media?.imgposition);
 const imageWidth = 960;
-const imageHeight = Math.round((imageWidth * 9) / 16); // 16:9 aspect ratio
+const imageHeight = Math.round((imageWidth * 9) / 16); // 16:9
+const sourceWidth = 1920; // Bron voor srcset
 
 if (media?.image?.asset) {
   try {
-    // Optimaliseer afbeelding voor grid layout (max 960px breed op desktop, want 2 kolommen)
-    // De .auto('format') en .fit('max') worden al toegepast door urlForImage
     finalSourceUrl =
       urlForImage(media.image)
-        ?.width(imageWidth) // Max width voor grid afbeelding
+        ?.width(sourceWidth)
         .url() || '';
     finalAltText = media.image.alt || '';
   } catch (error) {
