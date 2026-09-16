@@ -274,15 +274,91 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     <script src="/js/lenis-init.js" is:inline></script>
     <script is:inline>
       // Re-scan embeds after Astro view transitions
+      const __getIframeManager = () => {
+        try {
+          if (typeof window.iframemanager === 'function') {
+            return window.iframemanager();
+          }
+          if (
+            window.iframemanager &&
+            typeof window.iframemanager.scan === 'function'
+          ) {
+            return window.iframemanager;
+          }
+        } catch (e) {}
+        return null;
+      };
+
       const __rescanEmbeds = () => {
         try {
-          window.iframemanager &&
-            window.iframemanager.scan &&
-            window.iframemanager.scan();
+          const manager = __getIframeManager();
+          if (!manager) return;
+
+          if (typeof manager.scan === 'function') {
+            manager.scan();
+            return;
+          }
+
+          if (
+            typeof manager.reset === 'function' &&
+            typeof manager.run === 'function' &&
+            window.__iframeManagerConfig
+          ) {
+            manager.reset(false);
+            manager.run(window.__iframeManagerConfig);
+          }
         } catch (e) {}
       };
-      document.addEventListener('astro:page-load', __rescanEmbeds);
-      document.addEventListener('astro:after-swap', __rescanEmbeds);
+
+      const __rescanEmbedsDeferred = () => {
+        requestAnimationFrame(() => {
+          __rescanEmbeds();
+          setTimeout(__rescanEmbeds, 140);
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', __rescanEmbedsDeferred, {
+          once: true,
+        });
+      } else {
+        __rescanEmbedsDeferred();
+      }
+
+      document.addEventListener('astro:page-load', __rescanEmbedsDeferred);
+      document.addEventListener('astro:after-swap', __rescanEmbedsDeferred);
+      document.addEventListener('consent:changed', __rescanEmbedsDeferred);
+    </script>
+    <script is:inline>
+      // Keep CookieConsent trigger buttons working on swapped DOM
+      (function () {
+        if (window.__ccTriggerDelegationBound) return;
+        window.__ccTriggerDelegationBound = true;
+
+        document.addEventListener(
+          'click',
+          (event) => {
+            const target = event.target?.closest?.('[data-cc]');
+            if (!target) return;
+
+            const action = target.getAttribute('data-cc');
+            const cc = window.CookieConsent;
+            if (!cc) return;
+
+            if (action === 'show-preferencesModal') {
+              event.preventDefault();
+              cc.showPreferences();
+              return;
+            }
+
+            if (action === 'show-consentModal') {
+              event.preventDefault();
+              cc.show(true);
+            }
+          },
+          true,
+        );
+      })();
     </script>
     <script is:inline>
       // Keep muted autoplay videos playing when other videos start

@@ -10,10 +10,13 @@
     interface Window {
       CookieConsent: any;
       iframemanager: any;
+      __iframeManagerConfig?: any;
+      __cookieConsentConfig?: any;
+      __initConsentManagers?: () => void;
     }
   }
 
-  window.addEventListener('load', () => {
+  const initConsentManagers = () => {
     try {
       if (!(window as any).__ifmInit) {
         const im = window.iframemanager();
@@ -28,7 +31,14 @@
         (window as any).__ccInit = true;
       }
     } catch (e) {}
-  });
+  };
+
+  (window as any).__iframeManagerConfig = iframeManagerConfig;
+  (window as any).__cookieConsentConfig = cookieConsentConfig;
+  (window as any).__initConsentManagers = initConsentManagers;
+
+  window.addEventListener('load', initConsentManagers);
+  document.addEventListener('astro:page-load', initConsentManagers);
 </script>
 
 <!-- <button data-cc="show-preferencesModal" type="button">

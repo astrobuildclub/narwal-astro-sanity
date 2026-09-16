@@ -143,9 +143,9 @@ const foregroundSlides = processedSlides.map((slide: any) => {
       <!-- Slides -->
       <div role="list" class="swiper-wrapper">
         {backgroundSlides &&
-          backgroundSlides.map((slide: any, index: number) => (
+          backgroundSlides.map((slide:any)=>( // slide
             <div role="listitem" class="swiper-slide">
-              {slide.vidsrc && (
+              {slide.vidsrc && // video
                 <div class="video-wrapper">
                   <div class="video-overlay">
                     <video class="video" playsinline="" loop="" muted="" autoplay="">
@@ -155,19 +155,18 @@ const foregroundSlides = processedSlides.map((slide: any) => {
                     </video>
                   </div>
                 </div>
-              )}
-              {slide.imgsrc && (
-                <Image
+              }
+              {slide.imgsrc && // image 
+                <Image 
                   src={slide.imgsrc}
                   width={imageWidth}
                   height={imageHeight}
                   widths={[540, 960, 1440, 1920]}
                   sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
-                  format="avif"
-                  alt={slide.imgalt || ''}
-                  loading={index === 0 ? 'eager' : 'lazy'}
+                  format='avif'
+                  alt={slide.imgalt || ""}
                 />
-              )}
+              }
             </div>
           ))
         }    
@@ -182,11 +181,11 @@ const foregroundSlides = processedSlides.map((slide: any) => {
               {slide.link ?
                 <a class="slide-text" href={slide.link.url} target={slide.link.target} aria-label={`${slide.link.title || slide.title}`}>
                   <h3 class="opacity-80">{slide.subtitle}</h3>
-                  <h1 class="md:text-9xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
+                  <h1 class="md:text-6xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
                 </a>
               :
                 <h3 class="opacity-80">{slide.subtitle}</h3>
-                <h1 class="md:text-9xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
+                <h1 class="md:text-6xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
               }
             </div>
           ))
@@ -452,7 +451,7 @@ const foregroundSlides = processedSlides.map((slide: any) => {
   h1 {
     
     
-    font-size: var(--fs-8);
+    font-size: var(--fs-7);
     font-weight:500;
     letter-spacing: -0.035em;
     text-wrap: balance;
