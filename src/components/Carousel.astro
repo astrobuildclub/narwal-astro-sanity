@@ -143,9 +143,9 @@ const foregroundSlides = processedSlides.map((slide: any) => {
       <!-- Slides -->
       <div role="list" class="swiper-wrapper">
         {backgroundSlides &&
-          backgroundSlides.map((slide:any)=>( // slide
+          backgroundSlides.map((slide: any, index: number) => (
             <div role="listitem" class="swiper-slide">
-              {slide.vidsrc && // video
+              {slide.vidsrc && (
                 <div class="video-wrapper">
                   <div class="video-overlay">
                     <video class="video" playsinline="" loop="" muted="" autoplay="">
@@ -155,18 +155,19 @@ const foregroundSlides = processedSlides.map((slide: any) => {
                     </video>
                   </div>
                 </div>
-              }
-              {slide.imgsrc && // image 
-                <Image 
+              )}
+              {slide.imgsrc && (
+                <Image
                   src={slide.imgsrc}
                   width={imageWidth}
                   height={imageHeight}
                   widths={[540, 960, 1440, 1920]}
                   sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
-                  format='avif'
-                  alt={slide.imgalt || ""}
+                  format="avif"
+                  alt={slide.imgalt || ''}
+                  loading={index === 0 ? 'eager' : 'lazy'}
                 />
-              }
+              )}
             </div>
           ))
         }    
