@@ -65,14 +65,13 @@ if (image?.asset) {
   try {
     imageWidth = getWidthForSize(size);
     imageHeight = getHeightForWidth(imageWidth);
-    // Use quality 90 for project content images (higher quality, less compression)
-    const imageBuilder = urlForImage(image, 90);
+    const imageBuilder = urlForImage(image); // default quality 95
 
     if (size !== 'inherit') {
-      // Voeg width constraint toe voor alle sizes behalve inherit
-      finalSourceUrl = imageBuilder?.width(imageWidth).url() || '';
+      // Hoge-res bron (2560px) voor Astro Image srcset
+      const sourceWidth = size === 'full' ? 2560 : Math.max(imageWidth, 1920);
+      finalSourceUrl = imageBuilder?.width(sourceWidth).url() || '';
     } else {
-      // Voor inherit, gebruik alleen base optimalisaties
       finalSourceUrl = imageBuilder?.url() || '';
     }
 
@@ -92,6 +91,9 @@ if (image?.asset) {
         src={finalSourceUrl}
         width={imageWidth}
         height={imageHeight}
+        widths={[540, 800, 1200, 1920]}
+        sizes="(max-width: 640px) 540px, (max-width: 1024px) 800px, (max-width: 1400px) 1200px, 1920px"
+        format="avif"
         alt={finalAltText || ''}
         title={finalTitleText || undefined}
         loading={loading}

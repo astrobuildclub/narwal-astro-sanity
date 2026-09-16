@@ -182,11 +182,11 @@ const foregroundSlides = processedSlides.map((slide: any) => {
               {slide.link ?
                 <a class="slide-text" href={slide.link.url} target={slide.link.target} aria-label={`${slide.link.title || slide.title}`}>
                   <h3 class="opacity-80">{slide.subtitle}</h3>
-                  <h1 class="md:text-9xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
+                  <h1 class="md:text-6xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
                 </a>
               :
                 <h3 class="opacity-80">{slide.subtitle}</h3>
-                <h1 class="md:text-9xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
+                <h1 class="md:text-6xl text-balance md:pr-[15vw] max-w-[14ch] ">{slide.title}</h1>
               }
             </div>
           ))
@@ -452,7 +452,7 @@ const foregroundSlides = processedSlides.map((slide: any) => {
   h1 {
     
     
-    font-size: var(--fs-8);
+    font-size: var(--fs-7);
     font-weight:500;
     letter-spacing: -0.035em;
     text-wrap: balance;

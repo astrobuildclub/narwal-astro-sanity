@@ -25,20 +25,22 @@ const {
 } = Astro.props;
 const layout = cleanLayout(Astro.props.layout) || 'grid';
 
-// Calculate optimal image width based on columns
-// Page width is ~1400px, divide by columns and add some padding
+// Display dimensions for layout
 function getImageWidth(cols: number): number {
   const pageWidth = 1400;
   return Math.floor(pageWidth / cols);
 }
 
-// Calculate height based on width and standard aspect ratio (4:3 for gallery)
 function getHeightForWidth(width: number): number {
   return Math.round((width * 3) / 4);
 }
 
 const imageWidth = getImageWidth(columns);
 const imageHeight = getHeightForWidth(imageWidth);
+
+// Hoge-res bron (2560px) voor Astro Image srcset
+const sourceWidth = 2560;
+const sourceHeight = getHeightForWidth(sourceWidth);
 
 // Process gallery images
 const processedImages =
@@ -50,7 +52,7 @@ const processedImages =
 
       if (image?.asset) {
         try {
-          imageUrl = urlForImage(image)?.width(imageWidth).url() || '';
+          imageUrl = urlForImage(image)?.width(sourceWidth).height(sourceHeight).url() || '';
           imageAlt = image.alt || '';
           imageCaption = image.caption || '';
         } catch (error) {
@@ -111,6 +113,9 @@ const processedImages =
               src={img.url}
               width={imageWidth}
               height={imageHeight}
+              widths={[540, 960, 1440, 1920]}
+              sizes="(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px"
+              format="avif"
               alt={img.alt || ''}
               loading={index === 0 ? 'eager' : 'lazy'}
               class="galleryblock-image"

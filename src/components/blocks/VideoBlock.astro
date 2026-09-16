@@ -60,7 +60,8 @@ const embedParams = (currentVideoType === 'youtube' || currentVideoType === 'vim
 let thumbnailUrl = '';
 if (thumbnail?.asset) {
   try {
-    thumbnailUrl = urlForImage(thumbnail)?.width(1280).height(720).url() || '';
+    // Hoge-res bron voor scherpe weergave
+    thumbnailUrl = urlForImage(thumbnail)?.width(1920).height(1080).url() || '';
   } catch (error) {
     // Failed to generate thumbnail URL
   }

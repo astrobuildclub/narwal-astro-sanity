@@ -86,6 +86,8 @@ export default defineType({
           name: 'coverMedia',
           type: 'image',
           title: 'Cover Media',
+          description:
+            'Upload bij voorkeur in hoge resolutie (bijv. 1920px breed of groter). De site optimaliseert afbeeldingen automatisch.',
           options: { hotspot: true },
           fields: [
             defineField({
@@ -202,6 +204,8 @@ export default defineType({
           name: 'image',
           type: 'image',
           title: 'Thumbnail Image',
+          description:
+            'Upload bij voorkeur in hoge resolutie. De site optimaliseert afbeeldingen automatisch (responsive, AVIF).',
           options: { hotspot: true },
           fields: [
             defineField({

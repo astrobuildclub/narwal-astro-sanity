@@ -11,6 +11,8 @@ export default defineType({
       name: 'image',
       type: 'image',
       title: 'Image',
+      description:
+        'Upload bij voorkeur in hoge resolutie. De site optimaliseert afbeeldingen automatisch (responsive, AVIF).',
       options: { hotspot: true },
       fields: [
         {
