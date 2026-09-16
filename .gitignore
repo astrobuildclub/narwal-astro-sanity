@@ -32,9 +32,6 @@ yarn-error.log*
 .github
 .astro
 
-# package lock
-package-lock.json
-
 # project documentation (local guidelines)
 guidelines.md
 
