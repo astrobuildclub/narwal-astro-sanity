@@ -1,9 +1,7 @@
 ---
-// Import Components & Scripts
 import PersonCard from '../PersonCard.astro';
 import type { SanityImage } from '../../sanity/types';
 
-// Define Types
 interface role {
   name?: string;
   description?: string;
@@ -19,18 +17,12 @@ interface Props {
   members: member[];
 }
 
-// Define Vars
 const { title, members } = Astro.props;
 ---
 
-<!-- TeamBlock -->
-<div class:list={['teamblock', 'page']}>
-  <h2 class="teamblock-title">{title}</h2>
-  <div
-    class="grid gap-[var(--space-xs)] md:grid-cols-3"
-    data-stagger-on-view
-    style="--stagger-step: 90ms; --stagger-duration: 520ms;"
-  >
+<section class:list={['teamblock', 'page']} data-team-reveal>
+  {title && <h2 class="teamblock-title">{title}</h2>}
+  <div class="teamblock-grid grid gap-[var(--space-xs)] md:grid-cols-3">
     {
       members &&
         members.map((member: member) => (
@@ -42,7 +34,7 @@ const { title, members } = Astro.props;
         ))
     }
   </div>
-</div>
+</section>
 
 <style>
   .teamblock-title {
@@ -51,4 +43,133 @@ const { title, members } = Astro.props;
     margin-bottom: var(--space-xl);
     font-weight: 500;
   }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .teamblock[data-team-reveal]:not(.is-ready) :global(.person) {
+      opacity: 0;
+      animation: team-reveal-fallback 0s 1.5s forwards;
+    }
+
+    .teamblock[data-team-reveal]:not(.is-ready) :global(.person-photo-img) {
+      filter: blur(8px);
+      animation: team-blur-fallback 0s 1.5s forwards;
+    }
+
+    .teamblock[data-team-reveal].is-ready :global(.person),
+    .teamblock[data-team-reveal].is-ready :global(.person-photo-img) {
+      animation: none;
+    }
+  }
+
+  @keyframes team-reveal-fallback {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes team-blur-fallback {
+    to {
+      filter: none;
+    }
+  }
 </style>
+
+<script>
+  import gsap from 'gsap';
+  import {
+    createInViewController,
+    prefersReducedMotion,
+  } from '../../lib/gsap-inview';
+
+  let ctx: gsap.Context | undefined;
+  let initToken = 0;
+  const visibility = createInViewController();
+
+  function cleanup() {
+    visibility.cleanup();
+    ctx?.revert();
+    ctx = undefined;
+  }
+
+  function initTeamReveal() {
+    const token = ++initToken;
+    cleanup();
+
+    const blocks = document.querySelectorAll<HTMLElement>(
+      '.teamblock[data-team-reveal]',
+    );
+    if (!blocks.length) return;
+
+    if (prefersReducedMotion()) {
+      blocks.forEach((block) => block.classList.add('is-ready'));
+      return;
+    }
+
+    ctx = gsap.context(() => {
+      blocks.forEach((block) => {
+        if (!document.contains(block)) return;
+
+        const cards = block.querySelectorAll<HTMLElement>('.person');
+        const images = block.querySelectorAll<HTMLElement>('.person-photo-img');
+        if (!cards.length) {
+          block.classList.add('is-ready');
+          return;
+        }
+
+        const tl = gsap.timeline({ paused: true });
+
+        gsap.set(cards, { opacity: 0 });
+        if (images.length) {
+          gsap.set(images, { filter: 'blur(8px)' });
+        }
+
+        tl.to(
+          cards,
+          {
+            opacity: 1,
+            duration: 2,
+            ease: 'sine.out',
+            stagger: 0.1,
+          },
+          0,
+        );
+
+        if (images.length) {
+          tl.to(
+            images,
+            {
+              filter: 'blur(0px)',
+              duration: 0.4,
+              ease: 'power2.out',
+              stagger: 0.05,
+              clearProps: 'filter',
+            },
+            0,
+          );
+        }
+
+        const trigger =
+          block.querySelector('.teamblock-grid') ?? block;
+
+        block.classList.add('is-ready');
+
+        visibility.playWhenVisible(trigger, () => {
+          if (token !== initToken) return;
+          tl.play();
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTeamReveal);
+  } else {
+    initTeamReveal();
+  }
+
+  document.addEventListener('astro:page-load', initTeamReveal);
+  document.addEventListener('astro:before-swap', () => {
+    initToken += 1;
+    cleanup();
+  });
+</script>

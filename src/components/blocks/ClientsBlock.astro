@@ -87,81 +87,21 @@ const titleId = title
 <script>
   import gsap from 'gsap';
   import { SplitText } from 'gsap/SplitText';
+  import {
+    createInViewController,
+    prefersReducedMotion,
+  } from '../../lib/gsap-inview';
 
   gsap.registerPlugin(SplitText);
 
-  type DeferRevealWindow = Window & {
-    __deferReveal?: (fn: () => void) => void;
-  };
-
   let ctx: gsap.Context | undefined;
   let initToken = 0;
-  const observers: IntersectionObserver[] = [];
-
-  function prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-
-  function isInInitialView(el: Element) {
-    const rect = el.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    return rect.top < vh * 0.92 && rect.bottom > 0;
-  }
+  const visibility = createInViewController();
 
   function cleanup() {
-    observers.forEach((observer) => observer.disconnect());
-    observers.length = 0;
+    visibility.cleanup();
     ctx?.revert();
     ctx = undefined;
-  }
-
-  function whenPageReady(fn: () => void) {
-    const run = () => {
-      const defer = (window as DeferRevealWindow).__deferReveal;
-      if (typeof defer === 'function') {
-        defer(fn);
-        return;
-      }
-      fn();
-    };
-
-    if (document.documentElement.classList.contains('preloader-active')) {
-      const onComplete = () => {
-        document.removeEventListener('preloader:nav-complete', onComplete);
-        run();
-      };
-      document.addEventListener('preloader:nav-complete', onComplete);
-      return;
-    }
-
-    run();
-  }
-
-  function playWhenVisible(el: Element, play: () => void) {
-    const run = () => {
-      if (!document.contains(el)) return;
-      play();
-    };
-
-    if (!('IntersectionObserver' in window) || isInInitialView(el)) {
-      whenPageReady(run);
-      return;
-    }
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        io.disconnect();
-        run();
-      },
-      {
-        threshold: 0.12,
-        rootMargin: '0px 0px -8% 0px',
-      },
-    );
-
-    io.observe(el);
-    observers.push(io);
   }
 
   async function initClientsSplit() {
@@ -198,8 +138,12 @@ const titleId = title
           wordsClass: 'client-word',
         });
 
-        const tween = gsap.from(split.words, {
-          opacity: 0,
+        gsap.set(split.words, { opacity: 0 });
+        text.classList.add('is-ready');
+        gsap.set(text, { opacity: 1 });
+
+        const tween = gsap.to(split.words, {
+          opacity: 1,
           duration: 2,
           ease: 'sine.out',
           stagger: 0.1,
@@ -207,10 +151,7 @@ const titleId = title
           onComplete: () => split.revert(),
         });
 
-        text.classList.add('is-ready');
-        gsap.set(text, { opacity: 1 });
-
-        playWhenVisible(text, () => {
+        visibility.playWhenVisible(text, () => {
           if (token !== initToken) return;
           tween.play();
         });
