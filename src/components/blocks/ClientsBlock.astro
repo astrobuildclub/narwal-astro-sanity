@@ -1,13 +1,9 @@
 ---
-// Import Components & Scripts
-
-// Define Types
-interface Props{
+interface Props {
   title: string;
   clients: any;
 }
 
-// Define Vars
 const { title, clients } = Astro.props;
 
 const sortedClients = Array.isArray(clients)
@@ -19,45 +15,218 @@ const sortedClients = Array.isArray(clients)
         }),
       )
   : [];
+
+const clientNames = sortedClients.map((client: any) =>
+  String(client.title).trim(),
+);
+const clientList = clientNames.length ? `${clientNames.join(', ')}.` : '';
+const titleId = title
+  ? `clientsblock-title-${sortedClients
+      .map((client: any) => String(client._id || ''))
+      .join('')
+      .replace(/[^a-zA-Z0-9-]/g, '')
+      .slice(0, 24) || 'list'}`
+  : undefined;
 ---
 
-<!-- ClientsBlock -->
-<div class:list={['clientsblock', 'page']}>
-  {title && <h2 class="clientsblock-title">{title}</h2>}
+<section class:list={['clientsblock', 'page']} aria-labelledby={titleId}>
+  {
+    title && (
+      <h2 id={titleId} class="clientsblock-title">
+        {title}
+      </h2>
+    )
+  }
 
-  <div class="client-list">
-    {
-      sortedClients.map((client: any) => (
-        <h4 class="client">{client.title}</h4>
-      ))
-    }
-  </div>
-</div>
+  {
+    clientList && (
+      <p class="client-list" data-split-text>
+        {clientList}
+      </p>
+    )
+  }
+</section>
 
 <style>
-.clientsblock-title {
-  font-size: var(--fs-5);
-  line-height: 112.5%;
-  margin-bottom: var(--space-xl);
-  font-weight: 500;
-}
+  .clientsblock-title {
+    font-size: var(--fs-5);
+    line-height: 112.5%;
+    margin-bottom: var(--space-xl);
+    font-weight: 500;
+  }
 
-.client-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5lh 0;
-}
+  .client-list {
+    font-size: var(--fs-3);
+    line-height: 112.5%;
+    margin: 0;
+  }
 
-.client {
-  font-size: var(--fs-3);
-  white-space: nowrap;
-}
+  /* Hide until SplitText is ready, but restore if JS never runs. */
+  @media (prefers-reduced-motion: no-preference) {
+    .client-list[data-split-text]:not(.is-ready) {
+      opacity: 0;
+      animation: clients-split-fallback 0s 1.5s forwards;
+    }
 
-.client::after {
-  content: ", \00a0";
-}
+    .client-list[data-split-text].is-ready {
+      animation: none;
+    }
+  }
 
-.client:last-child::after {
-  content: ".";
-}
+  @keyframes clients-split-fallback {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .client-list :global(.client-word) {
+    display: inline-block;
+  }
 </style>
+
+<script>
+  import gsap from 'gsap';
+  import { SplitText } from 'gsap/SplitText';
+
+  gsap.registerPlugin(SplitText);
+
+  type DeferRevealWindow = Window & {
+    __deferReveal?: (fn: () => void) => void;
+  };
+
+  let ctx: gsap.Context | undefined;
+  let initToken = 0;
+  const observers: IntersectionObserver[] = [];
+
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function isInInitialView(el: Element) {
+    const rect = el.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    return rect.top < vh * 0.92 && rect.bottom > 0;
+  }
+
+  function cleanup() {
+    observers.forEach((observer) => observer.disconnect());
+    observers.length = 0;
+    ctx?.revert();
+    ctx = undefined;
+  }
+
+  function whenPageReady(fn: () => void) {
+    const run = () => {
+      const defer = (window as DeferRevealWindow).__deferReveal;
+      if (typeof defer === 'function') {
+        defer(fn);
+        return;
+      }
+      fn();
+    };
+
+    if (document.documentElement.classList.contains('preloader-active')) {
+      const onComplete = () => {
+        document.removeEventListener('preloader:nav-complete', onComplete);
+        run();
+      };
+      document.addEventListener('preloader:nav-complete', onComplete);
+      return;
+    }
+
+    run();
+  }
+
+  function playWhenVisible(el: Element, play: () => void) {
+    const run = () => {
+      if (!document.contains(el)) return;
+      play();
+    };
+
+    if (!('IntersectionObserver' in window) || isInInitialView(el)) {
+      whenPageReady(run);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        io.disconnect();
+        run();
+      },
+      {
+        threshold: 0.12,
+        rootMargin: '0px 0px -8% 0px',
+      },
+    );
+
+    io.observe(el);
+    observers.push(io);
+  }
+
+  async function initClientsSplit() {
+    const token = ++initToken;
+    cleanup();
+
+    const texts = document.querySelectorAll<HTMLElement>(
+      '.client-list[data-split-text]',
+    );
+
+    if (!texts.length) return;
+
+    if (prefersReducedMotion()) {
+      texts.forEach((text) => text.classList.add('is-ready'));
+      return;
+    }
+
+    await document.fonts.ready;
+    if (token !== initToken) return;
+
+    const readyTexts = document.querySelectorAll<HTMLElement>(
+      '.client-list[data-split-text]',
+    );
+    if (!readyTexts.length) return;
+
+    ctx = gsap.context(() => {
+      readyTexts.forEach((text) => {
+        if (!document.contains(text)) return;
+
+        const split = SplitText.create(text, {
+          type: 'words',
+          aria: 'auto',
+          tag: 'span',
+          wordsClass: 'client-word',
+        });
+
+        const tween = gsap.from(split.words, {
+          opacity: 0,
+          duration: 2,
+          ease: 'sine.out',
+          stagger: 0.1,
+          paused: true,
+          onComplete: () => split.revert(),
+        });
+
+        text.classList.add('is-ready');
+        gsap.set(text, { opacity: 1 });
+
+        playWhenVisible(text, () => {
+          if (token !== initToken) return;
+          tween.play();
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initClientsSplit);
+  } else {
+    initClientsSplit();
+  }
+
+  document.addEventListener('astro:page-load', initClientsSplit);
+  document.addEventListener('astro:before-swap', () => {
+    initToken += 1;
+    cleanup();
+  });
+</script>
