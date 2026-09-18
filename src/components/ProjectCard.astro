@@ -79,7 +79,7 @@ const tagItems = [
     ? [
         {
           title: projectIndustry.title,
-          variant: 'outline' as const,
+          variant: 'filled' as const,
           link: filterLink('industry', taxonomySlug(projectIndustry)),
         },
       ]
@@ -88,7 +88,7 @@ const tagItems = [
     .filter((service) => service?.title)
     .map((service) => ({
       title: service.title,
-      variant: 'filled' as const,
+      variant: 'outline' as const,
       link: filterLink('service', taxonomySlug(service)),
     })),
 ];
@@ -269,13 +269,6 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
   .project-card {
     position: relative;
     color: var(--font-color);
-    transition: opacity 0.4s var(--easing-easeInOutExpo);
-  }
-
-  @media (hover: hover) {
-    .project-card:hover {
-      opacity: 0.72;
-    }
   }
 
   /* Link styling */
@@ -306,15 +299,14 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.35rem;
+    gap: var(--space-3xs);
     padding-top: 1.5rem;
   }
 
   .project-client {
     font-size: var(--fs--1);
     font-weight: 500;
-    /* letter-spacing: -0.0125em; */
-    line-height: 112.5%;
+    line-height: 125%;
     margin: 0;
   }
 
@@ -360,7 +352,24 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
 
   /* Ensure media content fills the aspect ratio container */
   .project-media {
+    position: relative;
+    overflow: hidden;
     border-radius: var(--radius-md);
+  }
+
+  .project-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0);
+    pointer-events: none;
+    transition: background 0.4s var(--easing-easeInOutExpo);
+  }
+
+  @media (hover: hover) {
+    .project-card:hover .project-media::after {
+      background: rgb(0 0 0 / 0.28);
+    }
   }
   .project-media img,
   .project-media video {
