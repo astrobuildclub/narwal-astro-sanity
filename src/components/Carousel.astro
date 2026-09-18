@@ -139,48 +139,6 @@ const foregroundSlides = processedSlides.map((slide: any) => {
 
 <section class="carousel-gallery full">
   <div class="carousels">
-    <!-- Background Carousel -->
-    <div class="carousel carousel-background swiper">
-      <!-- Slides -->
-      <div role="list" class="swiper-wrapper">
-        {
-          backgroundSlides &&
-            backgroundSlides.map((slide: any, index: number) => (
-              <div role="listitem" class="swiper-slide">
-                {slide.vidsrc && (
-                  <div class="video-wrapper">
-                    <div class="video-overlay">
-                      <video
-                        class="video"
-                        playsinline=""
-                        loop=""
-                        muted=""
-                        autoplay=""
-                      >
-                        <source src={slide.vidsrc} />
-                      </video>
-                    </div>
-                  </div>
-                )}
-                {slide.imgsrc && (
-                  <Image
-                    src={slide.imgsrc}
-                    width={imageWidth}
-                    height={imageHeight}
-                    widths={[540, 960, 1440, 1920]}
-                    sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
-                    format="avif"
-                    alt={slide.imgalt || ''}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                  />
-                )}
-              </div>
-            ))
-        }
-      </div>
-    </div>
-    <!-- Gradient over background, onder de tekst -->
-    <div class="carousel-scrim" aria-hidden="true"></div>
     <!-- Foreground Carousel -->
     <div class="carousel carousel-foreground swiper">
       <div role="list" class="swiper-wrapper">
@@ -191,28 +149,32 @@ const foregroundSlides = processedSlides.map((slide: any) => {
                 slide: any, // slide
               ) => (
                 <div role="listitem" class="swiper-slide">
-                  {slide.link ? (
-                    <a
-                      class="slide-text"
-                      href={slide.link.url}
-                      target={slide.link.target}
-                      aria-label={`${slide.link.title || slide.title}`}
-                    >
-                      <h3 class="opacity-80">{slide.subtitle}</h3>
-                      <h1 class="md:pr-[15vw] md:text-6xl">{slide.title}</h1>
-                    </a>
-                  ) : (
-                    <div class="slide-text">
-                      <h3 class="opacity-80">{slide.subtitle}</h3>
-                      <h1 class="md:pr-[15vw] md:text-6xl">{slide.title}</h1>
-                    </div>
-                  )}
+                  <div class="slide-layout">
+                    {slide.link ? (
+                      <a
+                        class="slide-text"
+                        href={slide.link.url}
+                        target={slide.link.target}
+                        aria-label={`${slide.link.title || slide.title}`}
+                      >
+                        <h3 class="opacity-80">{slide.subtitle}</h3>
+                        <h1>{slide.title}</h1>
+                      </a>
+                    ) : (
+                      <div class="slide-text">
+                        <h3 class="opacity-80">{slide.subtitle}</h3>
+                        <h1>{slide.title}</h1>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ),
             )
         }
       </div>
     </div>
+    <!-- Gradient over background, onder de tekst -->
+    <div class="carousel-scrim" aria-hidden="true"></div>
     <!-- Carousel Controls -->
     <div class="controls swiper-controls align-middle">
       <div class="controls-wrapper align-middle">
@@ -262,6 +224,46 @@ const foregroundSlides = processedSlides.map((slide: any) => {
             >
           </div>
         </a>
+      </div>
+    </div>
+    <!-- Background Carousel -->
+    <div class="carousel carousel-background swiper">
+      <!-- Slides -->
+      <div role="list" class="swiper-wrapper">
+        {
+          backgroundSlides &&
+            backgroundSlides.map((slide: any, index: number) => (
+              <div role="listitem" class="swiper-slide">
+                {slide.vidsrc && (
+                  <div class="video-wrapper">
+                    <div class="video-overlay">
+                      <video
+                        class="video"
+                        playsinline=""
+                        loop=""
+                        muted=""
+                        autoplay=""
+                      >
+                        <source src={slide.vidsrc} />
+                      </video>
+                    </div>
+                  </div>
+                )}
+                {slide.imgsrc && (
+                  <Image
+                    src={slide.imgsrc}
+                    width={imageWidth}
+                    height={imageHeight}
+                    widths={[540, 960, 1440, 1920]}
+                    sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
+                    format="avif"
+                    alt={slide.imgalt || ''}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                )}
+              </div>
+            ))
+        }
       </div>
     </div>
   </div>
@@ -361,7 +363,6 @@ const foregroundSlides = processedSlides.map((slide: any) => {
   .carousel-foreground .swiper-wrapper {
     width: 100%;
     height: 100%;
-    padding: var(--site-padding);
   }
   .carousel-foreground .swiper-slide {
     display: flex;
@@ -376,6 +377,22 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     margin: 0;
   }
 
+  /* Nested breakout-grid: hergebruikt --full/--page/… van .page-layout */
+  .slide-layout {
+    display: grid;
+    grid-template-columns:
+      [full-start] var(--full) [page-start] var(--page)
+      [feature-start] var(--feature) [popout-start] var(--popout)
+      [content-start] var(--content) [inset-content-start] var(--inset-content)
+      [inset-content-end] var(--content) [content-end] var(--popout)
+      [popout-end] var(--feature) [feature-end] var(--page) [page-end]
+      var(--full) [full-end];
+    width: 100%;
+    height: 100%;
+    align-content: end;
+    padding-block: var(--space-s-xl);
+  }
+
   .carousel-foreground .swiper-slide a {
     pointer-events: auto;
   }
@@ -388,16 +405,22 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     left: 0;
     right: 0;
     z-index: 4;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    align-items: center;
-    padding: var(--site-padding);
+    display: grid;
+    grid-template-columns:
+      [full-start] var(--full) [page-start] var(--page)
+      [feature-start] var(--feature) [popout-start] var(--popout)
+      [content-start] var(--content) [inset-content-start] var(--inset-content)
+      [inset-content-end] var(--content) [content-end] var(--popout)
+      [popout-end] var(--feature) [feature-end] var(--page) [page-end]
+      var(--full) [full-end];
+    align-items: end;
+    padding-block: var(--space-s-xl);
     pointer-events: none;
     background: none;
   }
 
   .controls-wrapper {
+    grid-column: page;
     display: flex;
     flex-wrap: wrap;
     flex: 0 auto;
@@ -468,6 +491,7 @@ const foregroundSlides = processedSlides.map((slide: any) => {
   }
 
   .slide-text {
+    grid-column: page;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -488,7 +512,7 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     font-size: var(--fs--1);
 
     font-weight: 500;
-    line-height: 150%;
+    line-height: 125%;
   }
   a {
     text-decoration: none !important;
