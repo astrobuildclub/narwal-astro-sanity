@@ -8,11 +8,19 @@ interface Props {
     title: string;
     content?: any[];
   }>;
-  layout?: 'list' | 'grid' | 'cards';
+  layout?: 'list' | 'grid' | 'cards' | 'masonry';
+  columns?: number;
   showDescriptions?: boolean;
 }
 
 const { title, services, showDescriptions = true } = Astro.props;
+const layout =
+  Astro.props.layout === 'grid' || Astro.props.layout === 'cards'
+    ? Astro.props.layout
+    : 'list';
+const columns = [2, 3, 4].includes(Number(Astro.props.columns))
+  ? Number(Astro.props.columns)
+  : 2;
 
 const components = {
   types: {},
@@ -23,10 +31,13 @@ const components = {
 };
 ---
 
-<div class:list={['servicesblock', 'page']}>
+<div
+  class:list={['servicesblock', 'page', `layout-${layout}`]}
+  style={`--service-cols: ${columns};`}
+>
   {title && <h2 class="servicesblock-title">{title}</h2>}
 
-  <div class="servicesblock-grid">
+  <div class="servicesblock-items">
     {
       services &&
         services.map((service) => (
@@ -51,24 +62,6 @@ const components = {
     font-weight: 500;
   }
 
-  .servicesblock-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--gap-default);
-  }
-
-  @media (min-width: 768px) {
-    .servicesblock-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .service-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
-
   .service-name {
     font-size: var(--fs-0);
     font-weight: 500;
@@ -90,5 +83,70 @@ const components = {
 
   :global(.service-desc p + p) {
     margin-top: var(--space-s);
+  }
+
+  /* List: title left, text right, subtle top rule */
+  .layout-list .servicesblock-items {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .layout-list .service-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+    padding-block: var(--space-m);
+    border-top: 1px solid rgb(from var(--black) r g b / 0.1);
+  }
+
+  @media (min-width: 768px) {
+    .layout-list .service-item {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap-default);
+      align-items: start;
+    }
+  }
+
+  /* Grid: stacked title + text in columns */
+  .layout-grid .servicesblock-items {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-default);
+  }
+
+  .layout-grid .service-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  @media (min-width: 768px) {
+    .layout-grid .servicesblock-items {
+      grid-template-columns: repeat(var(--service-cols, 2), minmax(0, 1fr));
+    }
+  }
+
+  /* Cards: no gutter, shared gridlines */
+  .layout-cards .servicesblock-items {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-block-start: 1px solid rgb(from var(--black) r g b / 0.12);
+    border-inline-start: 1px solid rgb(from var(--black) r g b / 0.12);
+  }
+
+  .layout-cards .service-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-m);
+    border-block-end: 1px solid rgb(from var(--black) r g b / 0.12);
+    border-inline-end: 1px solid rgb(from var(--black) r g b / 0.12);
+  }
+
+  @media (min-width: 768px) {
+    .layout-cards .servicesblock-items {
+      grid-template-columns: repeat(var(--service-cols, 2), minmax(0, 1fr));
+    }
   }
 </style>
