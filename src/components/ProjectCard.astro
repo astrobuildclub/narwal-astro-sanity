@@ -79,7 +79,7 @@ const tagItems = [
     ? [
         {
           title: projectIndustry.title,
-          variant: 'filled' as const,
+          variant: 'outline' as const,
           link: filterLink('industry', taxonomySlug(projectIndustry)),
         },
       ]
@@ -88,7 +88,7 @@ const tagItems = [
     .filter((service) => service?.title)
     .map((service) => ({
       title: service.title,
-      variant: 'outline' as const,
+      variant: 'filled' as const,
       link: filterLink('service', taxonomySlug(service)),
     })),
 ];

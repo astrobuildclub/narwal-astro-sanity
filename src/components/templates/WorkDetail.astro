@@ -51,6 +51,11 @@ const nextProjectTags = nextProject
 const nextProjectImage = nextProject?.thumbnail?.image?.asset
   ? urlForImage(nextProject.thumbnail.image)?.width(2400).url() || ''
   : '';
+const nextProjectVideo =
+  nextProject?.thumbnail?.useVideo === true && nextProject?.thumbnail?.video
+    ? nextProject.thumbnail.video
+    : null;
+const nextProjectMedia = nextProjectVideo || nextProjectImage;
 
 const heroData = {
   title: hero?.title || data.title,
@@ -100,18 +105,34 @@ const heroData = {
         )}
         {nextProjectTags.length > 0 && <TagGroup tags={nextProjectTags} />}
       </div>
-      {nextProjectImage && (
+      {nextProjectMedia && (
         <div class="next-project-media">
-          <Image
-            src={nextProjectImage}
-            alt={nextProject.title || ''}
-            width={2400}
-            height={1350}
-            widths={[800, 1200, 1800, 2400]}
-            sizes="100vw"
-            format="avif"
-            class="next-project-img"
-          />
+          {nextProjectVideo ? (
+            <video
+              class="next-project-img"
+              src={nextProjectVideo}
+              poster={nextProjectImage || undefined}
+              title={nextProject.title || ''}
+              preload="metadata"
+              tabindex="-1"
+              disablepictureinpicture
+              playsinline
+              loop
+              autoplay
+              muted
+            />
+          ) : (
+            <Image
+              src={nextProjectImage}
+              alt={nextProject.title || ''}
+              width={2400}
+              height={1350}
+              widths={[800, 1200, 1800, 2400]}
+              sizes="100vw"
+              format="avif"
+              class="next-project-img"
+            />
+          )}
         </div>
       )}
     </a>
@@ -119,6 +140,10 @@ const heroData = {
 }
 
 <style>
+  :global(main.page-layout:has(.next-project)) {
+    padding-bottom: 0;
+  }
+
   .project {
     /* Padding now handled by page-layout grid via --site-padding */
   }
@@ -129,6 +154,7 @@ const heroData = {
     text-decoration: none;
     color: inherit;
     padding-top: var(--space-3xl);
+    margin-block-end: 0;
   }
 
   .next-project-copy {
@@ -173,5 +199,9 @@ const heroData = {
     object-fit: cover;
     object-position: center top;
     display: block;
+  }
+
+  .next-project-media video {
+    pointer-events: none;
   }
 </style>

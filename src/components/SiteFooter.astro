@@ -10,7 +10,7 @@ const termsAndConditionsUrl =
   siteSettings?.footer?.termsAndConditions?.asset?.url;
 ---
 
-<footer class="footer--reveal page-layout relative flex flex-col">
+<footer class="page-layout flex flex-col">
   <div
     class="footer__top page flex flex-col justify-center gap-[var(--space-xl)]"
   >
@@ -32,11 +32,9 @@ const termsAndConditionsUrl =
     </a>
   </div> -->
     <p
-      class="max-w-[20ch] text-balance py-[var(--space-xl)] text-8xl tracking-tight"
+      class="max-w-[20ch] text-balance py-[var(--space-xl)] pt-[var(--space-4xl)] text-8xl font-normal tracking-normal"
     >
-      We're always up for conversation
-      <br />
-      <span class="">Let's connect</span>
+      We're always up for conversation<br /><span class="">Let's connect</span>
     </p>
   </div>
   <div
@@ -184,24 +182,16 @@ const termsAndConditionsUrl =
 
   footer {
     width: 100%;
-    min-height: 100dvh;
     background: var(--footer-bg);
     color: var(--footer-text);
   }
 
-  /* Footer wordt pas later zichtbaar (fade-in na korte delay) */
-  .footer--reveal {
-    opacity: 0;
-    animation: footerReveal 0.6s var(--easing-easeOutExpo, ease-out) 0.5s
-      forwards;
-  }
-
-  @keyframes footerReveal {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
+  @media (min-width: 1024px) {
+    footer {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      z-index: 0;
     }
   }
 

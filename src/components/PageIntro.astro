@@ -76,6 +76,10 @@ const { class: customClass } = Astro.props;
     line-height: 112.5%;
   }
 
+  :global(.page-intro p:not(:last-child)) {
+    margin-bottom: var(--space-xs-s);
+  }
+
   /* Link styling in PageIntro */
   :global(.page-intro a) {
     text-decoration: underline;

@@ -364,7 +364,11 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
         crop,
         hotspot
       },
-      size
+      size,
+      alt,
+      useVideo,
+      video,
+      aspectRatio
     },
     "client": client-> {
       _id,

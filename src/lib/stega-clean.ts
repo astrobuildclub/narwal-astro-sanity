@@ -15,50 +15,68 @@ export function cleanString(str: unknown): string | undefined {
   return stegaClean(str);
 }
 
+const SIZE_TOKENS = [
+  'content',
+  'popout',
+  'feature',
+  'page',
+  'full',
+  'inherit',
+  'inline',
+] as const;
+
+export type SizeToken = (typeof SIZE_TOKENS)[number];
+
 /**
  * Clean een size enum waarde (gebruikt voor grid positioning)
  * @param size - De size waarde om te cleanen
- * @returns De schone size waarde, of undefined als het geen string is
+ * @param allowed - Optionele subset die dit blok accepteert
  */
-export function cleanSize(
+export function cleanSize(size?: string | null): SizeToken | undefined;
+export function cleanSize<T extends SizeToken>(
+  size: string | null | undefined,
+  allowed: readonly T[],
+): T | undefined;
+export function cleanSize<T extends SizeToken>(
   size?: string | null,
-): 'content' | 'popout' | 'feature' | 'page' | 'full' | 'inherit' | 'inline' | undefined {
+  allowed?: readonly T[],
+): T | undefined {
   if (!size || typeof size !== 'string') {
     return undefined;
   }
   const cleaned = stegaClean(size);
-  // Type guard voor geldige size waarden
-  const validSizes = [
-    'content',
-    'popout',
-    'feature',
-    'page',
-    'full',
-    'inherit',
-    'inline',
-  ] as const;
-  if (validSizes.includes(cleaned as any)) {
-    return cleaned as typeof validSizes[number];
+  const valid = allowed ?? (SIZE_TOKENS as unknown as readonly T[]);
+  if (valid.includes(cleaned as T)) {
+    return cleaned as T;
   }
   return undefined;
 }
 
+const LAYOUT_TOKENS = ['grid', 'masonry', 'list', 'cards'] as const;
+
+export type LayoutToken = (typeof LAYOUT_TOKENS)[number];
+
 /**
  * Clean een layout enum waarde (gebruikt voor conditionele rendering)
  * @param layout - De layout waarde om te cleanen
- * @returns De schone layout waarde, of undefined als het geen string is
+ * @param allowed - Optionele subset die dit blok accepteert
  */
-export function cleanLayout(
+export function cleanLayout(layout?: string | null): LayoutToken | undefined;
+export function cleanLayout<T extends LayoutToken>(
+  layout: string | null | undefined,
+  allowed: readonly T[],
+): T | undefined;
+export function cleanLayout<T extends LayoutToken>(
   layout?: string | null,
-): 'grid' | 'masonry' | 'list' | 'cards' | undefined {
+  allowed?: readonly T[],
+): T | undefined {
   if (!layout || typeof layout !== 'string') {
     return undefined;
   }
   const cleaned = stegaClean(layout);
-  // Type guard voor geldige layout waarden
-  const validLayouts = ['grid', 'masonry', 'list', 'cards'] as const;
-  if (validLayouts.includes(cleaned as any)) {
-    return cleaned as typeof validLayouts[number];
+  const valid = allowed ?? (LAYOUT_TOKENS as unknown as readonly T[]);
+  if (valid.includes(cleaned as T)) {
+    return cleaned as T;
   }
   return undefined;
 }
