@@ -138,6 +138,10 @@ body {
   margin-block: 0;
 }
 
+.project .textblock {
+  padding-block: var(--space-xl);
+}
+
 article img,
 article video {
   border-radius: var(--radius-md);

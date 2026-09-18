@@ -1,5 +1,6 @@
 ---
 import { PortableText } from 'astro-portabletext';
+import TagGroup from './TagGroup.astro';
 
 interface Props {
   info?: any[];
@@ -26,12 +27,20 @@ const components = {
   listItem: {},
 };
 
+const hasCredits = Boolean(credits && credits.length > 0);
 const hasMiddleColumn =
   Boolean(industry?.title) || Boolean(services && services.length > 0);
+
+const serviceTags = (services || [])
+  .filter((service) => service?.title)
+  .map((service) => ({
+    title: service.title,
+    variant: 'outline' as const,
+  }));
 ---
 
 <section class="project-footer page">
-  <div class="project-footer-content">
+  <div class:list={['project-footer-content', { 'has-credits': hasCredits }]}>
     <div class="project-footer-column project-footer-info">
       <h4 class="title">Info</h4>
       {
@@ -56,14 +65,10 @@ const hasMiddleColumn =
       }
 
       {
-        services && services.length > 0 && (
+        serviceTags.length > 0 && (
           <div class="project-footer-taxonomy">
             <h4 class="title">Services</h4>
-            <ul class="project-footer-services-list">
-              {services.map((service) => (
-                <li>{service.title}</li>
-              ))}
-            </ul>
+            <TagGroup tags={serviceTags} />
           </div>
         )
       }
@@ -71,18 +76,16 @@ const hasMiddleColumn =
       {!hasMiddleColumn && <div class="project-footer-taxonomy" />}
     </div>
 
-    <div class="project-footer-column project-footer-credits">
-      <h4 class="title">Credits</h4>
-      {
-        credits && credits.length > 0 ? (
+    {
+      hasCredits && (
+        <div class="project-footer-column project-footer-credits">
+          <h4 class="title">Credits</h4>
           <div class="project-footer-text">
             <PortableText value={credits} components={components} />
           </div>
-        ) : (
-          <div class="project-footer-text" />
-        )
-      }
-    </div>
+        </div>
+      )
+    }
   </div>
 </section>
 
@@ -112,6 +115,10 @@ const hasMiddleColumn =
     grid-column: 13 / 17;
   }
 
+  .project-footer-content:not(.has-credits) .project-footer-taxonomies {
+    grid-column: 10 / 17;
+  }
+
   @media (min-width: 768px) and (max-width: 1023px) {
     .project-footer-info {
       grid-column: 1 / 9;
@@ -123,6 +130,10 @@ const hasMiddleColumn =
 
     .project-footer-credits {
       grid-column: 13 / 17;
+    }
+
+    .project-footer-content:not(.has-credits) .project-footer-taxonomies {
+      grid-column: 9 / 17;
     }
   }
 
@@ -158,9 +169,9 @@ const hasMiddleColumn =
 
   .project-footer-text {
     font-size: var(--fs--1);
-    line-height: 133%;
+    line-height: 160%;
     letter-spacing: -0.0125rem;
-    text-wrap: balance;
+    text-wrap: pretty;
   }
 
   :global(.project-footer-text p:first-child) {
@@ -170,18 +181,6 @@ const hasMiddleColumn =
 
   :global(.project-footer-text p) {
     margin-bottom: 1em;
-  }
-
-  .project-footer-services-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: var(--fs--2);
-    line-height: 133%;
-  }
-
-  .project-footer-services-list li {
-    margin-bottom: 0.5em;
   }
 
   .project-footer-credits :global(.project-footer-text ul),

@@ -354,6 +354,9 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     _type,
     title,
     "slug": slug.current,
+    hero {
+      intro
+    },
     thumbnail {
       image {
         ...,

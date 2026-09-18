@@ -8,32 +8,38 @@ interface Props{
 }
 
 // Define Vars
-const {title, clients} = Astro.props;
+const { title, clients } = Astro.props;
+
+const sortedClients = Array.isArray(clients)
+  ? [...clients]
+      .filter((client: any) => client?.title)
+      .sort((a: any, b: any) =>
+        String(a.title).localeCompare(String(b.title), undefined, {
+          sensitivity: 'base',
+        }),
+      )
+  : [];
 ---
 
 <!-- ClientsBlock -->
-<div class:list={['clientsblock','page']}>
-  <h2 class="clientsblock-title">{title}</h2>
+<div class:list={['clientsblock', 'page']}>
+  {title && <h2 class="clientsblock-title">{title}</h2>}
 
   <div class="client-list">
-    {clients &&
-      clients.map((client:any)=>( // service
-
-        <!-- Client -->
-        
-          <h4 class="client">{client.title}</h4>
-        
+    {
+      sortedClients.map((client: any) => (
+        <h4 class="client">{client.title}</h4>
       ))
-    } 
-  </div> 
+    }
+  </div>
 </div>
 
 <style>
 .clientsblock-title {
-  font-size: var(--fs-6);
-    line-height: 112.5%;
-    margin-bottom: var(--space-xl);
-    font-weight: 500;
+  font-size: var(--fs-5);
+  line-height: 112.5%;
+  margin-bottom: var(--space-xl);
+  font-weight: 500;
 }
 
 .client-list {
@@ -52,6 +58,6 @@ const {title, clients} = Astro.props;
 }
 
 .client:last-child::after {
-  content: "";
+  content: ".";
 }
 </style>

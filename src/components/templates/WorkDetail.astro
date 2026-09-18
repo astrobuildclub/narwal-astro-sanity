@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import Hero from '../Hero.astro';
 import BlockRenderer from '../BlockRenderer.astro';
 import ProjectFooter from '../ProjectFooter.astro';
+import TagGroup from '../TagGroup.astro';
 import { urlForImage } from '../../../sanity/lib/image';
 
 type Props = {
@@ -11,31 +12,45 @@ type Props = {
 
 const { data } = Astro.props;
 
-// DEBUG: Log project detail data
-// if (import.meta.env.DEV) {
-//   console.log('🎨 WorkDetail received data:', {
-//     _type: data._type,
-//     title: data.title,
-//     hasHero: !!data.hero,
-//     contentBlocks: data.content?.length || 0,
-//     hasInfo: !!data.info,
-//     infoLength: data.info?.length || 0,
-//     hasServices: !!data.services,
-//     servicesLength: data.services?.length || 0,
-//     hasCredits: !!data.credits,
-//     creditsLength: data.credits?.length || 0,
-//     relatedProjects: data.relatedProjects?.length || 0,
-//   });
-// }
-
-// Sanity data structuur
 const hero = data.hero;
 const content = data.content;
 const info = data.info;
 const credits = data.credits;
 const services = data.services;
 const industry = data.industry;
-const relatedProjects = data.relatedProjects;
+const relatedProjects = Array.isArray(data.relatedProjects)
+  ? data.relatedProjects.filter(Boolean)
+  : [];
+
+const nextProject =
+  relatedProjects.length > 0
+    ? relatedProjects[Math.floor(Math.random() * relatedProjects.length)]
+    : null;
+
+const nextProjectTags = nextProject
+  ? [
+      ...(nextProject.industry?.title
+        ? [
+            {
+              title: nextProject.industry.title,
+              variant: 'filled' as const,
+            },
+          ]
+        : []),
+      ...(Array.isArray(nextProject.services)
+        ? nextProject.services
+            .filter((service: any) => service?.title)
+            .map((service: any) => ({
+              title: service.title,
+              variant: 'outline' as const,
+            }))
+        : []),
+    ]
+  : [];
+
+const nextProjectImage = nextProject?.thumbnail?.image?.asset
+  ? urlForImage(nextProject.thumbnail.image)?.width(2400).url() || ''
+  : '';
 
 const heroData = {
   title: hero?.title || data.title,
@@ -44,12 +59,6 @@ const heroData = {
   coverMedia: hero?.coverMedia,
   clients: data.client ? [data.client] : [],
 };
-
-// if (import.meta.env.DEV) {
-//   console.log('🎨 Processed hero data:', heroData);
-//   console.log('🎨 Content blocks count:', content?.length || 0);
-//   console.log('🎨 Related projects count:', relatedProjects?.length || 0);
-// }
 ---
 
 <Hero data={heroData} />
@@ -79,47 +88,33 @@ const heroData = {
 }
 
 {
-  relatedProjects && relatedProjects.length > 0 && (
-    <section class="related-projects">
-      <div class="related-projects-content">
-        <h2>Related Projects</h2>
-        <div class="related-projects-grid">
-          {relatedProjects.map((project: any) => {
-            const thumbnailWidth = 400;
-            const thumbnailHeight = 300;
-            // Hoge-res bron (1200px) voor Astro Image srcset
-            const thumbnailUrl = project.thumbnail?.image?.asset
-              ? urlForImage(project.thumbnail.image)
-                  ?.width(1200)
-                  .height(900)
-                  .url() || ''
-              : '';
-
-            return (
-              <a
-                href={`/project/${project.slug}`}
-                class="related-project-card"
-              >
-                {thumbnailUrl && (
-                  <Image
-                    src={thumbnailUrl}
-                    alt={project.title || ''}
-                    width={thumbnailWidth}
-                    height={thumbnailHeight}
-                    widths={[400, 800, 1200]}
-                    sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
-                    format="avif"
-                    class="related-project-img"
-                  />
-                )}
-                <h3>{project.title}</h3>
-                {project.client && <p>{project.client.title}</p>}
-              </a>
-            );
-          })}
-        </div>
+  nextProject && (
+    <a href={`/project/${nextProject.slug}/`} class="next-project full">
+      <div class="next-project-copy">
+        <p class="next-project-label">Next Project</p>
+        <h2 class="next-project-title">
+          {nextProject.title}
+        </h2>
+        {nextProject.hero?.intro && (
+          <p class="next-project-intro">{nextProject.hero.intro}</p>
+        )}
+        {nextProjectTags.length > 0 && <TagGroup tags={nextProjectTags} />}
       </div>
-    </section>
+      {nextProjectImage && (
+        <div class="next-project-media">
+          <Image
+            src={nextProjectImage}
+            alt={nextProject.title || ''}
+            width={2400}
+            height={1350}
+            widths={[800, 1200, 1800, 2400]}
+            sizes="100vw"
+            format="avif"
+            class="next-project-img"
+          />
+        </div>
+      )}
+    </a>
   )
 }
 
@@ -128,44 +123,55 @@ const heroData = {
     /* Padding now handled by page-layout grid via --site-padding */
   }
 
-  .related-projects {
-    padding: var(--site-padding);
-  }
-
-  .related-projects-content h2 {
-    margin-bottom: var(--space-l);
-  }
-
-  .related-projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--space-l);
-  }
-
-  .related-project-card {
+  .next-project {
+    display: flex;
+    flex-direction: column;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.3s ease;
+    padding-top: var(--space-3xl);
   }
 
-  .related-project-card:hover {
-    transform: translateY(-4px);
+  .next-project-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-s);
+    padding-inline: var(--site-padding);
+    padding-bottom: var(--space-xl);
   }
 
-  .related-project-img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-s);
-  }
-
-  .related-project-card h3 {
-    margin-bottom: var(--space-xs);
-  }
-
-  .related-project-card p {
-    color: var(--clr-muted);
+  .next-project-label {
+    margin: 0;
     font-size: var(--fs--1);
+    font-weight: 500;
+    opacity: 0.5;
+  }
+
+  .next-project-title {
+    margin: 0;
+    font-size: var(--fs-6);
+    font-weight: 500;
+    line-height: 100%;
+    letter-spacing: -0.03em;
+  }
+
+  .next-project-intro {
+    margin: 0;
+    max-width: 52ch;
+    font-size: var(--fs--1);
+    line-height: 140%;
+  }
+
+  .next-project-media {
+    overflow: hidden;
+    height: min(42vh, 22rem);
+  }
+
+  .next-project-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
   }
 </style>
