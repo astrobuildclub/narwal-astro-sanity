@@ -32,9 +32,10 @@ const termsAndConditionsUrl =
     </a>
   </div> -->
     <p
-      class="max-w-[20ch] text-balance py-[var(--space-xl)] pt-[var(--space-4xl)] text-8xl font-normal tracking-normal"
+      class="footer-headline max-w-[20ch] py-[var(--space-2xl)] pt-[var(--space-4xl)] text-8xl font-normal tracking-normal"
+      data-split-text
     >
-      We're always up for conversation<br /><span class="">Let's connect</span>
+      We're always up for conversation<br />Let's connect
     </p>
   </div>
   <div
@@ -228,4 +229,159 @@ const termsAndConditionsUrl =
   footer .legal a {
     color: var(--footer-link);
   }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .footer-headline[data-split-text]:not(.is-ready) {
+      opacity: 0;
+      animation: footer-split-fallback 0s 1.5s forwards;
+    }
+
+    .footer-headline[data-split-text].is-ready {
+      animation: none;
+    }
+  }
+
+  @keyframes footer-split-fallback {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .footer-headline :global(.footer-word),
+  .footer-headline :global(.footer-word-mask) {
+    display: inline-block;
+    vertical-align: top;
+  }
 </style>
+
+<script>
+  import gsap from 'gsap';
+  import { SplitText } from 'gsap/SplitText';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { prefersReducedMotion, whenPageReady } from '../lib/gsap-inview';
+  import { getLenis } from '../lib/lenis';
+
+  gsap.registerPlugin(SplitText, ScrollTrigger);
+
+  let ctx: gsap.Context | undefined;
+  let initToken = 0;
+  const scrollListeners: Array<() => void> = [];
+
+  function cleanup() {
+    scrollListeners.splice(0).forEach((off) => off());
+    ctx?.revert();
+    ctx = undefined;
+  }
+
+  async function initFooterSplit() {
+    const token = ++initToken;
+    cleanup();
+
+    const headlines = document.querySelectorAll<HTMLElement>(
+      '.footer-headline[data-split-text]',
+    );
+    if (!headlines.length) return;
+
+    if (prefersReducedMotion()) {
+      headlines.forEach((headline) => headline.classList.add('is-ready'));
+      return;
+    }
+
+    await document.fonts.ready;
+    if (token !== initToken) return;
+
+    const readyHeadlines = document.querySelectorAll<HTMLElement>(
+      '.footer-headline[data-split-text]',
+    );
+    if (!readyHeadlines.length) return;
+
+    ctx = gsap.context(() => {
+      readyHeadlines.forEach((headline) => {
+        if (!document.contains(headline)) return;
+
+        const split = SplitText.create(headline, {
+          type: 'words',
+          mask: 'words',
+          aria: 'auto',
+          tag: 'span',
+          wordsClass: 'footer-word',
+        });
+
+        const tween = gsap.from(split.words, {
+          yPercent: 150,
+          duration: 0.8,
+          ease: 'expo.out',
+          stagger: 0.08,
+          paused: true,
+          onComplete: () => split.revert(),
+        });
+
+        headline.classList.add('is-ready');
+
+        let played = false;
+
+        const getStartAt = () => {
+          const max = ScrollTrigger.maxScroll(window);
+          if (max <= 0) return 0;
+          const viewportHeight =
+            window.innerHeight || document.documentElement.clientHeight;
+          return Math.max(0, max - viewportHeight * 0.1);
+        };
+
+        const isNearPageBottom = () => {
+          const current =
+            window.scrollY || document.documentElement.scrollTop;
+          return current >= getStartAt();
+        };
+
+        const tryPlay = () => {
+          if (played || token !== initToken) return;
+          if (
+            document.documentElement.classList.contains(
+              'preloader-lock-scroll',
+            )
+          ) {
+            return;
+          }
+          if (!isNearPageBottom()) return;
+
+          played = true;
+          whenPageReady(() => {
+            if (token !== initToken) return;
+            tween.play();
+          });
+        };
+
+        ScrollTrigger.create({
+          start: () => getStartAt(),
+          end: 'max',
+          invalidateOnRefresh: true,
+          onEnter: tryPlay,
+          onUpdate: tryPlay,
+          onRefresh: tryPlay,
+        });
+
+        const onScroll = () => tryPlay();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        const lenis = getLenis();
+        lenis?.on('scroll', onScroll);
+        scrollListeners.push(() => {
+          window.removeEventListener('scroll', onScroll);
+          lenis?.off('scroll', onScroll);
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFooterSplit);
+  } else {
+    initFooterSplit();
+  }
+
+  document.addEventListener('astro:page-load', initFooterSplit);
+  document.addEventListener('astro:before-swap', () => {
+    initToken += 1;
+    cleanup();
+  });
+</script>
