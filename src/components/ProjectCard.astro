@@ -159,7 +159,12 @@ const serviceTitles =
 const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
 ---
 
-<div class={`project-card ${cardClasses}`} data-services={serviceTitles}>
+<div
+  class={`project-card ${cardClasses}`}
+  data-services={serviceTitles}
+  data-reveal-children=".project-media"
+  style="--reveal-duration: 0.9s; --reveal-distance: 3rem; --reveal-delay: 200ms;"
+>
   <div class={`overflow-hidden project-media ${aspectRatioClass}`}>
     {
       videoSrc ? (

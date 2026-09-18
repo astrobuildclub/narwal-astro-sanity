@@ -194,63 +194,14 @@ const projectCards = projects.map((project: any) => {
 </style>
 
 <script>
-  import { inView, animate } from 'motion';
+  import { animate } from 'motion';
 
-  inView('.project-card .project-media', ({ target }) => {
-    target.classList.add('in-view');
-  });
-
-  inView('.project-card .project-media', (info) => {
-    const controls = animate(
-      info.target,
-      {
-        opacity: [0, 1],
-        transform: ['translateY(3rem)', 'translateY(0px)'],
-      },
-      {
-        delay: 0.2,
-        duration: 0.9,
-        easing: [0.16, 1, 0.3, 1],
-      },
-    );
-    // This will fire when the element leaves the viewport
-    return (_leaveInfo) => {
-      controls.stop();
-      animate(
-        info.target,
-        { opacity: 0, transform: ['translateY(0px)', 'translateY(20px)'] },
-        { duration: 0.6 },
-      );
-    };
-  });
-
-  inView('.project-card .project-content', ({ target }) => {
-    target.classList.add('in-view');
-  });
-
-  inView('.project-card .project-content', (info) => {
-    const controls = animate(
-      info.target,
-      {
-        opacity: [0, 1],
-        transform: ['translateY(2rem)', 'translateY(0px)'],
-      },
-      {
-        delay: 0.1,
-        duration: 0.4,
-        easing: [0.16, 1, 0.3, 1],
-      },
-    );
-    // This will fire when the element leaves the viewport
-    return (_leaveInfo) => {
-      controls.stop();
-      animate(
-        info.target,
-        { opacity: 0, transform: ['translateY(0px)', 'translateY(20px)'] },
-        { duration: 0.6 },
-      );
-    };
-  });
+  // Note: the card entrance reveal (.project-media fading/sliding in on first
+  // view) is handled by the shared data-reveal-children system wired in
+  // src/layouts/DefaultLayout.astro / src/assets/global.css — see the
+  // data-reveal-children attribute on .project-card in ProjectCard.astro.
+  // That system correctly re-initializes on every client-side navigation,
+  // unlike a module-scoped inView() registration here would.
 
   // Animate project cards when filtering
   let previousVisibleCards: Set<HTMLElement> = new Set();
