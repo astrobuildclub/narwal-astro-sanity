@@ -3,6 +3,7 @@ import '../assets/fonts/neue-haas-display.css';
 import '../assets/global.css';
 import '../assets/scss/globals.scss';
 import '../assets/default.css';
+import 'lenis/dist/lenis.css';
 import SiteMeta from '../components/SiteMeta.astro';
 import SiteNavigation from '../components/SiteNavigation.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -136,6 +137,16 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         background: var(--surface-bg);
       }
 
+      /* Lenis disables iframe pointer-events while smoothing is on.
+         Keep embeds clickable and only ignore them during an active scroll. */
+      html.lenis.lenis-smooth iframe {
+        pointer-events: auto;
+      }
+
+      html.lenis.lenis-scrolling iframe {
+        pointer-events: none;
+      }
+
       ::view-transition {
         background: var(--surface-bg);
       }
@@ -264,8 +275,9 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     <!-- JavaScript bestanden -->
     <script src="/js/cookieconsent.umd.js" is:inline></script>
     <script src="/js/iframemanager.js" is:inline></script>
-    <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js"></script>
-    <script src="/js/lenis-init.js" is:inline></script>
+    <script>
+      import '../lib/lenis';
+    </script>
     <script is:inline>
       // Re-scan embeds after Astro view transitions
       const __getIframeManager = () => {

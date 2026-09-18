@@ -226,6 +226,8 @@ const foregroundSlides = processedSlides.map((slide: any) => {
         </a>
       </div>
     </div>
+    <!-- Darkens as the carousel leaves the viewport -->
+    <div class="carousel-veil" aria-hidden="true"></div>
     <!-- Background Carousel -->
     <div class="carousel carousel-background swiper">
       <!-- Slides -->
@@ -270,6 +272,73 @@ const foregroundSlides = processedSlides.map((slide: any) => {
 </section>
 
 <script src="../lib/swiper.js"></script>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { prefersReducedMotion } from '../lib/gsap-inview';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  let ctx: gsap.Context | undefined;
+  let initToken = 0;
+
+  function cleanup() {
+    ctx?.revert();
+    ctx = undefined;
+  }
+
+  function initCarouselVeil() {
+    const token = ++initToken;
+    cleanup();
+
+    const galleries = document.querySelectorAll<HTMLElement>(
+      '.carousel-gallery',
+    );
+    if (!galleries.length) return;
+
+    ctx = gsap.context(() => {
+      galleries.forEach((gallery) => {
+        if (!document.contains(gallery)) return;
+
+        const veil = gallery.querySelector<HTMLElement>('.carousel-veil');
+        if (!veil) return;
+
+        gsap.fromTo(
+          veil,
+          { opacity: 0 },
+          {
+            opacity: 0.5,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: gallery,
+              start: 'top top',
+              end: 'bottom 30%',
+              scrub: prefersReducedMotion() ? true : 0.45,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+      });
+    });
+
+    if (token !== initToken) {
+      cleanup();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarouselVeil);
+  } else {
+    initCarouselVeil();
+  }
+
+  document.addEventListener('astro:page-load', initCarouselVeil);
+  document.addEventListener('astro:before-swap', () => {
+    initToken += 1;
+    cleanup();
+  });
+</script>
 
 <style>
   /* * > * {
@@ -347,6 +416,17 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     z-index: 2;
     pointer-events: none;
     background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+  }
+
+  /* Scroll-linked veil: carousel goes dark when 30% remains in view */
+  .carousel-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    background: rgb(12, 12, 12);
+    opacity: 0;
+    will-change: opacity;
   }
 
   /* Voorgrond carousel: tekst boven de gradient */
