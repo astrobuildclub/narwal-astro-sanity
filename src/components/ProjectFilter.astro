@@ -1,140 +1,488 @@
 ---
-import { slugify } from '../lib/utils.js';
+interface TaxonomyOption {
+  title: string;
+  slug: string;
+}
 
-const { services } = Astro.props;
+interface ProjectMeta {
+  industry?: string;
+  services?: string[];
+}
+
+interface Props {
+  industries?: TaxonomyOption[];
+  services?: TaxonomyOption[];
+  projectsMeta?: ProjectMeta[];
+}
+
+const { industries = [], services = [], projectsMeta = [] } = Astro.props;
+const hasIndustries = industries.length > 0;
+const hasServices = services.length > 0;
 ---
 
-<ul class="tag-filter">
-  {
-    services &&
-      services.map((service: any) => (
-        <li>
-          <a class="tag-button" data-service={slugify(service)}>
-            {service}
-          </a>
-        </li>
-      ))
-  }
-  <li class="tag-reset"></li>
-</ul>
+<div
+  class:list={['project-filter', { 'has-industries': hasIndustries }]}
+  data-projects-meta={JSON.stringify(projectsMeta)}
+>
+  <button
+    type="button"
+    class="project-filter-toggle"
+    aria-expanded="false"
+    aria-controls="project-filter-panel"
+  >
+    <span class="project-filter-toggle-label">Show filters</span>
+    <span class="project-filter-toggle-indicator" hidden>Filtered</span>
+  </button>
+
+  <div id="project-filter-panel" class="project-filter-panel">
+    <div class="project-filter-columns">
+      {
+        hasIndustries && (
+          <div class="project-filter-column" data-filter-type="industry">
+            <h4 class="project-filter-heading">Industries</h4>
+            <ul class="project-filter-list">
+              {industries.map((industry) => (
+                <li>
+                  <button
+                    type="button"
+                    class="project-filter-option"
+                    data-industry={industry.slug}
+                  >
+                    {industry.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+      {
+        hasServices && (
+          <div class="project-filter-column" data-filter-type="service">
+            <h4 class="project-filter-heading">Services</h4>
+            <ul class="project-filter-list">
+              {services.map((service) => (
+                <li>
+                  <button
+                    type="button"
+                    class="project-filter-option"
+                    data-service={service.slug}
+                  >
+                    {service.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+
+    {
+      (hasIndustries || hasServices) && (
+        <button type="button" class="project-filter-reset">
+          Reset
+        </button>
+      )
+    }
+  </div>
+</div>
 
 <script>
   //@ts-nocheck
-  function filterProjects(service) {
-    const projectCards = document.querySelectorAll('.project-card');
-    projectCards.forEach((card) => {
-      const dataServices = card.getAttribute('data-services');
-      if (!dataServices) {
-        // If no services attribute, show all or hide based on service filter
-        card.style.display = service === 'all' ? 'block' : 'none';
-        return;
-      }
-      const services = dataServices.split(' ').filter(Boolean);
-      if (services.includes(service) || service === 'all') {
-        card.style.display = 'block';
+  function initProjectFilter() {
+    const root = document.querySelector('.project-filter');
+    if (!root || root.dataset.filterBound === 'true') return;
+    root.dataset.filterBound = 'true';
+
+    let projectsMeta = [];
+    try {
+      projectsMeta = JSON.parse(root.dataset.projectsMeta || '[]');
+    } catch {
+      projectsMeta = [];
+    }
+    if (!Array.isArray(projectsMeta)) projectsMeta = [];
+
+    const industryButtons = Array.from(
+      root.querySelectorAll('[data-industry]'),
+    );
+    const serviceButtons = Array.from(root.querySelectorAll('[data-service]'));
+    const resetButton = root.querySelector('.project-filter-reset');
+    const toggleButton = root.querySelector('.project-filter-toggle');
+    const toggleLabel = root.querySelector('.project-filter-toggle-label');
+    const toggleIndicator = root.querySelector(
+      '.project-filter-toggle-indicator',
+    );
+    const panel = root.querySelector('.project-filter-panel');
+
+    let selectedIndustry = null;
+    let selectedService = null;
+
+    function normalizeMeta(meta) {
+      return {
+        industry: meta?.industry || '',
+        services: Array.isArray(meta?.services) ? meta.services : [],
+      };
+    }
+
+    function getParamsFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        industry: params.get('industry') || null,
+        service: params.get('service') || null,
+      };
+    }
+
+    function updateUrl() {
+      const url = new URL(window.location.href);
+      if (selectedIndustry) {
+        url.searchParams.set('industry', selectedIndustry);
       } else {
-        card.style.display = 'none';
+        url.searchParams.delete('industry');
       }
-    });
-  }
-
-  document.addEventListener(
-    'astro:page-load',
-    function () {
-      // Check of de benodigde elementen op de pagina aanwezig zijn
-      const serviceButtons = document.querySelectorAll('.tag-button');
-      const tagReset = document.querySelector('.tag-reset');
-
-      if (serviceButtons.length === 0 || !tagReset) {
-        // Stop als de elementen niet aanwezig zijn
-        return;
+      if (selectedService) {
+        url.searchParams.set('service', selectedService);
+      } else {
+        url.searchParams.delete('service');
       }
+      const next = `${url.pathname}${url.search}${url.hash}`;
+      window.history.replaceState({}, '', next);
+    }
+
+    function projectMatches(meta, industry, service) {
+      const normalized = normalizeMeta(meta);
+      const industryOk = !industry || normalized.industry === industry;
+      const serviceOk =
+        !service || normalized.services.includes(service);
+      return industryOk && serviceOk;
+    }
+
+    function getAvailableServices(industry) {
+      // Geen industry-filter: alle services blijven beschikbaar
+      // (ook van projecten zonder industry)
+      if (!industry) {
+        return new Set(
+          serviceButtons.map((btn) => btn.dataset.service).filter(Boolean),
+        );
+      }
+      const available = new Set();
+      projectsMeta.forEach((meta) => {
+        const normalized = normalizeMeta(meta);
+        if (normalized.industry === industry) {
+          normalized.services.forEach((slug) => available.add(slug));
+        }
+      });
+      return available;
+    }
+
+    function getAvailableIndustries(service) {
+      if (!service) {
+        return new Set(
+          industryButtons.map((btn) => btn.dataset.industry).filter(Boolean),
+        );
+      }
+      const available = new Set();
+      projectsMeta.forEach((meta) => {
+        const normalized = normalizeMeta(meta);
+        if (
+          normalized.services.includes(service) &&
+          normalized.industry
+        ) {
+          available.add(normalized.industry);
+        }
+      });
+      return available;
+    }
+
+    function filterProjects() {
+      const cards = document.querySelectorAll('.project-card');
+      cards.forEach((card) => {
+        const cardIndustry = card.getAttribute('data-industry') || '';
+        const cardServices = (card.getAttribute('data-services') || '')
+          .split(/\s+/)
+          .filter(Boolean);
+
+        // Zonder industry-filter: projecten zonder industry blijven zichtbaar
+        const industryOk =
+          !selectedIndustry || cardIndustry === selectedIndustry;
+        const serviceOk =
+          !selectedService || cardServices.includes(selectedService);
+
+        card.style.display = industryOk && serviceOk ? '' : 'none';
+      });
+    }
+
+    function updateOptionStates() {
+      const availableServices = getAvailableServices(selectedIndustry);
+      const availableIndustries = getAvailableIndustries(selectedService);
+      const hasIndustrySelection = Boolean(selectedIndustry);
+      const hasServiceSelection = Boolean(selectedService);
+
+      industryButtons.forEach((button) => {
+        const slug = button.dataset.industry;
+        const isActive = slug === selectedIndustry;
+        const isAvailable = availableIndustries.has(slug);
+        button.classList.toggle('is-active', isActive);
+        button.classList.toggle(
+          'is-dimmed',
+          hasIndustrySelection && !isActive,
+        );
+        button.classList.toggle('is-disabled', !isAvailable);
+        button.disabled = !isAvailable;
+        button.setAttribute('aria-disabled', String(!isAvailable));
+        button.setAttribute('aria-pressed', String(isActive));
+      });
 
       serviceButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-          const activeService = button.getAttribute('data-service');
-          // Verwijder de actieve klasse van alle knoppen
-          serviceButtons.forEach((btn) => btn.classList.remove('active'));
-
-          // Voeg de actieve klasse toe aan de geklikte knop
-          button.classList.add('active');
-
-          filterProjects(activeService);
-          
-          // Dispatch event voor load more synchronisatie
-          window.dispatchEvent(new CustomEvent('projectfilter:change', {
-            detail: { service: activeService }
-          }));
-        });
+        const slug = button.dataset.service;
+        const isActive = slug === selectedService;
+        const isAvailable = availableServices.has(slug);
+        button.classList.toggle('is-active', isActive);
+        button.classList.toggle('is-dimmed', hasServiceSelection && !isActive);
+        button.classList.toggle('is-disabled', !isAvailable);
+        button.disabled = !isAvailable;
+        button.setAttribute('aria-disabled', String(!isAvailable));
+        button.setAttribute('aria-pressed', String(isActive));
       });
 
-      // Voeg een knop toe om alle projecten te tonen
-      const showAllButton = document.createElement('a');
-      showAllButton.textContent = 'Reset';
-      showAllButton.addEventListener('click', () => {
-        filterProjects('all');
+      const isFiltered = hasIndustrySelection || hasServiceSelection;
+      root.classList.toggle('is-filtered', isFiltered);
+      if (toggleIndicator) {
+        toggleIndicator.hidden = !isFiltered;
+      }
+    }
 
-        // Verwijder de actieve klasse van alle knoppen
-        serviceButtons.forEach((btn) => btn.classList.remove('active'));
-        
-        // Dispatch event voor load more synchronisatie
-        window.dispatchEvent(new CustomEvent('projectfilter:change', {
-          detail: { service: 'all' }
-        }));
+    function applyFilters({ syncUrl = true } = {}) {
+      // Ongeldige industry uit URL wissen als die nergens voorkomt
+      if (
+        selectedIndustry &&
+        !projectsMeta.some(
+          (meta) => normalizeMeta(meta).industry === selectedIndustry,
+        )
+      ) {
+        selectedIndustry = null;
+      }
+
+      if (
+        selectedService &&
+        !projectsMeta.some((meta) =>
+          normalizeMeta(meta).services.includes(selectedService),
+        )
+      ) {
+        selectedService = null;
+      }
+
+      if (
+        selectedIndustry &&
+        selectedService &&
+        !projectsMeta.some((meta) =>
+          projectMatches(meta, selectedIndustry, selectedService),
+        )
+      ) {
+        selectedService = null;
+      }
+
+      if (
+        selectedService &&
+        !getAvailableServices(selectedIndustry).has(selectedService)
+      ) {
+        selectedService = null;
+      }
+
+      if (
+        selectedIndustry &&
+        industryButtons.length > 0 &&
+        !getAvailableIndustries(selectedService).has(selectedIndustry)
+      ) {
+        selectedIndustry = null;
+      }
+
+      filterProjects();
+      updateOptionStates();
+      if (syncUrl) updateUrl();
+
+      window.dispatchEvent(
+        new CustomEvent('projectfilter:change', {
+          detail: {
+            industry: selectedIndustry || 'all',
+            service: selectedService || 'all',
+          },
+        }),
+      );
+    }
+
+    function setIndustry(slug) {
+      if (!slug) return;
+      selectedIndustry = selectedIndustry === slug ? null : slug;
+      applyFilters();
+    }
+
+    function setService(slug) {
+      if (!slug) return;
+      selectedService = selectedService === slug ? null : slug;
+      applyFilters();
+    }
+
+    function resetFilters() {
+      selectedIndustry = null;
+      selectedService = null;
+      applyFilters();
+    }
+
+    industryButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        if (button.disabled) return;
+        setIndustry(button.dataset.industry);
       });
-      tagReset.append(showAllButton);
+    });
 
-      // Reset bij het laden van de pagina
-      filterProjects('all');
-    },
-    { once: false },
-  );
+    serviceButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        if (button.disabled) return;
+        setService(button.dataset.service);
+      });
+    });
+
+    if (resetButton) {
+      resetButton.addEventListener('click', resetFilters);
+    }
+
+    if (toggleButton && panel) {
+      toggleButton.addEventListener('click', () => {
+        const isOpen = root.classList.toggle('is-open');
+        toggleButton.setAttribute('aria-expanded', String(isOpen));
+        if (toggleLabel) {
+          toggleLabel.textContent = isOpen ? 'Hide filters' : 'Show filters';
+        }
+      });
+    }
+
+    const fromUrl = getParamsFromUrl();
+    selectedIndustry = fromUrl.industry;
+    selectedService = fromUrl.service;
+    applyFilters({ syncUrl: false });
+  }
+
+  document.addEventListener('astro:page-load', initProjectFilter);
+  if (document.readyState !== 'loading') {
+    initProjectFilter();
+  }
 </script>
 
 <style>
-  /* * {
-    border: 1px solid red;
-  } */
-  ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25em 0.25em;
-    font-size: var(--fs--1);
-    line-height: 120%;
-    font-weight: 400;
+  .project-filter {
+    width: 100%;
   }
 
-  li {
-  }
-
-  li::after {
-    content: '/';
-    font-weight: 700;
-    opacity: 0.2;
-    padding: 0 0.125em;
-  }
-
-  li:last-child::after {
-    content: '';
-  }
-  a {
-    text-decoration: none !important;
+  .project-filter-toggle {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    background: none;
+    border: 0;
     padding: 0;
+    color: inherit;
+    font: inherit;
     cursor: pointer;
-  }
-
-  .tag-button.active {
-    color: var(--text);
-    text-decoration: underline !important;
+    text-decoration: underline;
     text-underline-offset: 0.25em;
     text-decoration-thickness: 1px;
   }
 
-  .tag-reset a {
-    cursor: default;
+  .project-filter-toggle-indicator {
+    text-decoration: none;
+    opacity: 0.55;
+    font-size: 0.85em;
   }
 
-  .tag-reset a:hover {
-    cursor: default;
+  .project-filter-panel {
+    width: 100%;
+  }
+
+  .project-filter-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem 2rem;
+  }
+
+  .project-filter.has-industries .project-filter-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .project-filter-heading {
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--text) 25%, transparent);
+    font-size: var(--fs--1);
+    font-weight: 500;
+    line-height: 1;
+    opacity: 0.7;
+  }
+
+  .project-filter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .project-filter-option,
+  .project-filter-reset {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    font-size: var(--fs--1);
+    line-height: 1.25;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .project-filter-option.is-active,
+  .project-filter-reset {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+  }
+
+  .project-filter-option.is-dimmed {
+    opacity: 0.35;
+  }
+
+  .project-filter-option.is-disabled {
+    opacity: 0.22;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .project-filter-reset {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 767px) {
+    .project-filter-toggle {
+      display: inline-flex;
+      margin-bottom: 1rem;
+    }
+
+    .project-filter-panel {
+      display: none;
+    }
+
+    .project-filter.is-open .project-filter-panel {
+      display: block;
+    }
+
+    .project-filter-columns {
+      gap: 1.5rem;
+    }
+
+    .project-filter.has-industries .project-filter-columns {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

@@ -1,28 +1,56 @@
 ---
-const { label } = Astro.props;
+interface Props {
+  label: string;
+  link?: string;
+  variant?: 'filled' | 'outline';
+}
+
+const { label, link, variant = 'filled' } = Astro.props;
 ---
 
-<li class="tracking-tighter leading-none rounded-full tag">
-  {label}
+<li class:list={['tag', `tag--${variant}`]}>
+  {
+    link ? (
+      <a href={link} class="tag-link">
+        {label}
+      </a>
+    ) : (
+      label
+    )
+  }
 </li>
 
 <style>
   :root {
     --clr-tag-text: color-mix(in srgb, var(--black) 50%, transparent);
     --clr-tag-bg: color-mix(in srgb, var(--black) 5%, transparent);
+    --clr-tag-border: color-mix(in srgb, var(--black) 40%, transparent);
   }
 
   .tag {
     padding: calc(var(--space-2xs) * 0.675) var(--space-2xs);
     font-size: calc(var(--fs--3) - 0.0125em);
     letter-spacing: -0.025em;
-    background: var(--clr-tag-bg);
     leading-trim: both;
     text-edge: cap alphabetic;
+    border-radius: 9999px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .tag--filled {
+    background: var(--clr-tag-bg);
     color: var(--clr-tag-text);
   }
 
-  .tag a {
+  .tag--outline {
+    background: transparent;
+    color: inherit;
+    border: 1px solid color-mix(in srgb, currentColor 55%, transparent);
+  }
+
+  .tag-link {
     text-decoration: none;
+    color: inherit;
   }
 </style>

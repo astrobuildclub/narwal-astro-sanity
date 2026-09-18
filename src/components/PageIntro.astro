@@ -52,6 +52,10 @@ const { class: customClass } = Astro.props;
     max-width: 70ch;
   }
 
+  section div > div:has(.project-filter) {
+    max-width: none;
+  }
+
   :global(.home .col h3) {
     margin-bottom: 2rem;
     font-size: var(--fs-4);

@@ -57,9 +57,15 @@ export const HOME_QUERY = `*[_type == "page" && pageType == "homepage"][0] {
       _id,
       title
     },
+    "industry": industry-> {
+      _id,
+      title,
+      "slug": slug.current
+    },
     services[]-> {
       _id,
-      title
+      title,
+      "slug": slug.current
     },
     thumbnail {
       image {
@@ -183,9 +189,15 @@ export const HOME_FALLBACK_QUERY = `*[_type == "page" && title == "Homepage"][0]
       _id,
       title
     },
+    "industry": industry-> {
+      _id,
+      title,
+      "slug": slug.current
+    },
     services[]-> {
       _id,
-      title
+      title,
+      "slug": slug.current
     },
     thumbnail {
       image {
@@ -275,9 +287,15 @@ export const ALL_PROJECTS_QUERY = `*[_type == "work"] | order(orderRank) {
     _id,
     title
   },
+  "industry": industry-> {
+    _id,
+    title,
+    "slug": slug.current
+  },
   "services": services[]-> {
     _id,
-    title
+    title,
+    "slug": slug.current
   }
 }`;
 
@@ -319,9 +337,15 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     _id,
     title
   },
+  "industry": industry-> {
+    _id,
+    title,
+    "slug": slug.current
+  },
   "services": services[]-> {
     _id,
-    title
+    title,
+    "slug": slug.current
   },
   info,
   credits,
@@ -342,6 +366,16 @@ export const PROJECT_BY_SLUG_QUERY = `*[_type == "work" && slug.current == $slug
     "client": client-> {
       _id,
       title
+    },
+    "industry": industry-> {
+      _id,
+      title,
+      "slug": slug.current
+    },
+    "services": services[]-> {
+      _id,
+      title,
+      "slug": slug.current
     }
   },
   content[] {

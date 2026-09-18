@@ -4,23 +4,57 @@ import PageIntro from '../PageIntro.astro';
 import ProjectList from '../ProjectList.astro';
 import ProjectFilter from '../ProjectFilter.astro';
 import { PortableText } from 'astro-portabletext';
+import { slugify } from '../../lib/utils.js';
 
 const { data } = Astro.props;
 const pageTitle = data.title || '';
 const pageIntroduction = data.introCols?.[0]?.content;
 const projectData = data.work?.nodes || [];
+const filterBasePath = Astro.url.pathname;
 
-// Extract services from Sanity structure (services is an array with title property)
-const allServices = projectData
-  .flatMap(
-    (project: any) =>
-      project.services?.map((service: any) => service.title) || [],
-  )
-  .filter(Boolean);
+function taxonomySlug(item: { title?: string; slug?: string }): string {
+  return item.slug || slugify(item.title || '');
+}
 
-const uniqueServices = [...new Set(allServices)];
+const industryMap = new Map<string, { title: string; slug: string }>();
+const serviceMap = new Map<string, { title: string; slug: string }>();
 
-// PortableText components
+const projectsMeta = projectData.map((project: any) => {
+  const industrySlug =
+    project.industry?.title || project.industry?.slug
+      ? taxonomySlug(project.industry)
+      : '';
+  if (project.industry?.title && industrySlug) {
+    industryMap.set(industrySlug, {
+      title: project.industry.title,
+      slug: industrySlug,
+    });
+  }
+
+  const serviceSlugs = (project.services || [])
+    .filter((service: any) => service?.title)
+    .map((service: any) => {
+      const slug = taxonomySlug(service);
+      if (slug) {
+        serviceMap.set(slug, { title: service.title, slug });
+      }
+      return slug;
+    })
+    .filter(Boolean);
+
+  return {
+    industry: industrySlug || '',
+    services: serviceSlugs,
+  };
+});
+
+const uniqueIndustries = Array.from(industryMap.values()).sort((a, b) =>
+  a.title.localeCompare(b.title),
+);
+const uniqueServices = Array.from(serviceMap.values()).sort((a, b) =>
+  a.title.localeCompare(b.title),
+);
+
 const components = {
   types: {},
   marks: {},
@@ -39,7 +73,17 @@ const components = {
       </Fragment>
     ) : null
   }
-  <ProjectFilter services={uniqueServices} slot="column-two" />
+  <ProjectFilter
+    industries={uniqueIndustries}
+    services={uniqueServices}
+    projectsMeta={projectsMeta}
+    slot="column-two"
+  />
 </PageIntro>
 
-<ProjectList projects={projectData} layout="list full" fitCards={true} />
+<ProjectList
+  projects={projectData}
+  layout="list full"
+  fitCards={true}
+  filterBasePath={filterBasePath}
+/>

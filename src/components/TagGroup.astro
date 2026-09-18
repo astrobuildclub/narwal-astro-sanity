@@ -1,15 +1,41 @@
 ---
 import Tag from '../components/Tag.astro';
 
+interface TagItem {
+  title: string;
+  link?: string;
+  variant?: 'filled' | 'outline';
+}
+
+interface Props {
+  tags: TagItem[];
+}
+
 const { tags } = Astro.props;
 ---
 
-<ul class="flex self-baseline">
-  {tags.map((item: any) => <Tag link={item.link} label={item.title} />)}
-</ul>
+{
+  tags.length > 0 && (
+    <ul class="tag-group">
+      {tags.map((item) => (
+        <Tag
+          label={item.title}
+          link={item.link}
+          variant={item.variant || 'filled'}
+        />
+      ))}
+    </ul>
+  )
+}
 
 <style>
-  ul {
+  .tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.225em;
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 </style>
