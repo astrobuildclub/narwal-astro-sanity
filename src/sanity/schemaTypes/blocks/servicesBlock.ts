@@ -73,7 +73,7 @@ export default defineType({
           { title: '3', value: 3 },
           { title: '4', value: 4 },
         ],
-        layout: 'radio',
+        layout: 'dropdown',
       },
       initialValue: 2,
       hidden: ({ parent }) =>

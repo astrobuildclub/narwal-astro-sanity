@@ -263,6 +263,9 @@ export interface SanityTeamBlock extends SanityBlock {
 export interface SanityServicesBlock extends SanityBlock {
   _type: 'servicesBlock';
   title?: string;
+  layout?: string;
+  columns?: number | string;
+  showDescriptions?: boolean;
   services: Array<{
     _type: 'reference';
     title: string;

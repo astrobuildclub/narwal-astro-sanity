@@ -42,12 +42,12 @@ const { prefix, blocks } = Astro.props;
         switch (blockType) {
           // Sanity block types
           case 'textBlock':
-            return <TextBlock content={block.text} size={cleanSize(block.size)} />;
+            return <TextBlock content={block.text} size={cleanSize(block.size, ['content', 'popout', 'feature', 'page', 'inherit'])} />;
           case 'imageBlock':
             return (
               <ImageBlock
                 image={block.image}
-                size={cleanSize(block.size)}
+                size={cleanSize(block.size, ['content', 'popout', 'feature', 'page', 'full', 'inherit'])}
                 alt={block.alt}
                 title={block.title}
                 showCaption={block.showCaption}
@@ -57,7 +57,7 @@ const { prefix, blocks } = Astro.props;
           case 'videoBlock':
             return <VideoBlock video={block} size={cleanSize(block.size)} />;
           case 'colorBlock':
-            return <ColorBlock color={block.color} size={cleanSize(block.size)} />;
+            return <ColorBlock color={block.color} size={cleanSize(block.size, ['inline', 'popout', 'feature', 'full', 'inherit'])} />;
           case 'testimonialBlock':
             return (
               <TestimonialBlock
@@ -65,14 +65,14 @@ const { prefix, blocks } = Astro.props;
                 name={block.name}
                 role={block.role}
                 photo={block.photo}
-                size={cleanSize(block.size)}
+                size={cleanSize(block.size, ['content', 'popout', 'feature', 'page'])}
               />
             );
           case 'columnsBlock':
             return (
               <ColumnsBlock
                 title={block.title}
-                size={cleanSize(block.size)}
+                size={cleanSize(block.size, ['page', 'feature'])}
                 columns={block.columns}
               />
             );
@@ -103,7 +103,7 @@ const { prefix, blocks } = Astro.props;
               <GalleryBlock
                 title={block.title}
                 gallery={block.gallery}
-                layout={cleanLayout(block.layout) || 'grid'}
+                layout={cleanLayout(block.layout, ['grid', 'masonry']) || 'grid'}
                 columns={block.columns}
                 showCaptions={block.showCaptions}
                 showTitle={block.showTitle}
@@ -114,13 +114,13 @@ const { prefix, blocks } = Astro.props;
               <CarouselBlock
                 title={block.title}
                 gallery={block.gallery}
-                size={cleanSize(block.size) || 'feature'}
+                size={cleanSize(block.size, ['feature', 'full']) || 'feature'}
                 showCaptions={block.showCaptions}
                 showTitle={block.showTitle}
               />
             );
           case 'embedBlock':
-            return <EmbedBlock code={block.code} size={cleanSize(block.size)} />;
+            return <EmbedBlock code={block.code} size={cleanSize(block.size, ['inline', 'popout', 'feature', 'full', 'inherit'])} />;
 
           default:
             if (import.meta.env.DEV) {

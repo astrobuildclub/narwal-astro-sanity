@@ -9,7 +9,7 @@ interface Props {
     content?: any[];
   }>;
   layout?: 'list' | 'grid' | 'cards' | 'masonry';
-  columns?: number;
+  columns?: number | string;
   showDescriptions?: boolean;
 }
 
@@ -31,10 +31,7 @@ const components = {
 };
 ---
 
-<div
-  class:list={['servicesblock', 'page', `layout-${layout}`]}
-  style={`--service-cols: ${columns};`}
->
+<div class:list={['servicesblock', 'page', `layout-${layout}`, `cols-${columns}`]}>
   {title && <h2 class="servicesblock-title">{title}</h2>}
 
   <div class="servicesblock-items">
@@ -75,6 +72,8 @@ const components = {
     opacity: 0.7;
     font-weight: 400;
     line-height: 133%;
+    text-wrap: pretty;
+    max-width: 45ch;
   }
 
   :global(.service-desc p) {
@@ -96,7 +95,7 @@ const components = {
     grid-template-columns: 1fr;
     gap: var(--space-xs);
     padding-block: var(--space-m);
-    border-top: 1px solid rgb(from var(--black) r g b / 0.1);
+    border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
   }
 
   @media (min-width: 768px) {
@@ -120,19 +119,13 @@ const components = {
     gap: var(--space-xs);
   }
 
-  @media (min-width: 768px) {
-    .layout-grid .servicesblock-items {
-      grid-template-columns: repeat(var(--service-cols, 2), minmax(0, 1fr));
-    }
-  }
-
   /* Cards: no gutter, shared gridlines */
   .layout-cards .servicesblock-items {
     display: grid;
     grid-template-columns: 1fr;
     gap: 0;
-    border-block-start: 1px solid rgb(from var(--black) r g b / 0.12);
-    border-inline-start: 1px solid rgb(from var(--black) r g b / 0.12);
+    border-top: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    border-left: 1px solid color-mix(in srgb, currentColor 32%, transparent);
   }
 
   .layout-cards .service-item {
@@ -140,13 +133,24 @@ const components = {
     flex-direction: column;
     gap: var(--space-xs);
     padding: var(--space-m);
-    border-block-end: 1px solid rgb(from var(--black) r g b / 0.12);
-    border-inline-end: 1px solid rgb(from var(--black) r g b / 0.12);
+    border-right: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 32%, transparent);
   }
 
   @media (min-width: 768px) {
-    .layout-cards .servicesblock-items {
-      grid-template-columns: repeat(var(--service-cols, 2), minmax(0, 1fr));
+    .layout-grid.cols-2 .servicesblock-items,
+    .layout-cards.cols-2 .servicesblock-items {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .layout-grid.cols-3 .servicesblock-items,
+    .layout-cards.cols-3 .servicesblock-items {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .layout-grid.cols-4 .servicesblock-items,
+    .layout-cards.cols-4 .servicesblock-items {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

@@ -119,7 +119,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         } catch (e) {}
       })();
     </script>
-    <style>
+    <style is:global>
       :root {
         --surface-bg: var(--white, #fdfdfa);
         --vt-old-duration: 170ms;
@@ -127,12 +127,8 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         --vt-new-delay: 30ms;
         --vt-snappy-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
         --nav-transition-blur: 2px;
-        --nav-transition-opacity: 0.92;
+        --nav-transition-grayscale: 1;
         --nav-overlay-bg: var(--surface-bg);
-      }
-
-      :root[data-theme='dark'] {
-        --nav-transition-opacity: 0.92;
       }
 
       html,
@@ -195,7 +191,6 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         }
 
         :root.nav-transition-active body > :not(#preloader) {
-          opacity: 1;
           filter: none;
         }
       }
@@ -207,14 +202,12 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         touch-action: none;
       }
       body > :not(#preloader) {
-        transition:
-          opacity 260ms var(--vt-snappy-ease),
-          filter 320ms var(--vt-snappy-ease);
+        transition: filter 320ms var(--vt-snappy-ease);
       }
       :root.nav-transition-active body > :not(#preloader) {
-        opacity: var(--nav-transition-opacity);
-        filter: blur(var(--nav-transition-blur));
-        will-change: opacity, filter;
+        filter: blur(var(--nav-transition-blur))
+          grayscale(var(--nav-transition-grayscale));
+        will-change: filter;
       }
       :root.preloader-active body > :not(#preloader) {
         visibility: hidden;
@@ -732,9 +725,15 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
 <style>
   main {
-    padding-bottom: 20vh;
-    background-color: var(--white);
     position: relative;
-    z-index: 1;
+    background-color: var(--white);
+  }
+
+  @media (min-width: 1024px) {
+    main {
+      z-index: 1;
+      /* Safari: sticky footer stacking can lag without a compositing layer */
+      transform: translate3d(0, 0, 0);
+    }
   }
 </style>
