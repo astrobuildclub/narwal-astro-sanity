@@ -162,6 +162,27 @@ Het project gebruikt een **Breakout Grid System** met 5 niveau's:
 
 Blocks kunnen deze sizes gebruiken voor responsieve, flexibele layouts.
 
+## 🔄 Navigatie & Page Transitions
+
+De site gebruikt **Astro's `ClientRouter`** (`astro:transitions`, zie `src/components/SiteMeta.astro`) als navigatiemechanisme: een same-document implementatie van de browser View Transitions API met een JS-router. Bij een interne link-klik fetcht de router de nieuwe pagina, swapt de DOM binnen een `document.startViewTransition()`, en valt op browsers zonder View Transitions-support terug op een gewone, ongeanimeerde DOM-swap (`fallback="swap"` — geen animatie, wel altijd een werkende pagina). Dit is bewust géén native *cross-document* view transition (`@view-transition { navigation: auto }`): die werkt alleen in Chromium, zonder polyfill, en zou de bestaande prefetching en persisted elements (zie hieronder) kosten zonder visueel iets toe te voegen.
+
+**Belangrijkste onderdelen:**
+
+| Onderdeel | Bestand | Rol |
+| --- | --- | --- |
+| Router | `src/components/SiteMeta.astro` | `<ClientRouter fallback="swap" />`, site-wide via `DefaultLayout.astro` |
+| Prefetch | `astro.config.mjs` | `viewport`-strategie: links prefetchen zodra ze in beeld scrollen, zodat swaps meestal instant aanvoelen |
+| Preloader / progress bar | `src/components/Preloader.astro` + `public/js/preloader.js` | Dunne topbar tijdens navigatie (`mode-nav`) + volledig scherm bij eerste page load (`mode-initial`); `transition:persist` zodat hij navigatie overleeft |
+| Vertrek-feedback | `src/layouts/DefaultLayout.astro` (CSS vars `--nav-transition-*`) + `preloader.js` (`startNav`) | Subtiele dim/blur op de oude pagina, ~60ms gedebounced zodat snelle/geprefetchte navigatie niet flitst |
+| Crossfade | `src/layouts/DefaultLayout.astro` (`::view-transition-old/new(page-main)`) | Named view transition op `<main>`, canonieke plek voor deze CSS (niet dupliceren in `global.css`) |
+| Coördinatie-event | `preloader.js` → `document.dispatchEvent(new CustomEvent('preloader:nav-complete'))` | Signaal dat de preloader écht klaar is; overige systemen wachten hierop i.p.v. meteen bij de DOM-swap te reageren |
+| Content reveal | `src/layouts/DefaultLayout.astro` (`initImageFadeInOnView`, `initStaggerOnView`, `initRevealOnView`) + `global.css` (`.fade-on-view`, `.stagger-on-view-item`, `.reveal-on-view`) | IntersectionObserver-gedreven fade/slide-in; content die al in beeld is bij binnenkomst wacht op `preloader:nav-complete` voor die reveal, met een safety-timeout zodat niets permanent onzichtbaar kan blijven |
+| Project thumbs | `src/components/ProjectCard.astro` (`data-reveal-children`) | Gebruikt hetzelfde reveal-systeem als hierboven — geen aparte animatie-library meer voor de thumbs |
+
+**Volgorde bij een klik:** vertrek-feedback (dim/blur, gedebounced) → progress bar → DOM-swap + crossfade → preloader rondt af → pas dán animeert de nieuwe content (bv. de thumbs) in, in plaats van gelijktijdig met de preloader.
+
+**Toegankelijkheid:** alle bovenstaande animaties (dim/blur, crossfade, reveal-on-view) respecteren `prefers-reduced-motion: reduce` en tonen content dan direct zonder transitie. De ingebouwde route-announcer van `ClientRouter` blijft ongemoeid voor screenreader-gebruikers.
+
 ## 🛠️ Tech Stack
 
 - **Framework**: [Astro](https://astro.build) 5.15.1
@@ -170,6 +191,8 @@ Blocks kunnen deze sizes gebruiken voor responsieve, flexibele layouts.
 - **Type Safety**: TypeScript
 - **Image Optimization**: @sanity/image-url
 - **Video Embeds**: @orestbida/iframemanager + vanilla-cookieconsent
+- **Navigatie**: Astro `ClientRouter` (View Transitions API) — zie [Navigatie & Page Transitions](#-navigatie--page-transitions)
+- **Animaties**: `motion` (filter-interacties) + CSS/IntersectionObserver reveal-systeem (scroll- en page-reveals)
 - **Deployment**: Netlify
 
 ## 🔐 Security

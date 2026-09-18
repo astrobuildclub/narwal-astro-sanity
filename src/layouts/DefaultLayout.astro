@@ -125,13 +125,13 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         --vt-new-duration: 220ms;
         --vt-new-delay: 30ms;
         --vt-snappy-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-        --nav-transition-blur: 0px;
-        --nav-transition-opacity: 1;
+        --nav-transition-blur: 2px;
+        --nav-transition-opacity: 0.92;
         --nav-overlay-bg: var(--surface-bg);
       }
 
       :root[data-theme='dark'] {
-        --nav-transition-opacity: 1;
+        --nav-transition-opacity: 0.92;
       }
 
       html,
@@ -141,6 +141,11 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
       ::view-transition {
         background: var(--surface-bg);
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none;
       }
 
       ::view-transition-old(page-main),
@@ -373,6 +378,18 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
           if (mutedAutoplayVideos.length === 0) return;
 
+          // Astro's client-side swap can leave a freshly-inserted <video> in a
+          // broken load state (readyState 0 / a "media load rejected" error)
+          // even though the autoplay attribute is present and the exact same
+          // markup works fine on a hard page load. Kick the resource-selection
+          // algorithm explicitly so these actually start loading and playing.
+          mutedAutoplayVideos.forEach((video) => {
+            if (video.error || video.readyState === 0) {
+              video.load();
+              video.play().catch(() => {});
+            }
+          });
+
           // Listen for play events on all videos
           document.addEventListener(
             'play',
@@ -428,6 +445,51 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       })();
     </script>
     <script is:inline>
+      // Shared gate for the reveal-on-view systems below: while a navigation
+      // is in flight, above-the-fold content should not reveal immediately at
+      // swap time — it should wait until the preloader has actually finished,
+      // so the "arrival" reads as preloader-then-content instead of both at once.
+      // Elements found via scroll (IntersectionObserver, below-the-fold) never
+      // go through this gate — only the "already in view at init time" fastpath does.
+      (function () {
+        window.__navRevealGateOpen = true;
+
+        let pending = [];
+        let safetyTimer = null;
+
+        function flushPending() {
+          const toRun = pending;
+          pending = [];
+          if (safetyTimer) {
+            clearTimeout(safetyTimer);
+            safetyTimer = null;
+          }
+          toRun.forEach((fn) => fn());
+        }
+
+        window.__deferReveal = function (fn) {
+          if (window.__navRevealGateOpen) {
+            fn();
+            return;
+          }
+          pending.push(fn);
+          // Safety net: comfortably longer than the preloader's own hard cap
+          // (navMax + 250 in preloader.js), so content can never stay stuck invisible.
+          if (!safetyTimer) {
+            safetyTimer = setTimeout(flushPending, 3000);
+          }
+        };
+
+        document.addEventListener('astro:before-preparation', () => {
+          window.__navRevealGateOpen = false;
+        });
+        document.addEventListener('preloader:nav-complete', () => {
+          window.__navRevealGateOpen = true;
+          flushPending();
+        });
+      })();
+    </script>
+    <script is:inline>
       (function () {
         const processed = 'data-fade-on-view-ready';
 
@@ -475,7 +537,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             img.classList.add('fade-on-view');
 
             if (isInInitialView(img)) {
-              img.classList.add('is-visible');
+              window.__deferReveal(() => img.classList.add('is-visible'));
               return;
             }
 
@@ -561,7 +623,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             container.setAttribute(processed, 'true');
 
             if (isInInitialView(container)) {
-              container.classList.add('is-visible');
+              window.__deferReveal(() => container.classList.add('is-visible'));
               return;
             }
 
@@ -652,7 +714,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
           targets.forEach((target) => {
             target.setAttribute(processed, 'true');
             if (isInInitialView(target)) {
-              target.classList.add('is-visible');
+              window.__deferReveal(() => target.classList.add('is-visible'));
               return;
             }
             observer.observe(target);

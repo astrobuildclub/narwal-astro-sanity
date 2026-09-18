@@ -13,6 +13,7 @@
   const minDisplay = Number(preloader.dataset.minDisplay || 500);
   const navDelay = Number(preloader.dataset.navTransitionDelay || 120);
   const navMax = Number(preloader.dataset.navTransitionMax || 2200);
+  const navDimDelay = 60;
   const completeHold = 140;
 
   const prefersReducedMotion =
@@ -27,6 +28,7 @@
   let navActive = false;
   let navHasSwapped = false;
   let navDelayTimer = null;
+  let navDimTimer = null;
   let navProgressTimer = null;
   let navTimeout = null;
 
@@ -116,9 +118,11 @@
 
   const clearNavTimers = () => {
     if (navDelayTimer) clearTimeout(navDelayTimer);
+    if (navDimTimer) clearTimeout(navDimTimer);
     if (navProgressTimer) clearInterval(navProgressTimer);
     if (navTimeout) clearTimeout(navTimeout);
     navDelayTimer = null;
+    navDimTimer = null;
     navProgressTimer = null;
     navTimeout = null;
   };
@@ -158,6 +162,7 @@
           document.documentElement.classList.remove('preloader-active');
           setHidden(true);
           unlockScroll();
+          document.dispatchEvent(new CustomEvent('preloader:nav-complete'));
 
           try {
             sessionStorage.setItem('preloader-shown', 'true');
@@ -225,6 +230,7 @@
           requestAnimationFrame(() => {
             root.classList.remove('nav-transition-active');
             setHidden(true);
+            document.dispatchEvent(new CustomEvent('preloader:nav-complete'));
             setTimeout(() => {
               setMode('initial');
               resetProgress();
@@ -248,10 +254,15 @@
     navActive = true;
     navHasSwapped = false;
     clearNavTimers();
-    root.classList.add('nav-transition-active');
     setMode('nav');
     setHidden(false);
     resetProgress();
+
+    // Decoupled from navDelay on purpose: a short debounce so fast/prefetched
+    // navigations (which resolve before this fires) never flash the dim/blur.
+    navDimTimer = setTimeout(() => {
+      root.classList.add('nav-transition-active');
+    }, navDimDelay);
 
     const startedAt = performance.now();
 
