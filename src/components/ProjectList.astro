@@ -53,10 +53,11 @@ const projectCards = projects.map((project: any) => {
         })
     }
   </div>
-  <div class="load-more-wrapper">
-    <button class="load-more-btn" data-total={projectCards.length}>
-      Load more
-    </button>
+  <div
+    class="load-more-sentinel"
+    data-total={projectCards.length}
+    aria-hidden="true"
+  >
   </div>
 </section>
 
@@ -135,38 +136,18 @@ const projectCards = projects.map((project: any) => {
     }
   }
 
-  /* Load More Styling */
+  /* Infinite load sentinel */
   .project-card.hidden-by-loadmore {
     display: none !important;
   }
 
-  .load-more-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: var(--space-4xl);
-    padding-top: var(--space-2xl);
+  .load-more-sentinel {
+    width: 100%;
+    height: 1px;
+    pointer-events: none;
   }
 
-  .load-more-btn {
-    opacity: 0.75;
-    padding: var(--space-m) var(--space-xl);
-    font-size: var(--fs-0);
-    font-weight: 500;
-    color: var(--text);
-    background: transparent;
-    border: 1px solid currentColor;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.3s var(--easing-easeOutExpo);
-    text-decoration: none;
-  }
-
-  .load-more-btn:hover {
-    opacity: 1;
-  }
-
-  .load-more-btn.hidden {
+  .load-more-sentinel.hidden {
     display: none;
   }
 </style>
@@ -268,43 +249,33 @@ const projectCards = projects.map((project: any) => {
 </script>
 
 <script>
-  // Load More functionaliteit
   const ITEMS_PER_PAGE = 6;
   let isLoadMoreInitialized = false;
+  let loadMoreObserver: IntersectionObserver | null = null;
 
   function initializeLoadMore() {
-    // Voorkom dubbele initialisatie (fix voor stack overflow)
     if (isLoadMoreInitialized) return;
 
-    const loadMoreBtn = document.querySelector(
-      '.load-more-btn',
-    ) as HTMLButtonElement;
-    if (!loadMoreBtn) return;
+    const sentinel = document.querySelector(
+      '.load-more-sentinel',
+    ) as HTMLElement | null;
+    if (!sentinel) return;
 
     isLoadMoreInitialized = true;
 
-    const totalProjects = parseInt(
-      loadMoreBtn.getAttribute('data-total') || '0',
-    );
-
-    // State management
     let visibleCount = ITEMS_PER_PAGE;
-    let currentFilter = 'all';
 
-    // Haal alle projecten op die matchen met huidige filter
     function getFilteredProjects(): HTMLElement[] {
       const allCards = Array.from(
         document.querySelectorAll('.project-card'),
       ) as HTMLElement[];
       return allCards.filter((card) => {
-        // Verwijder tijdelijk de hidden-by-loadmore class om te checken of de filter de card verbergt
         const hadLoadmoreClass = card.classList.contains('hidden-by-loadmore');
         card.classList.remove('hidden-by-loadmore');
 
         const computedStyle = window.getComputedStyle(card);
         const isVisibleByFilter = computedStyle.display !== 'none';
 
-        // Herstel de class
         if (hadLoadmoreClass) {
           card.classList.add('hidden-by-loadmore');
         }
@@ -313,87 +284,73 @@ const projectCards = projects.map((project: any) => {
       });
     }
 
-    // Update visibility van project cards
+    function updateSentinel(filteredTotal: number) {
+      const remaining = filteredTotal - visibleCount;
+      if (remaining <= 0 || filteredTotal <= ITEMS_PER_PAGE) {
+        sentinel.classList.add('hidden');
+      } else {
+        sentinel.classList.remove('hidden');
+      }
+    }
+
     function updateCardVisibility() {
       const allCards = Array.from(
         document.querySelectorAll('.project-card'),
       ) as HTMLElement[];
       const filteredCards = getFilteredProjects();
 
-      // Eerst: verberg alle cards
       allCards.forEach((card) => {
         card.classList.add('hidden-by-loadmore');
       });
 
-      // Dan: toon de eerste X gefilterde cards
       filteredCards.slice(0, visibleCount).forEach((card) => {
         card.classList.remove('hidden-by-loadmore');
       });
 
-      // Update button
-      updateLoadMoreButton(filteredCards.length);
+      updateSentinel(filteredCards.length);
     }
 
-    // Update de load more button tekst en visibility
-    function updateLoadMoreButton(filteredTotal: number) {
-      const remaining = filteredTotal - visibleCount;
-
-      if (remaining <= 0 || filteredTotal <= ITEMS_PER_PAGE) {
-        loadMoreBtn.classList.add('hidden');
-      } else {
-        loadMoreBtn.classList.remove('hidden');
-        loadMoreBtn.textContent = 'Load more';
-      }
-    }
-
-    // Load more handler
     function loadMore() {
       const filteredCards = getFilteredProjects();
-      const firstNewIndex = visibleCount; // index van de eerste nieuw zichtbare card
+      if (visibleCount >= filteredCards.length) return;
       visibleCount += ITEMS_PER_PAGE;
       updateCardVisibility();
-
-      // Scroll naar het punt waar de nieuwe projecten zijn toegevoegd
-      const firstNewCard = filteredCards[firstNewIndex];
-      if (firstNewCard) {
-        firstNewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
     }
 
-    // Handle filter change
-    function onFilterChange(service: string) {
-      currentFilter = service;
+    function onFilterChange() {
       visibleCount = ITEMS_PER_PAGE;
-
-      // Wacht kort zodat de filter eerst z'n werk kan doen
       setTimeout(() => {
         updateCardVisibility();
       }, 50);
     }
 
-    // Event listeners
-    loadMoreBtn.addEventListener('click', loadMore);
+    loadMoreObserver?.disconnect();
+    loadMoreObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          loadMore();
+        }
+      },
+      { rootMargin: '320px 0px' },
+    );
+    loadMoreObserver.observe(sentinel);
 
-    // Luister naar filter events
     window.addEventListener('projectfilter:change', ((e: CustomEvent) => {
-      onFilterChange(e.detail?.service || e.detail?.industry || 'all');
+      onFilterChange();
     }) as EventListener);
 
-    // Initialize
     updateCardVisibility();
   }
 
-  // Initialize immediately if DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeLoadMore);
   } else {
-    // DOM is already loaded
     initializeLoadMore();
   }
 
-  // Also initialize on Astro page transitions
   document.addEventListener('astro:page-load', () => {
-    // Reset de flag voor nieuwe pagina's
+    loadMoreObserver?.disconnect();
+    loadMoreObserver = null;
     isLoadMoreInitialized = false;
     initializeLoadMore();
   });
