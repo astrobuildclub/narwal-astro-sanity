@@ -8,9 +8,29 @@ import 'swiper/css';
 
 import { numberWithZero } from './utils';
 
+// A single window-level resize listener, bound once across the whole page
+// lifetime, instead of one per `astro:page-load` run — otherwise repeated
+// client-side navigations through carouselblock pages stack up duplicate
+// listeners (each closing over a stale swiper instance) since `window`
+// listeners aren't cleaned up when the carousel DOM is discarded on swap.
+let activeUpdaters = [];
+if (!window.__carouselblockResizeBound) {
+  window.__carouselblockResizeBound = true;
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      activeUpdaters.forEach((fn) => fn());
+    }, 150);
+  });
+}
+
 document.addEventListener(
   'astro:page-load',
   function () {
+    // Previous page's carousels are gone — drop their updaters.
+    activeUpdaters = [];
+
     const carousels = document.querySelectorAll('.carouselblock-gallery');
 
     carousels.forEach(function (comp) {
@@ -65,11 +85,7 @@ document.addEventListener(
         });
 
         // Update bij resize
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-          clearTimeout(resizeTimer);
-          resizeTimer = setTimeout(updateSwiper, 150);
-        });
+        activeUpdaters.push(updateSwiper);
 
         // Set indicators
         if (elCurrentIndicator && elTotalIndicator) {

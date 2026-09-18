@@ -31,44 +31,9 @@
 
 /* Typography is now handled by SCSS font module */
 
-/* View transitions: fade page content on navigation */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-}
-
-::view-transition-old(page-main) {
-  animation: page-fade-out 220ms var(--easing-easeOutQuad, ease) both;
-}
-
-::view-transition-new(page-main) {
-  animation: page-fade-in 260ms var(--easing-easeOutExpo, ease) both;
-}
-
-@keyframes page-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes page-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(page-main),
-  ::view-transition-new(page-main) {
-    animation: none;
-  }
-}
+/* View transitions: page-main crossfade + nav-transition-active coordination
+   now live in src/layouts/DefaultLayout.astro, next to the preloader logic
+   they're wired to. Kept out of here to avoid two competing definitions. */
 
 img.fade-on-view {
   opacity: 0;
