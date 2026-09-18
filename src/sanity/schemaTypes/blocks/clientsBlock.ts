@@ -17,13 +17,36 @@ export default defineType({
       name: 'clients',
       type: 'array',
       title: 'Clients',
+      description: 'Al gekozen clients staan in de lijst en kunnen niet nog eens worden toegevoegd.',
       of: [
         {
           type: 'reference',
           to: [{ type: 'client' }],
+          options: {
+            filter: ({ parent }) => {
+              const refs = Array.isArray(parent) ? parent : [];
+              const selectedIds = refs
+                .map((item: { _ref?: string }) => item?._ref)
+                .filter((id: string | undefined): id is string => Boolean(id))
+                .flatMap((id: string) =>
+                  id.startsWith('drafts.')
+                    ? [id, id.replace(/^drafts\./, '')]
+                    : [id, `drafts.${id}`],
+                );
+
+              if (selectedIds.length === 0) {
+                return { filter: '_type == "client"' };
+              }
+
+              return {
+                filter: '_type == "client" && !(_id in $selectedIds)',
+                params: { selectedIds },
+              };
+            },
+          },
         },
       ],
-      validation: (Rule) => Rule.min(1),
+      validation: (Rule) => Rule.min(1).unique(),
     }),
     defineField({
       name: 'layout',
