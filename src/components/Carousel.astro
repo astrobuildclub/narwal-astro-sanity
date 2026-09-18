@@ -1,10 +1,9 @@
 ---
-
 // Import Components
-import Image from 'astro/components/Image.astro'
-import { urlForImage } from '../../src/sanity/lib/image'
+import Image from 'astro/components/Image.astro';
+import { urlForImage } from '../../src/sanity/lib/image';
 
-const {slides} = Astro.props;
+const { slides } = Astro.props;
 
 // // DEBUG: Log de volledige slides data
 // if (import.meta.env.DEV) {
@@ -38,9 +37,9 @@ const processedSlides = slides.map((slide: any) => {
 
   // Sanity data structure - build URL based on link type
   const linkObj = slide.link;
-  let updatedUrl = "";
-  let updatedTitle = slide.title || "";
-  const updatedTarget = "_self"; // Default to same tab
+  let updatedUrl = '';
+  let updatedTitle = slide.title || '';
+  const updatedTarget = '_self'; // Default to same tab
 
   if (linkObj) {
     if (linkObj.linkType === 'external' && linkObj.url) {
@@ -50,7 +49,7 @@ const processedSlides = slides.map((slide: any) => {
       // Internal link - check if it's a project (work) or page
       const internalLink = linkObj.internalLink;
       const slug = internalLink.slug?.current || internalLink.slug;
-      
+
       if (slug) {
         if (internalLink._type === 'work') {
           // Project link - use /project/ prefix
@@ -67,7 +66,7 @@ const processedSlides = slides.map((slide: any) => {
       // Fallback: if linkType is not set but internalLink exists
       const internalLink = linkObj.internalLink;
       const slug = internalLink.slug?.current || internalLink.slug;
-      
+
       if (slug) {
         if (internalLink._type === 'work') {
           updatedUrl = `/project/${slug}`;
@@ -80,11 +79,13 @@ const processedSlides = slides.map((slide: any) => {
 
   return {
     ...slide,
-    link: updatedUrl ? {
-      title: updatedTitle,
-      url: updatedUrl,
-      target: updatedTarget
-    } : null
+    link: updatedUrl
+      ? {
+          title: updatedTitle,
+          url: updatedUrl,
+          target: updatedTarget,
+        }
+      : null,
   };
 });
 
@@ -94,7 +95,7 @@ const imageHeight = Math.round((imageWidth * 9) / 16); // 16:9 aspect ratio
 
 const backgroundSlides = processedSlides.map((slide: any) => {
   // Sanity image handling
-  let imageUrl = "";
+  let imageUrl = '';
   if (slide.image?.asset) {
     try {
       imageUrl = urlForImage(slide.image)?.width(imageWidth).url() || '';
@@ -103,7 +104,7 @@ const backgroundSlides = processedSlides.map((slide: any) => {
         console.warn('⚠️ Failed to generate image URL:', error);
       }
       // Fallback to direct URL if available
-      imageUrl = slide.image?.asset?.url || "";
+      imageUrl = slide.image?.asset?.url || '';
     }
   }
 
@@ -122,87 +123,110 @@ const backgroundSlides = processedSlides.map((slide: any) => {
 
   return {
     imgsrc: imageUrl,
-    imgalt: slide.image?.alt || slide.title || "",
-    vidsrc: slide.videoUrl || ""
+    imgalt: slide.image?.alt || slide.title || '',
+    vidsrc: slide.videoUrl || '',
   };
 });
 
 const foregroundSlides = processedSlides.map((slide: any) => {
   return {
-    title: slide.title || "",
-    subtitle: slide.subtitle || "",
+    title: slide.title || '',
+    subtitle: slide.subtitle || '',
     link: slide.link,
   };
 });
 ---
+
 <section class="carousel-gallery full">
   <div class="carousels">
-
     <!-- Background Carousel -->
     <div class="carousel carousel-background swiper">
       <!-- Slides -->
       <div role="list" class="swiper-wrapper">
-        {backgroundSlides &&
-          backgroundSlides.map((slide: any, index: number) => (
-            <div role="listitem" class="swiper-slide">
-              {slide.vidsrc && (
-                <div class="video-wrapper">
-                  <div class="video-overlay">
-                    <video class="video" playsinline="" loop="" muted="" autoplay="">
-                      <source
-                        src={slide.vidsrc}
-                      />
-                    </video>
+        {
+          backgroundSlides &&
+            backgroundSlides.map((slide: any, index: number) => (
+              <div role="listitem" class="swiper-slide">
+                {slide.vidsrc && (
+                  <div class="video-wrapper">
+                    <div class="video-overlay">
+                      <video
+                        class="video"
+                        playsinline=""
+                        loop=""
+                        muted=""
+                        autoplay=""
+                      >
+                        <source src={slide.vidsrc} />
+                      </video>
+                    </div>
                   </div>
-                </div>
-              )}
-              {slide.imgsrc && (
-                <Image
-                  src={slide.imgsrc}
-                  width={imageWidth}
-                  height={imageHeight}
-                  widths={[540, 960, 1440, 1920]}
-                  sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
-                  format="avif"
-                  alt={slide.imgalt || ''}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                />
-              )}
-            </div>
-          ))
-        }    
+                )}
+                {slide.imgsrc && (
+                  <Image
+                    src={slide.imgsrc}
+                    width={imageWidth}
+                    height={imageHeight}
+                    widths={[540, 960, 1440, 1920]}
+                    sizes={`(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px`}
+                    format="avif"
+                    alt={slide.imgalt || ''}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                )}
+              </div>
+            ))
+        }
       </div>
     </div>
+    <!-- Gradient over background, onder de tekst -->
+    <div class="carousel-scrim" aria-hidden="true"></div>
     <!-- Foreground Carousel -->
     <div class="carousel carousel-foreground swiper">
-        <div role="list" class="swiper-wrapper">
-          {foregroundSlides && 
-            foregroundSlides.map((slide:any)=>( // slide
-            <div role="listitem" class="swiper-slide">
-              {slide.link ?
-                <a class="slide-text" href={slide.link.url} target={slide.link.target} aria-label={`${slide.link.title || slide.title}`}>
-                  <h3 class="opacity-80">{slide.subtitle}</h3>
-                  <h1 class="md:text-6xl md:pr-[15vw]  ">{slide.title}</h1>
-                </a>
-              :
-                <h3 class="opacity-80">{slide.subtitle}</h3>
-                <h1 class="md:text-6xl md:pr-[15vw] ">{slide.title}</h1>
-              }
-            </div>
-          ))
-        }    
-        </div>
+      <div role="list" class="swiper-wrapper">
+        {
+          foregroundSlides &&
+            foregroundSlides.map(
+              (
+                slide: any, // slide
+              ) => (
+                <div role="listitem" class="swiper-slide">
+                  {slide.link ? (
+                    <a
+                      class="slide-text"
+                      href={slide.link.url}
+                      target={slide.link.target}
+                      aria-label={`${slide.link.title || slide.title}`}
+                    >
+                      <h3 class="opacity-80">{slide.subtitle}</h3>
+                      <h1 class="md:pr-[15vw] md:text-6xl">{slide.title}</h1>
+                    </a>
+                  ) : (
+                    <div class="slide-text">
+                      <h3 class="opacity-80">{slide.subtitle}</h3>
+                      <h1 class="md:pr-[15vw] md:text-6xl">{slide.title}</h1>
+                    </div>
+                  )}
+                </div>
+              ),
+            )
+        }
+      </div>
     </div>
     <!-- Carousel Controls -->
-    <div class="align-middle controls swiper-controls">
-      <div class="align-middle controls-wrapper">
-          <div class="control-indicator swiper-indicator">
+    <div class="controls swiper-controls align-middle">
+      <div class="controls-wrapper align-middle">
+        <div class="control-indicator swiper-indicator">
           <p class="swiper-counter">
             <span class="swiper-number-current">00</span> &mdash;
             <span class="swiper-number-total">00</span>
           </p>
         </div>
-        <a href="#" class="control-button swiper-button-prev" aria-label="Show previous slide">
+        <a
+          href="#"
+          class="control-button swiper-button-prev"
+          aria-label="Show previous slide"
+        >
           <div class="control-button_icon is_reversed">
             <svg
               width="24px"
@@ -218,7 +242,11 @@ const foregroundSlides = processedSlides.map((slide: any) => {
             >
           </div>
         </a>
-        <a href="#" class="control-button swiper-button-next" aria-label="Show next slide">
+        <a
+          href="#"
+          class="control-button swiper-button-next"
+          aria-label="Show next slide"
+        >
           <div class="control-button_icon">
             <svg
               width="24px"
@@ -234,7 +262,6 @@ const foregroundSlides = processedSlides.map((slide: any) => {
             >
           </div>
         </a>
-      
       </div>
     </div>
   </div>
@@ -243,30 +270,29 @@ const foregroundSlides = processedSlides.map((slide: any) => {
 <script src="../lib/swiper.js"></script>
 
 <style>
-
-   /* * > * {
+  /* * > * {
     border: 1px solid red;
    } */
-/* Algemene instellingen voor de carousel gallery */
+  /* Algemene instellingen voor de carousel gallery */
   .carousel-gallery {
     margin-block: 0;
     display: flex;
-    flex-direction: column;  
+    flex-direction: column;
     width: 100%;
     height: 100dvh;
     position: relative;
     overflow: hidden;
   }
-  
+
   .carousels {
-    padding:0;
+    padding: 0;
     margin: 0;
     position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
   }
-  
+
   /* Achtergrond carousel instellingen */
   .carousel-background {
     position: absolute;
@@ -276,7 +302,7 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     height: 100%;
     z-index: 1; /* Achtergrond */
   }
-  
+
   .carousel-background .swiper-slide {
     position: relative;
     display: flex;
@@ -286,7 +312,7 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     height: 100%;
     overflow: hidden; /* Zorgt ervoor dat de inhoud in de viewport past */
   }
-  
+
   .carousel-background .video-wrapper {
     position: absolute;
     top: 0;
@@ -295,37 +321,47 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     height: 100%;
     z-index: 2; /* Zorgt ervoor dat de video boven de afbeelding ligt */
   }
-  
+
   .carousel-background .video,
   .carousel-background video {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Past de video aan om de hele slide te bedekken */
   }
-  
-  .carousel-background .poster ,
+
+  .carousel-background .poster,
   .carousel-background img {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Past de afbeelding aan om de hele slide te bedekken */
     z-index: 1; /* Zorgt ervoor dat de afbeelding onder de video ligt */
   }
-  
-  /* Voorgrond carousel instellingen */
+
+  /* Gradient tussen background en tekst/controls */
+  .carousel-scrim {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: min(45%, 18rem);
+    z-index: 2;
+    pointer-events: none;
+    background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+  }
+
+  /* Voorgrond carousel: tekst boven de gradient */
   .carousel-foreground {
     position: relative;
     width: 100%;
     height: 100%;
-    z-index: 2; /* Voorgrond */
+    z-index: 3;
     display: flex;
     justify-content: flex-start;
     align-items: flex-end;
-    pointer-events: none; /* Zorgt ervoor dat alleen de controls klikbaar zijn */
+    pointer-events: none;
   }
-  .carousel-foreground .swiper-wrapper{
-    width:100%;
+  .carousel-foreground .swiper-wrapper {
+    width: 100%;
     height: 100%;
-    padding: var(--space-s-xl);
+    padding: var(--site-padding);
   }
   .carousel-foreground .swiper-slide {
     display: flex;
@@ -333,60 +369,47 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     justify-content: flex-end;
     align-items: stretch;
     color: white;
-    pointer-events: none; /* Laat touch events door naar background carousel */
-    min-height: 100%; /* Zorgt ervoor dat de slides 100% van de hoogte innemen */
-    min-width: 100%; /* Zorgt ervoor dat de slides 100% van de breedte innemen */
+    pointer-events: none;
+    min-height: 100%;
+    min-width: 100%;
     padding: 0;
     margin: 0;
-    /* overflow: hidden; */
   }
-  
-  /* Zorg dat klikbare elementen (links) wel pointer events hebben */
+
   .carousel-foreground .swiper-slide a {
     pointer-events: auto;
   }
-  
-  /* Control instellingen */
+
+  /* Controls bovenop, zonder gradient; alleen knoppen vangen clicks */
   .controls {
     position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    z-index: 3; /* Boven beide carousels */
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 4;
     display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .controls-wrapper {
-    display: flex;
-    align-items: center
-  }  
-
-  .controls {
-    z-index: 10;
-    grid-column-gap: 0em;
-    grid-row-gap: 1.5em;
-    background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(1, 1, 1, .6));
     flex-wrap: wrap;
     justify-content: flex-end;
     align-items: center;
-    display: flex;
-    position: absolute;
-    top: auto;
-    bottom: 0%;
-    left: 0%;
-    right: 0%;
-    /* padding: var(--site-padding); */
-    padding: var(--space-s-xl);
+    padding: var(--site-padding);
+    pointer-events: none;
+    background: none;
   }
-  .controls-wrapper{
-    grid-column-gap: .5rem;
-    grid-row-gap: .5rem;
+
+  .controls-wrapper {
+    display: flex;
     flex-wrap: wrap;
     flex: 0 auto;
     justify-content: flex-end;
     align-items: center;
-    display: flex;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+
+  .control-button,
+  .control-indicator {
+    pointer-events: auto;
   }
 
   .control-button {
@@ -411,14 +434,11 @@ const foregroundSlides = processedSlides.map((slide: any) => {
   .control-button_icon {
     flex: none;
     align-self: center;
-    
   }
 
   .control-button_icon svg {
-   transform: scale(0.75)
-  } 
-
-
+    transform: scale(0.75);
+  }
 
   .control-indicator {
     color: white;
@@ -448,28 +468,33 @@ const foregroundSlides = processedSlides.map((slide: any) => {
   }
 
   .slide-text {
-
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+    max-width: min(70ch, 100%);
   }
   h1 {
-    
-    
-    font-size: var(--fs--1);
-    font-weight:500;
+    font-size: var(--fs-0);
+    font-weight: 400;
     /* letter-spacing: -0.035em; */
     text-wrap: balance;
     line-height: 100%;
-    
+    color: #fff;
   }
 
   h3 {
     font-size: var(--fs--1);
-    font-weight:500;
-  }
-   a {
-    text-decoration: none!important;
-   }
 
-   a:hover {
-    text-decoration: none!important;
-   }
+    font-weight: 500;
+    line-height: 150%;
+  }
+  a {
+    text-decoration: none !important;
+  }
+
+  a:hover {
+    text-decoration: none !important;
+  }
 </style>

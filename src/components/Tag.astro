@@ -29,11 +29,12 @@ const { label, link, variant = 'filled' } = Astro.props;
 
   .tag {
     padding: calc(var(--space-2xs) * 0.675) var(--space-2xs);
-    font-size: calc(var(--fs--3) - 0.0125em);
-    letter-spacing: -0.025em;
+    font-size: calc(var(--fs--2) - 0.0125em);
+    font-weight: 400;
+    letter-spacing: -0.0125em;
     leading-trim: both;
     text-edge: cap alphabetic;
-    border-radius: 9999px;
+    border-radius: var(--space-2xs);
     line-height: 1;
     white-space: nowrap;
   }
@@ -46,7 +47,7 @@ const { label, link, variant = 'filled' } = Astro.props;
   .tag--outline {
     background: transparent;
     color: inherit;
-    border: 1px solid color-mix(in srgb, currentColor 55%, transparent);
+    border: 1px solid color-mix(in srgb, currentColor 95%, transparent);
   }
 
   .tag-link {

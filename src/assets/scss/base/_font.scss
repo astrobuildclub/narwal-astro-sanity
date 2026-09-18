@@ -4,7 +4,7 @@
 
 @use 'breakpoint' as *;
 
-/* Fonts are now loaded via Adobe Typekit in DefaultLayout.astro */
+/* Fonts: Neue Haas Display via src/assets/fonts/neue-haas-display.css */
 
 body {
   font-family: var(--font-family-default);
