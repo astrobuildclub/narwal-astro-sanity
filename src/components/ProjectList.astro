@@ -106,26 +106,12 @@ const projectCards = projects.map((project: any) => {
 
   .project-card:hover,
   .project-card:focus-within {
-    box-shadow: 0 0 0 0.5rem;
-    box-shadow: none;
-
     cursor: pointer;
   }
 
   .project-card img,
   .project-card video {
-    /* transform: scale(1.0125); */
-    transition: all 1.4s var(--easing-easeOutExpo);
-    opacity: 0.9;
-  }
-
-  .project-card:hover img,
-  .project-card:hover video {
-    /* transform: scale(1); */
-    opacity: 1;
-  }
-  .project-card:hover {
-    /* transform: scale(0.985); */
+    transition: opacity 1.4s var(--easing-easeOutExpo);
   }
 
   .project-content a {
@@ -141,16 +127,6 @@ const projectCards = projects.map((project: any) => {
     content: '';
     position: absolute;
     inset: 0;
-  }
-
-  .project-card {
-    transition: all 0.4s var(--easing-easeOutExpo);
-  }
-
-  @media (hover: hover) {
-    .project-card:hover {
-      opacity: 0.72;
-    }
   }
 
   @media (min-width: 1024px) {

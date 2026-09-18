@@ -3,20 +3,19 @@ const { class: customClass } = Astro.props;
 ---
 
 <section class={`page-intro page ${customClass}`}>
-  <div class="grid gap-4 page content-baseline lg:grid-cols-2 lg:gap-12">
+  <div class="page grid content-baseline gap-4 lg:grid-cols-2 lg:gap-12">
     <div class="col-1 col self-baseline">
       <slot name="column-one" />
     </div>
-    <div class="self-auto col-2 col">
+    <div class="col-2 col self-auto">
       <slot name="column-two" />
     </div>
   </div>
 </section>
 
 <style>
-
   .page-intro {
-    margin-top: var(--space-xl);
+    margin-block: var(--space-2xl);
   }
   .col-1 {
     font-size: var(--fs-3);
@@ -76,7 +75,7 @@ const { class: customClass } = Astro.props;
   /* Link styling in PageIntro */
   :global(.page-intro a) {
     text-decoration: underline;
-   
+
     color: inherit;
     transition: opacity 0.2s ease;
   }
@@ -103,7 +102,9 @@ const { class: customClass } = Astro.props;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     opacity: 0;
     transform: scale(1.05);
-    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    transition:
+      opacity 0.2s ease-in-out,
+      transform 0.2s ease-in-out;
   }
 
   :global(.video-hover-preview.visible) {

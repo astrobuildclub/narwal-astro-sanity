@@ -63,9 +63,14 @@ function taxonomySlug(item: TaxonomyItem): string {
   return item.slug || slugify(item.title || '');
 }
 
-function filterLink(param: 'industry' | 'service', value: string): string | undefined {
+function filterLink(
+  param: 'industry' | 'service',
+  value: string,
+): string | undefined {
   if (!filterBasePath || !value) return undefined;
-  const base = filterBasePath.endsWith('/') ? filterBasePath : `${filterBasePath}/`;
+  const base = filterBasePath.endsWith('/')
+    ? filterBasePath
+    : `${filterBasePath}/`;
   return `${base}?${param}=${encodeURIComponent(value)}`;
 }
 
@@ -243,16 +248,14 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
   <div class="project-meta">
     {
       clientName && (
-        <h3 class="font-medium opacity-80 project-client">
-          {clientName}
-        </h3>
+        <h3 class="project-client font-medium opacity-80">{clientName}</h3>
       )
     }
 
     {
       projectTitle && (
         <a href={projectLink} class="project-card-link">
-          <h2 class="leading-4 project-title">{projectTitle}</h2>
+          <h2 class="project-title leading-4">{projectTitle}</h2>
         </a>
       )
     }
@@ -266,11 +269,13 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
   .project-card {
     position: relative;
     color: var(--font-color);
-    transition: all 0.4s var(--easing-easeInOutExpo);
+    transition: opacity 0.4s var(--easing-easeInOutExpo);
   }
 
-  .project-card:hover {
-    transform: translateY(-4px);
+  @media (hover: hover) {
+    .project-card:hover {
+      opacity: 0.72;
+    }
   }
 
   /* Link styling */
@@ -306,8 +311,9 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
   }
 
   .project-client {
-    font-size: var(--fs--3);
-    letter-spacing: -0.0125em;
+    font-size: var(--fs--1);
+    font-weight: 500;
+    /* letter-spacing: -0.0125em; */
     line-height: 112.5%;
     margin: 0;
   }
