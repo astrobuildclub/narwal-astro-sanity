@@ -19,7 +19,7 @@ const size = cleanSize(Astro.props.size) || 'page';
 
 <!-- ColumnsBlock -->
 <div
-  class={`grid gap-6 multicols ${size} lg:grid-cols-[repeat(auto-fit,_minmax(320px,_1fr))]`}
+  class={`grid gap-[var(--gap-default)] multicols ${size} lg:grid-cols-[repeat(auto-fit,_minmax(320px,_1fr))]`}
 >
   {
     columns &&
