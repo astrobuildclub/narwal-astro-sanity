@@ -99,10 +99,16 @@ export interface SanityProject {
     _type: 'reference';
     title: string;
   };
+  industry?: {
+    _id?: string;
+    title?: string;
+    slug?: string;
+  };
   services?: Array<{
     _type: 'reference';
     _id?: string;
     title?: string;
+    slug?: string;
   }>;
   info?: any[]; // Portable Text array
   credits?: any[]; // Portable Text array

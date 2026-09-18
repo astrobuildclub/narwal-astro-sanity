@@ -34,6 +34,7 @@ const content = data.content;
 const info = data.info;
 const credits = data.credits;
 const services = data.services;
+const industry = data.industry;
 const relatedProjects = data.relatedProjects;
 
 const heroData = {
@@ -67,8 +68,13 @@ const heroData = {
 }
 
 {
-  (info || services || credits) && (
-    <ProjectFooter info={info} services={services} credits={credits} />
+  (info || industry || services || credits) && (
+    <ProjectFooter
+      info={info}
+      industry={industry}
+      services={services}
+      credits={credits}
+    />
   )
 }
 

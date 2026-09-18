@@ -6,8 +6,9 @@ import { slugify } from '../lib/utils.js';
 import { urlForImage } from '../../src/sanity/lib/image';
 
 // Type Definitions
-type Services = {
+type TaxonomyItem = {
   title: string;
+  slug?: string;
 };
 
 type ProjectProps = {
@@ -18,7 +19,9 @@ type ProjectProps = {
   vidsrc?: string;
   link?: string;
   size?: string;
-  services?: Services[];
+  services?: TaxonomyItem[];
+  industry?: TaxonomyItem | null;
+  filterBasePath?: string;
   fitCards?: boolean;
   aspectRatio?: string;
   // Sanity specific props
@@ -36,6 +39,8 @@ const {
   link,
   size,
   services,
+  industry,
+  filterBasePath,
   fitCards,
   aspectRatio = '16:9',
   thumbnail,
@@ -47,10 +52,41 @@ const {
 const clientName = client?.title || clientname || '';
 const projectTitle = title || '';
 const projectLink = link || '#';
-const projectServices = services || [];
+const projectServices = Array.isArray(services) ? services : [];
+const projectIndustry =
+  industry && (industry.title || industry.slug) ? industry : null;
 const projectSize = thumbnail?.size || size;
 const projectFitCards = fitCards ?? false;
 const projectAspectRatio = thumbnail?.aspectRatio || aspectRatio;
+
+function taxonomySlug(item: TaxonomyItem): string {
+  return item.slug || slugify(item.title || '');
+}
+
+function filterLink(param: 'industry' | 'service', value: string): string | undefined {
+  if (!filterBasePath || !value) return undefined;
+  const base = filterBasePath.endsWith('/') ? filterBasePath : `${filterBasePath}/`;
+  return `${base}?${param}=${encodeURIComponent(value)}`;
+}
+
+const tagItems = [
+  ...(projectIndustry?.title
+    ? [
+        {
+          title: projectIndustry.title,
+          variant: 'outline' as const,
+          link: filterLink('industry', taxonomySlug(projectIndustry)),
+        },
+      ]
+    : []),
+  ...projectServices
+    .filter((service) => service?.title)
+    .map((service) => ({
+      title: service.title,
+      variant: 'filled' as const,
+      link: filterLink('service', taxonomySlug(service)),
+    })),
+];
 
 // Calculate height based on aspect ratio
 function getHeightFromAspectRatio(width: number, aspectRatio: string): number {
@@ -151,9 +187,10 @@ if (!projectFitCards) {
   cardClasses = 'md:col-span-1 lg:col-span-2';
 }
 
-// Service titles for filtering
+// Taxonomy slugs for filtering
 const serviceTitles =
-  projectServices.map((service) => slugify(service.title)).join(' ') || '';
+  projectServices.map((service) => taxonomySlug(service)).join(' ') || '';
+const industrySlug = projectIndustry ? taxonomySlug(projectIndustry) : '';
 
 // Aspect ratio CSS class
 const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
@@ -162,6 +199,7 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
 <div
   class={`project-card ${cardClasses}`}
   data-services={serviceTitles}
+  data-industry={industrySlug}
   data-reveal-children=".project-media"
   style="--reveal-duration: 0.9s; --reveal-distance: 3rem; --reveal-delay: 200ms;"
 >
@@ -202,24 +240,25 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
     }
   </div>
 
-  <div class="flex justify-between pt-6 mb-2 align-middle project-meta">
+  <div class="project-meta">
     {
       clientName && (
-        <h3 class="font-medium opacity-80 project-client self-baseline">
+        <h3 class="font-medium opacity-80 project-client">
           {clientName}
         </h3>
       )
     }
-    {projectServices.length > 0 && <TagGroup tags={projectServices} />}
-  </div>
 
-  {
-    projectTitle && (
-      <a href={projectLink} class="project-card-link">
-        <h2 class="leading-4 project-title">{projectTitle}</h2>
-      </a>
-    )
-  }
+    {
+      projectTitle && (
+        <a href={projectLink} class="project-card-link">
+          <h2 class="leading-4 project-title">{projectTitle}</h2>
+        </a>
+      )
+    }
+
+    {tagItems.length > 0 && <TagGroup tags={tagItems} />}
+  </div>
 </div>
 
 <style is:global>
@@ -258,17 +297,26 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
     z-index: 20;
   }
 
+  .project-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding-top: 1.5rem;
+  }
+
   .project-client {
     font-size: var(--fs--3);
     letter-spacing: -0.0125em;
     line-height: 112.5%;
+    margin: 0;
   }
 
   .project-title {
     font-size: var(--fs-2);
     letter-spacing: -0.0125em;
     line-height: 100%;
-    font-weight: 300;
+    font-weight: 400;
     margin: 0;
     padding: 0;
     position: relative;

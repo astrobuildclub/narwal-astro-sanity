@@ -21,6 +21,7 @@ import page from './documents/page';
 import work from './documents/work';
 import client from './documents/client';
 import service from './documents/service';
+import industry from './documents/industry';
 import teamMember from './documents/teamMember';
 import career from './documents/career';
 import siteSettings from './documents/siteSettings';
@@ -49,6 +50,7 @@ export const schemaTypes = [
   work,
   client,
   service,
+  industry,
   teamMember,
   career,
   siteSettings,

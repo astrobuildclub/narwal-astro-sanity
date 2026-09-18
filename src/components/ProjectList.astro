@@ -1,7 +1,7 @@
 ---
 import ProjectCard from '../components/ProjectCard.astro';
 
-const { projects, layout, fitCards } = Astro.props;
+const { projects, layout, fitCards, filterBasePath } = Astro.props;
 
 // Process Sanity projects
 const projectCards = projects.map((project: any) => {
@@ -17,6 +17,7 @@ const projectCards = projects.map((project: any) => {
     imgalt: project.thumbnail?.alt || project.title || '',
     vidsrc: project.thumbnail?.video || '',
     services: project.services || [],
+    industry: project.industry || null,
     link: `/project/${project.slug}/`,
     aspectRatio: project.thumbnail?.aspectRatio || '16:9',
     // Sanity specific props - these are the source of truth
@@ -41,7 +42,14 @@ const projectCards = projects.map((project: any) => {
     {
       projectCards &&
         projectCards.map((item: any, index: number) => {
-          return <ProjectCard {...item} {fitCards} data-index={index} />;
+          return (
+            <ProjectCard
+              {...item}
+              {fitCards}
+              filterBasePath={filterBasePath}
+              data-index={index}
+            />
+          );
         })
     }
   </div>
@@ -141,13 +149,7 @@ const projectCards = projects.map((project: any) => {
 
   @media (hover: hover) {
     .project-card:hover {
-      opacity: 1;
-    }
-    .project-card:hover ~ .project-card {
-      opacity: 0.65;
-    }
-    .project-list:hover .project-card:not(:hover) {
-      opacity: 0.55;
+      opacity: 0.72;
     }
   }
 
@@ -398,7 +400,7 @@ const projectCards = projects.map((project: any) => {
 
     // Luister naar filter events
     window.addEventListener('projectfilter:change', ((e: CustomEvent) => {
-      onFilterChange(e.detail.service);
+      onFilterChange(e.detail?.service || e.detail?.industry || 'all');
     }) as EventListener);
 
     // Initialize

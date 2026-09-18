@@ -179,6 +179,13 @@ export default defineType({
       group: 'footer',
     }),
     defineField({
+      name: 'industry',
+      type: 'reference',
+      title: 'Industry',
+      to: [{ type: 'industry' }],
+      group: 'footer',
+    }),
+    defineField({
       name: 'services',
       type: 'array',
       title: 'Services',
