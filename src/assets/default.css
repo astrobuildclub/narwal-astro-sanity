@@ -127,11 +127,20 @@ body {
 .page-layout > *,
 .full-width > * {
   grid-column: content;
-  background: var(--debug);
+  /* background: var(--debug); */
 }
 
 .page-layout > * {
   margin-block: var(--space-l);
+}
+
+.project .page-layout > * {
+  margin-block: 0;
+}
+
+article img,
+article video {
+  border-radius: var(--radius-md);
 }
 
 .full > * {
