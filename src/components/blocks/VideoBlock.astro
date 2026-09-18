@@ -210,11 +210,12 @@ function getSizeClass(size: string) {
     /* Geen aspect-ratio hier - wordt per video type afgehandeld */
   }
 
-  .videoblock {
+  .videoblock,
+  .video-container .embed {
     position: relative;
     width: 100%;
     overflow: hidden;
-    border-radius: var(--radius-sm, 4px);
+    border-radius: var(--radius-md);
   }
 
   .videoblock.upload video,
