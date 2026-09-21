@@ -173,6 +173,16 @@ const posterImage =
       })
     : null;
 
+const posterUrl = posterImage?.src || imageSrc || '';
+const posterSrcSet = posterImage?.srcSet?.attribute || undefined;
+const posterSizes =
+  posterImage?.attributes?.sizes ||
+  '(max-width: 360px) 540px, (max-width: 720px) 960px, (max-width: 1600px) 1440px, 1920px';
+const posterWidth = posterImage?.attributes?.width || 1280;
+const posterHeight =
+  posterImage?.attributes?.height ||
+  getHeightFromAspectRatio(1280, projectAspectRatio);
+
 let cardClasses = '';
 if (!projectFitCards) {
   switch (projectSize) {
@@ -212,6 +222,21 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
     {
       videoSrc ? (
         <div class="project-video">
+          {posterUrl && (
+            <img
+              class="project-video-poster"
+              src={posterUrl}
+              srcset={posterSrcSet}
+              sizes={posterSizes}
+              width={posterWidth}
+              height={posterHeight}
+              alt={imageAlt}
+              title={projectTitle}
+              loading="lazy"
+              decoding="async"
+              data-no-fade-on-view
+            />
+          )}
           <video
             preload="metadata"
             tabindex="-1"
@@ -220,7 +245,7 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
             loop
             title={projectTitle}
             src={videoSrc}
-            poster={posterImage?.src || imageSrc || undefined}
+            poster={posterUrl || undefined}
             autoplay={true}
             muted
           />
@@ -381,8 +406,85 @@ const aspectRatioClass = `aspect-${projectAspectRatio.replace(':', '-')}`;
   /* Ensure video container fills the aspect ratio */
   .project-image,
   .project-video {
+    position: relative;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
+
+  /* Still poster under the video: visible immediately, video fades in on top */
+  .project-video-poster,
+  .project-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .project-video-poster {
+    position: absolute;
+    inset: 0;
+  }
+
+  .project-video:has(.project-video-poster) video {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.9s var(--easing-easeOutExpo);
+  }
+
+  .project-video:has(.project-video-poster) video.is-ready {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-video:has(.project-video-poster) video {
+      opacity: 1;
+      transition: none;
+    }
+  }
 </style>
+
+<script>
+  const processed = 'data-video-fade-bound';
+
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function revealVideo(video: HTMLVideoElement) {
+    video.classList.add('is-ready');
+  }
+
+  function bindProjectVideoFade() {
+    const videos = document.querySelectorAll(
+      `.project-video video:not([${processed}])`,
+    ) as NodeListOf<HTMLVideoElement>;
+
+    if (!videos.length) return;
+
+    const skipFade = prefersReducedMotion();
+
+    videos.forEach((video) => {
+      video.setAttribute(processed, 'true');
+
+      if (skipFade || video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        revealVideo(video);
+        return;
+      }
+
+      const onReady = () => revealVideo(video);
+      video.addEventListener('loadeddata', onReady, { once: true });
+      video.addEventListener('playing', onReady, { once: true });
+      video.addEventListener('canplay', onReady, { once: true });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindProjectVideoFade);
+  } else {
+    bindProjectVideoFade();
+  }
+
+  document.addEventListener('astro:page-load', bindProjectVideoFade);
+  document.addEventListener('astro:after-swap', bindProjectVideoFade);
+</script>

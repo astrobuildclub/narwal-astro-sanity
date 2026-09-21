@@ -48,6 +48,7 @@ img.fade-on-view {
 img.fade-on-view.is-visible {
   opacity: 1;
   transform: translate3d(0, 0, 0);
+  will-change: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -73,6 +74,7 @@ img.fade-on-view.is-visible {
 [data-stagger-on-view].is-visible .stagger-on-view-item {
   opacity: 1;
   transform: translate3d(0, 0, 0);
+  will-change: auto;
 }
 
 [data-reveal-on-view].reveal-on-view {
@@ -88,6 +90,7 @@ img.fade-on-view.is-visible {
 [data-reveal-on-view].reveal-on-view.is-visible {
   opacity: 1;
   transform: translate3d(0, 0, 0);
+  will-change: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

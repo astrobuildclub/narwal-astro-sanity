@@ -1,6 +1,6 @@
 ---
 const MIN_DISPLAY_MS = 500;
-const NAV_TRANSITION_DELAY_MS = 120;
+const NAV_TRANSITION_DELAY_MS = 200;
 const NAV_TRANSITION_MAX_MS = 2200;
 ---
 
@@ -10,6 +10,10 @@ const NAV_TRANSITION_MAX_MS = 2200;
   data-min-display={MIN_DISPLAY_MS}
   data-nav-transition-delay={NAV_TRANSITION_DELAY_MS}
   data-nav-transition-max={NAV_TRANSITION_MAX_MS}
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-valuenow="0"
   aria-hidden="true"
   transition:name="preloader"
   transition:persist
@@ -24,7 +28,6 @@ const NAV_TRANSITION_MAX_MS = 2200;
   <div class="preloader__nav" aria-hidden="true">
     <div class="preloader__nav-bar"></div>
   </div>
-  <div class="preloader__percent" aria-hidden="true">0%</div>
 </div>
 
 <script src="/js/preloader.js" is:inline></script>

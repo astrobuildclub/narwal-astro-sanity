@@ -14,6 +14,18 @@ import { numberWithZero } from './utils';
 // listeners (each closing over a stale swiper instance) since `window`
 // listeners aren't cleaned up when the carousel DOM is discarded on swap.
 let activeUpdaters = [];
+/** @type {Array<{ destroy: (deleteInstance?: boolean, cleanStyles?: boolean) => void }>} */
+let activeSwipers = [];
+
+function destroyActiveSwipers() {
+  activeUpdaters = [];
+  activeSwipers.splice(0).forEach((swiper) => {
+    try {
+      swiper.destroy(true, true);
+    } catch (e) {}
+  });
+}
+
 if (!window.__carouselblockResizeBound) {
   window.__carouselblockResizeBound = true;
   let resizeTimer;
@@ -25,11 +37,13 @@ if (!window.__carouselblockResizeBound) {
   });
 }
 
+document.addEventListener('astro:before-swap', destroyActiveSwipers);
+
 document.addEventListener(
   'astro:page-load',
   function () {
-    // Previous page's carousels are gone — drop their updaters.
-    activeUpdaters = [];
+    // Previous page's carousels are gone — drop their instances/updaters.
+    destroyActiveSwipers();
 
     const carousels = document.querySelectorAll('.carouselblock-gallery');
 
@@ -67,6 +81,7 @@ document.addEventListener(
         };
 
         const swiper = new Swiper(elBackgroundCarousel, swiperConfig);
+        activeSwipers.push(swiper);
 
         // Update functie voor resize en init timing (belangrijk voor full width)
         const updateSwiper = () => {
