@@ -271,44 +271,26 @@
     if (!navActive) return;
 
     clearNavTimers();
+    navActive = false;
 
-    // Fast navigations under the threshold never showed the bar/blur —
-    // skip the visual finish and just signal completion.
-    if (!navVisible) {
-      navActive = false;
-      setHidden(true);
-      root.classList.remove('nav-transition-active');
-      document.dispatchEvent(new CustomEvent('preloader:nav-complete'));
+    // Unlock immediately — never wait on rAF progress easing. On Safari a
+    // filter:blur page can drop to <2fps; waiting for current >= 99.5 left
+    // nav-transition-active stuck for many seconds.
+    root.classList.remove('nav-transition-active');
+    setHidden(true);
+    document.dispatchEvent(new CustomEvent('preloader:nav-complete'));
+
+    if (navVisible) {
+      current = 100;
+      target = 100;
+      updateNavProgress(100);
+    }
+
+    setTimeout(() => {
       setMode('initial');
       resetProgress();
       stopTick();
-      return;
-    }
-
-    setTarget(100);
-
-    const waitUntilDone = () => {
-      if (current >= 99.5) {
-        navActive = false;
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            root.classList.remove('nav-transition-active');
-            setHidden(true);
-            document.dispatchEvent(new CustomEvent('preloader:nav-complete'));
-            setTimeout(() => {
-              setMode('initial');
-              resetProgress();
-              stopTick();
-            }, 220);
-          });
-        });
-        return;
-      }
-
-      requestAnimationFrame(waitUntilDone);
-    };
-
-    requestAnimationFrame(waitUntilDone);
+    }, navVisible ? 220 : 0);
   };
 
   const startNav = () => {

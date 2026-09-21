@@ -91,6 +91,12 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
           ).matches;
           const theme = stored || (prefersDark ? 'dark' : 'light');
           doc.setAttribute('data-theme', theme);
+          // Safari chokes on filter:blur/grayscale over video-heavy pages during
+          // ClientRouter navigations — use a cheap opacity dim instead.
+          const ua = navigator.userAgent;
+          if (/safari/i.test(ua) && !/chrome|chromium|android/i.test(ua)) {
+            doc.classList.add('is-safari');
+          }
         } catch (e) {}
       })();
     </script>
@@ -204,6 +210,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
 
         :root.nav-transition-active .page-stack {
           filter: none;
+          opacity: 1;
         }
       }
 
@@ -214,12 +221,24 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         touch-action: none;
       }
       .page-stack {
-        transition: filter 320ms var(--vt-snappy-ease);
+        transition:
+          filter 320ms var(--vt-snappy-ease),
+          opacity 220ms var(--vt-snappy-ease);
       }
       :root.nav-transition-active .page-stack {
         filter: blur(var(--nav-transition-blur))
           grayscale(var(--nav-transition-grayscale));
         will-change: filter;
+      }
+      /* Safari: skip filter — it freezes frames on video/carousel pages and
+         blocked finalizeNav which waited on rAF progress easing. */
+      :root.is-safari .page-stack {
+        transition: opacity 180ms var(--vt-snappy-ease);
+      }
+      :root.is-safari.nav-transition-active .page-stack {
+        filter: none;
+        will-change: opacity;
+        opacity: 0.55;
       }
       :root.preloader-active body > :not(#preloader) {
         visibility: hidden;
