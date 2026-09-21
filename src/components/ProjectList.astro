@@ -252,6 +252,17 @@ const projectCards = projects.map((project: any) => {
   const ITEMS_PER_PAGE = 6;
   let isLoadMoreInitialized = false;
   let loadMoreObserver: IntersectionObserver | null = null;
+  let onFilterChangeHandler: EventListener | null = null;
+
+  function teardownLoadMore() {
+    loadMoreObserver?.disconnect();
+    loadMoreObserver = null;
+    if (onFilterChangeHandler) {
+      window.removeEventListener('projectfilter:change', onFilterChangeHandler);
+      onFilterChangeHandler = null;
+    }
+    isLoadMoreInitialized = false;
+  }
 
   function initializeLoadMore() {
     if (isLoadMoreInitialized) return;
@@ -335,9 +346,8 @@ const projectCards = projects.map((project: any) => {
     );
     loadMoreObserver.observe(sentinel);
 
-    window.addEventListener('projectfilter:change', ((e: CustomEvent) => {
-      onFilterChange();
-    }) as EventListener);
+    onFilterChangeHandler = onFilterChange as EventListener;
+    window.addEventListener('projectfilter:change', onFilterChangeHandler);
 
     updateCardVisibility();
   }
@@ -348,10 +358,9 @@ const projectCards = projects.map((project: any) => {
     initializeLoadMore();
   }
 
+  document.addEventListener('astro:before-swap', teardownLoadMore);
   document.addEventListener('astro:page-load', () => {
-    loadMoreObserver?.disconnect();
-    loadMoreObserver = null;
-    isLoadMoreInitialized = false;
+    teardownLoadMore();
     initializeLoadMore();
   });
 </script>

@@ -6,14 +6,14 @@
   if (!preloader) return;
   const root = document.documentElement;
 
-  const primaryFill = preloader.querySelector('.preloader__initial-fill--primary');
+  const primaryFill = preloader.querySelector(
+    '.preloader__initial-fill--primary',
+  );
   const navBar = preloader.querySelector('.preloader__nav-bar');
-  const percent = preloader.querySelector('.preloader__percent');
 
   const minDisplay = Number(preloader.dataset.minDisplay || 500);
-  const navDelay = Number(preloader.dataset.navTransitionDelay || 120);
+  const navDelay = Number(preloader.dataset.navTransitionDelay || 200);
   const navMax = Number(preloader.dataset.navTransitionMax || 2200);
-  const navDimDelay = 60;
   const completeHold = 140;
 
   const prefersReducedMotion =
@@ -27,10 +27,18 @@
 
   let navActive = false;
   let navHasSwapped = false;
+  let navVisible = false;
   let navDelayTimer = null;
-  let navDimTimer = null;
   let navProgressTimer = null;
   let navTimeout = null;
+
+  // Initial-load readiness flags.
+  // Images only drive the bar; lazy below-the-fold images must NOT block
+  // completion (they may never fire load until scrolled into view).
+  let fontsReady = false;
+  let windowLoaded = false;
+  let imageRatio = 0;
+  let initialHidden = false;
 
   const stopTick = () => {
     if (!rafId) return;
@@ -66,22 +74,23 @@
     }
   };
 
+  const setAriaValue = (value) => {
+    preloader.setAttribute('aria-valuenow', String(Math.round(value)));
+  };
+
   const updateInitialProgress = (value) => {
     const clamped = Math.max(0, Math.min(100, value));
-
     if (primaryFill) {
       primaryFill.style.width = `${clamped}%`;
     }
-
-    if (percent) {
-      percent.textContent = `${Math.round(clamped)}%`;
-    }
+    setAriaValue(clamped);
   };
 
   const updateNavProgress = (value) => {
     if (!navBar) return;
     const clamped = Math.max(0, Math.min(100, value));
     navBar.style.width = `${clamped}%`;
+    setAriaValue(clamped);
   };
 
   const tick = () => {
@@ -118,11 +127,9 @@
 
   const clearNavTimers = () => {
     if (navDelayTimer) clearTimeout(navDelayTimer);
-    if (navDimTimer) clearTimeout(navDimTimer);
     if (navProgressTimer) clearInterval(navProgressTimer);
     if (navTimeout) clearTimeout(navTimeout);
     navDelayTimer = null;
-    navDimTimer = null;
     navProgressTimer = null;
     navTimeout = null;
   };
@@ -150,7 +157,30 @@
     return true;
   })();
 
+  /**
+   * Progress model for first load (honest, no fake % jumps):
+   * - start: ~8% so the bar is visibly moving
+   * - fonts ready: floor 20%
+   * - images: 20% → 85% proportional to loaded/total (eager ones)
+   * - window.load + fonts: 100% (do not wait for lazy images)
+   */
+  const syncInitialProgress = () => {
+    if (initialHidden) return;
+
+    if (windowLoaded && fontsReady) {
+      hideInitial();
+      return;
+    }
+
+    let next = 8;
+    if (fontsReady) next = Math.max(next, 20);
+    next = Math.max(next, 20 + imageRatio * 65);
+    setTarget(Math.min(next, 92));
+  };
+
   const hideInitial = () => {
+    if (initialHidden) return;
+    initialHidden = true;
     setTarget(100);
 
     const waitUntilDone = () => {
@@ -184,9 +214,16 @@
   };
 
   const trackImagesForInitial = () => {
-    const images = Array.from(document.images || []);
+    // Prefer images that are likely above the fold / already requested.
+    // Lazy images would otherwise stall the ratio and never finish.
+    const images = Array.from(document.images || []).filter((img) => {
+      if (img.loading === 'lazy') return false;
+      return true;
+    });
+
     if (!images.length) {
-      setTarget(80);
+      imageRatio = 1;
+      syncInitialProgress();
       return;
     }
 
@@ -194,8 +231,8 @@
     let loaded = 0;
 
     const bump = () => {
-      const ratio = loaded / total;
-      setTarget(34 + ratio * 52);
+      imageRatio = loaded / total;
+      syncInitialProgress();
     };
 
     images.forEach((img) => {
@@ -217,10 +254,37 @@
     });
   };
 
+  const trackFontsForInitial = () => {
+    if (!document.fonts || !document.fonts.ready) {
+      fontsReady = true;
+      syncInitialProgress();
+      return;
+    }
+
+    document.fonts.ready.then(() => {
+      fontsReady = true;
+      syncInitialProgress();
+    });
+  };
+
   const finalizeNav = () => {
     if (!navActive) return;
 
     clearNavTimers();
+
+    // Fast navigations under the threshold never showed the bar/blur —
+    // skip the visual finish and just signal completion.
+    if (!navVisible) {
+      navActive = false;
+      setHidden(true);
+      root.classList.remove('nav-transition-active');
+      document.dispatchEvent(new CustomEvent('preloader:nav-complete'));
+      setMode('initial');
+      resetProgress();
+      stopTick();
+      return;
+    }
+
     setTarget(100);
 
     const waitUntilDone = () => {
@@ -253,20 +317,20 @@
 
     navActive = true;
     navHasSwapped = false;
+    navVisible = false;
     clearNavTimers();
     setMode('nav');
-    setHidden(false);
+    // Stay hidden until threshold — avoids flash on fast/prefetched navigations
+    setHidden(true);
     resetProgress();
-
-    // Decoupled from navDelay on purpose: a short debounce so fast/prefetched
-    // navigations (which resolve before this fires) never flash the dim/blur.
-    navDimTimer = setTimeout(() => {
-      root.classList.add('nav-transition-active');
-    }, navDimDelay);
 
     const startedAt = performance.now();
 
     const begin = () => {
+      if (!navActive) return;
+      navVisible = true;
+      setHidden(false);
+      root.classList.add('nav-transition-active');
       setTarget(10);
 
       navProgressTimer = setInterval(() => {
@@ -291,10 +355,11 @@
   const onNavSwapDone = () => {
     if (!navActive) return;
     navHasSwapped = true;
-    setTarget(97);
+    if (navVisible) setTarget(97);
   };
 
   const onNavPageLoad = () => {
+    if (!navActive) return;
     if (!navHasSwapped) return;
     finalizeNav();
   };
@@ -312,10 +377,10 @@
     resetProgress();
     lockScroll();
     initialStart = performance.now();
-    setTarget(10);
+    setTarget(8);
 
     const onDomReady = () => {
-      setTarget(34);
+      trackFontsForInitial();
       trackImagesForInitial();
     };
 
@@ -325,10 +390,15 @@
       onDomReady();
     }
 
+    const onWindowLoad = () => {
+      windowLoaded = true;
+      syncInitialProgress();
+    };
+
     if (document.readyState === 'complete') {
-      hideInitial();
+      onWindowLoad();
     } else {
-      window.addEventListener('load', hideInitial, { once: true });
+      window.addEventListener('load', onWindowLoad, { once: true });
     }
   }
 

@@ -138,6 +138,7 @@ const { class: customClass } = Astro.props;
         hideTimeout: number | null;
         tracking: boolean;
       };
+      __videoHoverCleanup?: () => void;
     };
     const state =
       win.__videoHoverState ||
@@ -274,6 +275,28 @@ const { class: customClass } = Astro.props;
         hideVideo();
       });
     });
+
+    // Expose hide for navigation cleanup so mousemove + body video node
+    // don't survive an Astro ClientRouter swap mid-hover.
+    win.__videoHoverCleanup = () => {
+      hideVideo();
+      if (state.hideTimeout) {
+        clearTimeout(state.hideTimeout);
+        state.hideTimeout = null;
+      }
+      if (state.videoElement) {
+        state.videoElement.pause();
+        state.videoElement = null;
+      }
+      if (state.videoContainer) {
+        state.videoContainer.remove();
+        state.videoContainer = null;
+      }
+      if (state.tracking) {
+        document.removeEventListener('mousemove', updateVideoPosition);
+        state.tracking = false;
+      }
+    };
   }
 
   // Initialiseer bij page load
@@ -285,5 +308,10 @@ const { class: customClass } = Astro.props;
 
   // Herinitialiseer bij Astro page navigation
   document.addEventListener('astro:page-load', initVideoHover);
-  document.addEventListener('astro:after-swap', initVideoHover);
+  document.addEventListener('astro:before-swap', () => {
+    const win = window as unknown as {
+      __videoHoverCleanup?: () => void;
+    };
+    win.__videoHoverCleanup?.();
+  });
 </script>

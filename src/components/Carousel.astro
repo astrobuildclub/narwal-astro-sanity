@@ -241,10 +241,12 @@ const foregroundSlides = processedSlides.map((slide: any) => {
                     <div class="video-overlay">
                       <video
                         class="video"
-                        playsinline=""
-                        loop=""
-                        muted=""
-                        autoplay=""
+                        playsinline
+                        loop
+                        muted
+                        autoplay
+                        poster={slide.imgsrc || undefined}
+                        preload={index === 0 ? 'auto' : 'metadata'}
                       >
                         <source src={slide.vidsrc} />
                       </video>
@@ -261,6 +263,7 @@ const foregroundSlides = processedSlides.map((slide: any) => {
                     format="avif"
                     alt={slide.imgalt || ''}
                     loading={index === 0 ? 'eager' : 'lazy'}
+                    data-no-fade-on-view
                   />
                 )}
               </div>
@@ -276,16 +279,73 @@ const foregroundSlides = processedSlides.map((slide: any) => {
 <script>
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import { prefersReducedMotion } from '../lib/gsap-inview';
+  import {
+    prefersReducedMotion,
+    whenPageReady,
+  } from '../lib/gsap-inview';
 
   gsap.registerPlugin(ScrollTrigger);
 
   let ctx: gsap.Context | undefined;
   let initToken = 0;
+  const videoProcessed = 'data-video-fade-bound';
 
   function cleanup() {
     ctx?.revert();
     ctx = undefined;
+  }
+
+  function revealVideoWrapper(video: HTMLVideoElement) {
+    video.closest('.video-wrapper')?.classList.add('is-ready');
+  }
+
+  function bindCarouselVideos(gallery: HTMLElement) {
+    const videos = gallery.querySelectorAll<HTMLVideoElement>(
+      `.carousel-background video:not([${videoProcessed}])`,
+    );
+    const skipFade = prefersReducedMotion();
+
+    videos.forEach((video) => {
+      video.setAttribute(videoProcessed, 'true');
+
+      if (skipFade || video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        revealVideoWrapper(video);
+        return;
+      }
+
+      const onReady = () => revealVideoWrapper(video);
+      video.addEventListener('loadeddata', onReady, { once: true });
+      video.addEventListener('playing', onReady, { once: true });
+      video.addEventListener('canplay', onReady, { once: true });
+    });
+  }
+
+  function initCarouselFade() {
+    const galleries = document.querySelectorAll<HTMLElement>(
+      '.carousel-gallery',
+    );
+
+    galleries.forEach((gallery) => {
+      bindCarouselVideos(gallery);
+      // Swiper loop clones slides after init; bind those too.
+      window.setTimeout(() => bindCarouselVideos(gallery), 0);
+
+      if (gallery.hasAttribute('data-carousel-fade-bound')) return;
+      gallery.setAttribute('data-carousel-fade-bound', 'true');
+
+      if (prefersReducedMotion()) {
+        gallery.classList.add('is-ready');
+        return;
+      }
+
+      whenPageReady(() => {
+        requestAnimationFrame(() => {
+          gallery.classList.add('is-ready');
+        });
+      });
+
+      window.setTimeout(() => gallery.classList.add('is-ready'), 3000);
+    });
   }
 
   function initCarouselVeil() {
@@ -327,13 +387,19 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCarouselVeil);
-  } else {
+  function initCarousel() {
+    initCarouselFade();
     initCarouselVeil();
   }
 
-  document.addEventListener('astro:page-load', initCarouselVeil);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarousel);
+  } else {
+    initCarousel();
+  }
+
+  document.addEventListener('astro:page-load', initCarousel);
+  document.addEventListener('astro:after-swap', initCarouselFade);
   document.addEventListener('astro:before-swap', () => {
     initToken += 1;
     cleanup();
@@ -362,6 +428,12 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.9s var(--easing-easeOutExpo);
+  }
+
+  .carousel-gallery.is-ready .carousels {
+    opacity: 1;
   }
 
   /* Achtergrond carousel instellingen */
@@ -391,6 +463,12 @@ const foregroundSlides = processedSlides.map((slide: any) => {
     width: 100%;
     height: 100%;
     z-index: 2; /* Zorgt ervoor dat de video boven de afbeelding ligt */
+    opacity: 0;
+    transition: opacity 0.9s var(--easing-easeOutExpo);
+  }
+
+  .carousel-background .video-wrapper.is-ready {
+    opacity: 1;
   }
 
   .carousel-background .video,
@@ -601,5 +679,13 @@ const foregroundSlides = processedSlides.map((slide: any) => {
 
   a:hover {
     text-decoration: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousels,
+    .carousel-background .video-wrapper {
+      opacity: 1;
+      transition: none;
+    }
   }
 </style>

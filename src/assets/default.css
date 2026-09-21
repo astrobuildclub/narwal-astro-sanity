@@ -157,8 +157,8 @@ article video {
   --full-max-width: 1fr;
   --page-max-width: clamp(
     768px,
-    calc(1920px - 4rem),
-    calc(2560px - var(--site-padding))
+    calc(100vw - var(--site-padding)),
+    calc(2560px - calc(2 * var(--site-padding)))
   );
   --feature-max-width: clamp(720px, 71.43vw, 71.43%);
   --popout-max-width: clamp(640px, 55.56vw, 55.56%);

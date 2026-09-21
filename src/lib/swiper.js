@@ -9,9 +9,24 @@ import 'swiper/css/effect-fade';
 
 import { numberWithZero, getCount } from '../lib/utils';
 
+/** @type {Array<{ destroy: (deleteInstance?: boolean, cleanStyles?: boolean) => void }>} */
+let activeSwipers = [];
+
+function destroyActiveSwipers() {
+  activeSwipers.splice(0).forEach((swiper) => {
+    try {
+      swiper.destroy(true, true);
+    } catch (e) {}
+  });
+}
+
+document.addEventListener('astro:before-swap', destroyActiveSwipers);
+
 document.addEventListener(
   'astro:page-load',
   function () {
+    destroyActiveSwipers();
+
     const carousels = document.querySelectorAll('.carousel-gallery');
 
     carousels.forEach(function (comp, index) {
@@ -30,7 +45,7 @@ document.addEventListener(
       ) {
         // Tel het aantal originele slides voordat Swiper wordt geïnitialiseerd
         const originalSlideCount = elBackgroundCarousel.querySelectorAll('.swiper-slide').length;
-        
+
         // Background carousel - master met autoplay
         const backgroundSwiper = new Swiper(elBackgroundCarousel, {
           autoplay: {
@@ -66,9 +81,11 @@ document.addEventListener(
           modules: [Navigation, Controller], // Geen Autoplay module
         });
 
+        activeSwipers.push(backgroundSwiper, foregroundSwiper);
+
         // Koppel carousels - background controleert foreground (master-slave)
         backgroundSwiper.controller.control = foregroundSwiper;
-        
+
         // Laat foreground carousel touch events doorgeven aan background
         // Dit zorgt ervoor dat swipen op foreground de background triggert
         let touchStartX = 0;
@@ -84,7 +101,7 @@ document.addEventListener(
             // Laat link clicks werken
             return;
           }
-          
+
           touchStartX = e.touches[0].clientX;
           touchStartY = e.touches[0].clientY;
           isSwiping = false;
@@ -94,12 +111,12 @@ document.addEventListener(
         elForegroundCarousel.addEventListener('touchmove', (e) => {
           if (touchTarget) return; // Laat links werken
           if (!touchStartX || !touchStartY) return;
-          
+
           const touchEndX = e.touches[0].clientX;
           const touchEndY = e.touches[0].clientY;
           const diffX = touchStartX - touchEndX;
           const diffY = touchStartY - touchEndY;
-          
+
           // Alleen horizontaal swipen, niet verticaal scrollen
           if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
             if (!hasMoved) {
@@ -155,7 +172,7 @@ document.addEventListener(
         // Update bij slide change - gebruik realIndex
         backgroundSwiper.on('slideChange', function (e) {
           updateIndicators();
-          
+
           // Herstart video's in de nieuwe actieve slide
           const activeSlide = e.slides[e.activeIndex];
           if (activeSlide) {

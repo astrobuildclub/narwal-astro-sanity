@@ -160,6 +160,7 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       ::view-transition-new(page-main) {
         animation-timing-function: var(--vt-snappy-ease);
         animation-fill-mode: both;
+        background: var(--surface-bg);
       }
 
       ::view-transition-old(page-main) {
@@ -197,11 +198,11 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
           animation: none !important;
         }
 
-        body > :not(#preloader) {
+        .page-stack {
           transition: none;
         }
 
-        :root.nav-transition-active body > :not(#preloader) {
+        :root.nav-transition-active .page-stack {
           filter: none;
         }
       }
@@ -212,10 +213,10 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         overscroll-behavior: none;
         touch-action: none;
       }
-      body > :not(#preloader) {
+      .page-stack {
         transition: filter 320ms var(--vt-snappy-ease);
       }
-      :root.nav-transition-active body > :not(#preloader) {
+      :root.nav-transition-active .page-stack {
         filter: blur(var(--nav-transition-blur))
           grayscale(var(--nav-transition-grayscale));
         will-change: filter;
@@ -262,13 +263,12 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
   <body>
     <Preloader />
     <SiteNavigation menu={primaryMenu} generalSettings={generalSettings} />
-    <main
-      class="page-layout pb-[var(--space-3xl)]"
-      style="view-transition-name: page-main;"
-    >
-      <slot />
-    </main>
-    <SiteFooter />
+    <div class="page-stack" style="view-transition-name: page-main;">
+      <main class="page-layout pb-[var(--space-3xl)]">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
     <CookieConsent />
     <DarkMode />
     <VisualEditing enabled={visualEditingEnabled} />
@@ -367,17 +367,18 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
       })();
     </script>
     <script is:inline>
-      // Keep muted autoplay videos playing when other videos start
+      // Keep muted autoplay videos playing when other videos start.
+      // One document-level play listener for the whole ClientRouter lifetime;
+      // only the muted-video list is refreshed on each page-load.
       (function () {
-        function keepMutedVideosPlaying() {
-          // Find all muted autoplay videos
-          const mutedAutoplayVideos = Array.from(
+        let mutedAutoplayVideos = [];
+
+        function refreshMutedVideos() {
+          mutedAutoplayVideos = Array.from(
             document.querySelectorAll('video'),
           ).filter((video) => {
             return video.muted && video.autoplay && video.loop;
           });
-
-          if (mutedAutoplayVideos.length === 0) return;
 
           // Astro's client-side swap can leave a freshly-inserted <video> in a
           // broken load state (readyState 0 / a "media load rejected" error)
@@ -390,59 +391,65 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
               video.play().catch(() => {});
             }
           });
+        }
 
-          // Listen for play events on all videos
+        if (!window.__mutedVideoPlayDelegationBound) {
+          window.__mutedVideoPlayDelegationBound = true;
+
           document.addEventListener(
             'play',
             function (e) {
               const playingVideo = e.target;
-
-              // If the playing video is not muted, resume all muted autoplay videos
               if (
-                playingVideo &&
-                playingVideo.tagName === 'VIDEO' &&
-                !playingVideo.muted
+                !playingVideo ||
+                playingVideo.tagName !== 'VIDEO' ||
+                playingVideo.muted
               ) {
-                mutedAutoplayVideos.forEach((video) => {
-                  if (video !== playingVideo && video.paused) {
-                    video.play().catch(() => {
-                      // Ignore play errors (e.g., user interaction required)
-                    });
-                  }
-                });
+                return;
               }
+
+              mutedAutoplayVideos.forEach((video) => {
+                if (video !== playingVideo && video.paused) {
+                  video.play().catch(() => {});
+                }
+              });
             },
             true,
           );
 
-          // Also handle pause events - if a muted video gets paused, try to resume it
-          mutedAutoplayVideos.forEach((video) => {
-            video.addEventListener('pause', function () {
-              // Only resume if it's still muted and should be autoplaying
-              if (this.muted && this.autoplay && this.loop) {
-                // Small delay to avoid conflicts
-                setTimeout(() => {
-                  if (this.paused && this.muted) {
-                    this.play().catch(() => {
-                      // Ignore play errors
-                    });
-                  }
-                }, 100);
+          document.addEventListener(
+            'pause',
+            function (e) {
+              const video = e.target;
+              if (
+                !video ||
+                video.tagName !== 'VIDEO' ||
+                !video.muted ||
+                !video.autoplay ||
+                !video.loop
+              ) {
+                return;
               }
-            });
-          });
+
+              setTimeout(() => {
+                if (video.paused && video.muted && document.contains(video)) {
+                  video.play().catch(() => {});
+                }
+              }, 100);
+            },
+            true,
+          );
         }
 
-        // Run on page load
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', keepMutedVideosPlaying);
+          document.addEventListener('DOMContentLoaded', refreshMutedVideos, {
+            once: true,
+          });
         } else {
-          keepMutedVideosPlaying();
+          refreshMutedVideos();
         }
 
-        // Re-run after Astro view transitions
-        document.addEventListener('astro:page-load', keepMutedVideosPlaying);
-        document.addEventListener('astro:after-swap', keepMutedVideosPlaying);
+        document.addEventListener('astro:page-load', refreshMutedVideos);
       })();
     </script>
     <script is:inline>
@@ -493,11 +500,17 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
     <script is:inline>
       (function () {
         const processed = 'data-fade-on-view-ready';
+        let observer = null;
 
         function isInInitialView(el) {
           const rect = el.getBoundingClientRect();
           const vh = window.innerHeight || document.documentElement.clientHeight;
           return rect.top < vh * 0.92 && rect.bottom > 0;
+        }
+
+        function disconnect() {
+          observer?.disconnect();
+          observer = null;
         }
 
         function initImageFadeInOnView() {
@@ -508,7 +521,9 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             return;
           }
 
-          const images = document.querySelectorAll(`main img:not([${processed}])`);
+          const images = document.querySelectorAll(
+            `main img:not([${processed}]):not([data-no-fade-on-view])`,
+          );
           if (!images.length) return;
 
           if (!('IntersectionObserver' in window)) {
@@ -519,19 +534,21 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             return;
           }
 
-          const observer = new IntersectionObserver(
-            (entries, io) => {
-              entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add('is-visible');
-                io.unobserve(entry.target);
-              });
-            },
-            {
-              threshold: 0.15,
-              rootMargin: '0px 0px -8% 0px',
-            },
-          );
+          if (!observer) {
+            observer = new IntersectionObserver(
+              (entries, io) => {
+                entries.forEach((entry) => {
+                  if (!entry.isIntersecting) return;
+                  entry.target.classList.add('is-visible');
+                  io.unobserve(entry.target);
+                });
+              },
+              {
+                threshold: 0.15,
+                rootMargin: '0px 0px -8% 0px',
+              },
+            );
+          }
 
           images.forEach((img) => {
             img.setAttribute(processed, 'true');
@@ -547,18 +564,21 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         }
 
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', initImageFadeInOnView);
+          document.addEventListener('DOMContentLoaded', initImageFadeInOnView, {
+            once: true,
+          });
         } else {
           initImageFadeInOnView();
         }
 
+        document.addEventListener('astro:before-swap', disconnect);
         document.addEventListener('astro:page-load', initImageFadeInOnView);
-        document.addEventListener('astro:after-swap', initImageFadeInOnView);
       })();
     </script>
     <script is:inline>
       (function () {
         const processed = 'data-stagger-ready';
+        let observer = null;
 
         function isInInitialView(el) {
           const rect = el.getBoundingClientRect();
@@ -575,6 +595,11 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             } catch (e) {}
           }
           return Array.from(container.children);
+        }
+
+        function disconnect() {
+          observer?.disconnect();
+          observer = null;
         }
 
         function initStaggerOnView() {
@@ -600,19 +625,21 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             return;
           }
 
-          const observer = new IntersectionObserver(
-            (entries, io) => {
-              entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add('is-visible');
-                io.unobserve(entry.target);
-              });
-            },
-            {
-              threshold: 0.12,
-              rootMargin: '0px 0px -8% 0px',
-            },
-          );
+          if (!observer) {
+            observer = new IntersectionObserver(
+              (entries, io) => {
+                entries.forEach((entry) => {
+                  if (!entry.isIntersecting) return;
+                  entry.target.classList.add('is-visible');
+                  io.unobserve(entry.target);
+                });
+              },
+              {
+                threshold: 0.12,
+                rootMargin: '0px 0px -8% 0px',
+              },
+            );
+          }
 
           containers.forEach((container) => {
             const targets = getTargets(container);
@@ -633,24 +660,32 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         }
 
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', initStaggerOnView);
+          document.addEventListener('DOMContentLoaded', initStaggerOnView, {
+            once: true,
+          });
         } else {
           initStaggerOnView();
         }
 
+        document.addEventListener('astro:before-swap', disconnect);
         document.addEventListener('astro:page-load', initStaggerOnView);
-        document.addEventListener('astro:after-swap', initStaggerOnView);
       })();
     </script>
     <script is:inline>
       (function () {
         const processed = 'data-reveal-ready';
         const containerProcessed = 'data-reveal-container-ready';
+        let observer = null;
 
         function isInInitialView(el) {
           const rect = el.getBoundingClientRect();
           const vh = window.innerHeight || document.documentElement.clientHeight;
           return rect.top < vh * 0.92 && rect.bottom > 0;
+        }
+
+        function disconnect() {
+          observer?.disconnect();
+          observer = null;
         }
 
         function initRevealOnView() {
@@ -698,19 +733,21 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
             return;
           }
 
-          const observer = new IntersectionObserver(
-            (entries, io) => {
-              entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                entry.target.classList.add('is-visible');
-                io.unobserve(entry.target);
-              });
-            },
-            {
-              threshold: 0.12,
-              rootMargin: '0px 0px -8% 0px',
-            },
-          );
+          if (!observer) {
+            observer = new IntersectionObserver(
+              (entries, io) => {
+                entries.forEach((entry) => {
+                  if (!entry.isIntersecting) return;
+                  entry.target.classList.add('is-visible');
+                  io.unobserve(entry.target);
+                });
+              },
+              {
+                threshold: 0.12,
+                rootMargin: '0px 0px -8% 0px',
+              },
+            );
+          }
 
           targets.forEach((target) => {
             target.setAttribute(processed, 'true');
@@ -723,13 +760,15 @@ const visualEditingEnabled = envVisualEditingEnabled || urlPreviewEnabled;
         }
 
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', initRevealOnView);
+          document.addEventListener('DOMContentLoaded', initRevealOnView, {
+            once: true,
+          });
         } else {
           initRevealOnView();
         }
 
+        document.addEventListener('astro:before-swap', disconnect);
         document.addEventListener('astro:page-load', initRevealOnView);
-        document.addEventListener('astro:after-swap', initRevealOnView);
       })();
     </script>
   </body>

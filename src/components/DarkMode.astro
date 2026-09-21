@@ -225,8 +225,14 @@
     const pref = readStoredTheme();
     let active = pref ? pref === 'dark' : query.matches;
     setDarkMode(active);
-    if (!pref && query.addEventListener) {
-      query.addEventListener('change', (e) => setDarkMode(e.matches));
+    // Bind the system-preference listener once for the whole ClientRouter
+    // lifetime — re-binding on every page-load stacks duplicate handlers.
+    if (!pref && query.addEventListener && !window.__darkModeMediaBound) {
+      window.__darkModeMediaBound = true;
+      query.addEventListener('change', (e) => {
+        if (readStoredTheme()) return;
+        setDarkMode(e.matches);
+      });
     }
   };
 
